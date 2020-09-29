@@ -13,7 +13,7 @@ $(BDIR)/engine: $(DEPS) $(OBJDIR)/main.o
 $(OBJDIR)/main.o: $(SDIR)/main.cpp $(IDIR)/main.h $(DEPS)
 	$(CC) -c -o $@ $<
 
-$(OBJDIR)/World.o: $(SDIR)/World.cpp $(IDIR)/World.h $(OBJDIR)/Body.o $(OBJDIR)/utils.o $(IDIR)/includes.h
+$(OBJDIR)/World.o: $(SDIR)/World.cpp $(IDIR)/World.h $(OBJDIR)/Body.o $(OBJDIR)/utils.o $(IDIR)/Manifold.h $(IDIR)/includes.h
 	$(CC) -c -o $@ $<
 
 $(OBJDIR)/Display.o: $(SDIR)/Display.cpp $(IDIR)/Display.h $(OBJDIR)/utils.o $(IDIR)/includes.h

@@ -1,6 +1,7 @@
 #include "../include/includes.h"
 #include "../include/utils.h"
 #include "../include/Vector.h"
+#include "../include/Polygon.h"
 
 Polygon::Polygon() {
 
@@ -49,9 +50,43 @@ void Polygon::generate() {
 
 }
 
+void Polygon::render(Display* d, Vec position, float orientation, char color[3], int options) {
 
-void Polygon::render(Display* d, Vec position, float orientation) {
-	d->render_polygon(position,verts,this->vertices,orientation);
+	for (int i = 0; i < this->get_vertices()-1; i++) {	
+		
+		Vec v1 = this->verts[i].rotate(orientation) + position;
+		Vec v2 = this->verts[i+1].rotate(orientation) + position;
+		d->draw_line( v1, v2 , color );	
+	
+		if (options & SHOW_NORMALS) {
+			
+			Vec line = v2 - v1;
+			Vec ortho = line.cross(1).normalize();	
+			Vec mid = v1.mid(v2);
+			Vec to = mid + (ortho * 12);
+			d->draw_line(mid, to, color);	
+
+		}
+
+	}
+	//this->draw_line(position,vertices[0].rotate(orientation) + position);
+
+}
+
+void Polygon::init() {
+	
+	Vec v1 = this->verts[0];
+	Vec v2 = this->verts[1];
+
+	//reverse polygon winding order so that normals are facing outwards
+	if (v1.cross(v2)>0)	{
+		for (int i = 0; i<this->vertices/2; i++) {
+			Vec tmp = this->verts[this->vertices-1-i];
+			this->verts[this->vertices-1-i] = verts[i];
+			verts[i] = tmp;
+		}
+	}
+		
 }
 
 Polygon::~Polygon() {

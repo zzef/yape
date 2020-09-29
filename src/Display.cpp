@@ -115,31 +115,22 @@ void Display::circle(SDL_Renderer * renderer, int32_t centreX, int32_t centreY, 
 }
 //==========================================================================
 
-void Display::draw_line(Vec v1, Vec v2) {	
+void Display::draw_line(Vec v1, Vec v2, char color[3]) {	
+	SDL_SetRenderDrawColor( this->renderer, color[0], color[1], color[2], 255 );
 	SDL_RenderDrawLine(
 		this->renderer, v1.get_x(), v1.get_y(), v2.get_x(), v2.get_y()
 	);	
 }
 
-void Display::draw_line(float x, float y, float x1, float y1) {	
+void Display::draw_line(float x, float y, float x1, float y1, char color[3]) {	
+	SDL_SetRenderDrawColor( this->renderer, color[0], color[1], color[2], 255 );
 	SDL_RenderDrawLine(
 		this->renderer, x, y, x1, y1
 	);	
 }
 
-void Display::render_polygon(Vec position, Vec* vertices, int verts, float orientation) {
-	SDL_SetRenderDrawColor( this->renderer, 150,150,150,255 );
-	for (int i = 0; i < verts-1; i++) {	
-		Vec v1 = vertices[i].rotate(orientation) + position;
-		Vec v2 = vertices[i+1].rotate(orientation) + position;
-		this->draw_line( v1, v2 );	
-
-	}
-	//this->draw_line(position,vertices[0].rotate(orientation) + position);
-}
-
-void Display::draw_circle(Vec position, float radius, float orientation) {
-	SDL_SetRenderDrawColor( this->renderer, 150,150,150,255 );
+void Display::draw_circle(Vec position, float radius, float orientation, char color[3]) {
+	SDL_SetRenderDrawColor( this->renderer, color[0], color[1], color[2], 255 );
 	this->circle(this->renderer, position.get_x(), position.get_y(), radius);
 }	
 

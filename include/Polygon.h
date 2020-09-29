@@ -1,9 +1,8 @@
 #ifndef POLYGON_H
 #define POLYGON_H
 
-#include "Shape.h"
 #include "includes.h"
-#include "Vector.h"
+#include "Shape.h"
 
 class Polygon : public Shape {
 
@@ -18,7 +17,8 @@ class Polygon : public Shape {
 		Vec verts[MAX_V];	
 		~Polygon();
 		void print();
-		void render(Display* d, Vec position, float orientation);
+		void init();
+		void render(Display* d, Vec position, float orientation, char color[3], int option);
 
 	private:
 		int edges = 0;

@@ -13,7 +13,7 @@ class Circle : public Shape {
 		void set_radius(int radius);
 		int get_radius();
 		void print();
-		void render(Display* d, Vec position, float orientation);
+		void render(Display* d, Vec position, float orientation, char color[3], int options);
 
 	private:
 		int radius = 0;

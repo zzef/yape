@@ -32,13 +32,27 @@ Vec::Vec(float x, float y, float x1, float y1) {
 	this->y = y1-y;
 }
 
-float Vec::cross(Vec &v) {
+float Vec::cross(Vec& v) {
 	return (this->x*v.y) - (this->y*v.x);
+}
+
+Vec Vec::mid(Vec& v) {
+	Vec vec((v.x+this->x)/2,(v.y+this->y)/2);
+	return vec;
+}
+
+Vec Vec::absolute() {
+	Vec vec(abs(this->x),abs(this->y));
+	return vec;
 }
 
 Vec Vec::cross(float value) {
 	Vec vec(-value*this->y,value*this->x);
 	return vec;
+}
+
+float Vec::scalar_proj(Vec& v) {
+	return this->dot(v)/this->mag();
 }
 
 float Vec::dot(Vec& v) {

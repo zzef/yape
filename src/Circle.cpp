@@ -1,6 +1,6 @@
-#include "../include/Circle.h"
 #include "../include/includes.h"
 #include "../include/utils.h"
+#include "../include/Circle.h"
 
 Circle::Circle() {
 	this->generate();
@@ -27,8 +27,8 @@ void Circle::generate() {
 		radius = random(10,40);
 }
 
-void Circle::render(Display* d, Vec position, float orientation) {
-	d->draw_circle(position, this->radius, orientation);
+void Circle::render(Display* d, Vec position, float orientation, char color[3], int options) {
+	d->draw_circle(position, this->radius, orientation,color);
 }
 
 Circle::~Circle() {

@@ -17,12 +17,16 @@ class Vec {
 
 		Vec(float x, float y);
 		Vec(float x, float y, float x1, float y1);
-		float cross(Vec &v);
+		float cross(Vec& v);
 		Vec cross(float value);
 		float dot(Vec& v);
 		float mag();
 		Vec normalize();
 		Vec rotate(float w);
+		Vec ortho();
+		Vec mid(Vec& v);
+		Vec absolute();
+		float scalar_proj(Vec& v);
 		Vec operator+(const Vec& v);
 		Vec operator-(const Vec& v);
 		Vec operator*(float s);
