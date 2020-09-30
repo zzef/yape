@@ -7,9 +7,9 @@ Polygon::Polygon() {
 
 }
 
-Polygon::Polygon(int vertices) {
-	this->vertices=vertices;
-	this->edges = vertices;	
+Polygon::Polygon(int edges) {
+	this->edges = edges;	
+	this->vertices = edges;
 }
 
 void Polygon::print() {
@@ -40,14 +40,62 @@ Vec* Polygon::get_vertex(int index) {
 	return &verts[index];
 }
 
-void Polygon::generate() {
+void Polygon::generate_polygon() {
 	
 	clear_verts();
-	if (this->vertices == 0) {
-		this->vertices = random(MIN_V,MAX_V);
-		this->edges = this->vertices;
-	}	
+	
+	float edges = random(MIN_V,MAX_V);
+	std::cout << "verts " << edges << std::endl;
+	int min = 10;
+	int max = 180;
+	int radius = random(40,200);
+	int sum_of_differences = 0;
+	std::vector<float> differences;
+	
+	int no_differences = edges-1;
+	for (int i = 0; i<no_differences; i++) {
+		
+		if (i==no_differences-1){
+			if (sum_of_differences<180){
+				min = 180-sum_of_differences;
+				std::cout << "here min " << min << std::endl;
+			}
+		}
+		int diff = random(min,max);
+		std::cout << "diff " << diff << std::endl; 
+		differences.push_back(diff);
+		sum_of_differences += diff;
+	}
+	
+	int last_seg = random(10,120);
+	if (sum_of_differences > 360 - last_seg) {
+		std::cout << "herer";
+		for (int i = 0; i<differences.size(); i++) {
+			differences[i]*=((float)(360-last_seg)/sum_of_differences);
+		}
+	}
 
+	float sum = 0;
+	std::cout << "new polygon" << std::endl;
+	for (int i = 0; i<differences.size(); i++) {
+		std::cout << differences[i] << std::endl;
+		sum+=differences[i];
+	}	
+	std::cout << "final sum " << sum << std::endl;
+	std::cout << "\n";
+
+	float disp = 0;
+	Vec rad = Vec(0,1) * radius;
+	verts[0] = rad;
+	int i = 0;
+	for (i = 0; i < differences.size() ; i++) {
+		disp+=differences[i];
+		Vec vertex = rad.rotate(disp);
+		verts[i+1] = vertex;
+	}
+	verts[i+1]=verts[0];
+	this->edges=edges;
+	this->vertices=i+2;
 }
 
 void Polygon::render(Display* d, Vec position, float orientation, char color[3], int options) {
@@ -67,9 +115,9 @@ void Polygon::render(Display* d, Vec position, float orientation, char color[3],
 			d->draw_line(mid, to, color);	
 
 		}
-
 	}
-	//this->draw_line(position,vertices[0].rotate(orientation) + position);
+
+	//d->draw_line(position,verts[0].rotate(orientation) + position, color);
 
 }
 

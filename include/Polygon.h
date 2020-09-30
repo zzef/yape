@@ -8,7 +8,7 @@ class Polygon : public Shape {
 
 	public:
 		Polygon();
-		Polygon(int vertices);
+		Polygon(int edges);
 		int get_vertices();
 		int get_edges();
 		void clear_verts();
@@ -19,11 +19,11 @@ class Polygon : public Shape {
 		void print();
 		void init();
 		void render(Display* d, Vec position, float orientation, char color[3], int option);
+		void generate_polygon();
 
 	private:
 		int edges = 0;
 		int vertices = 0;
-		void generate();
 
 };
 

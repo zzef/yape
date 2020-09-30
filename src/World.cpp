@@ -33,6 +33,15 @@ void World::render(Display* d) {
 		}
 		this->Bodies[i]->render(d,this->glob_options);
 	}
+	char color[3] = {
+		(char) 255,
+		(char) 0,
+		(char) 0
+	};
+	for (int i = this->contact_points.size()-1; i >= 0; i--) {
+		d->draw_circle(this->contact_points[i],10,0,color);
+		this->contact_points.pop_back();
+	}
 	this->reset_colors();
 }
 
@@ -72,8 +81,23 @@ void World::resolve_manifolds() {
 		std::shared_ptr<Body> B = this->contacts[i].B;
 		A->set_color(YELLOW);
 		B->set_color(YELLOW);
-		A->set_x(A->get_x()+this->contacts[i].mtv.get_x());
-		A->set_y(A->get_y()+this->contacts[i].mtv.get_y());
+		//A->set_x(A->get_x()+this->contacts[i].mtv.get_x());
+		//A->set_y(A->get_y()+this->contacts[i].mtv.get_y());
+
+		float best_proj = -9999999;
+		Vec best_vertex;
+		for (int j = 0; j < B->get_vertices(); j++) {
+			Vec v = B->get_vertex(j)->rotate(B->get_orientation()) + Vec(B->get_x(),B->get_y());
+			float proj = v.dot(this->contacts[i].mtv);
+	
+			if (proj > best_proj) {
+				best_vertex = v;
+				best_proj = proj;
+			}
+			
+		}
+
+		contact_points.push_back(best_vertex);
 		this->contacts.pop_back();
 	}
 
@@ -83,7 +107,14 @@ void World::generate_manifolds() {
 	
 	for(int i = 0; i<this->bodies; i++) {
 		for(int j = i + 1; j<this->bodies; j++) {
-			this->generate_manifold(this->Bodies[i],this->Bodies[j]);
+			
+			std::shared_ptr<Body> A = this->Bodies[i];
+			std::shared_ptr<Body> B = this->Bodies[j];
+			
+			if (A->get_type()==POLYGON && B->get_type()==POLYGON) {
+				this->generate_pp_manifold(A,B);
+			}
+
 		}	
 	}
 }
@@ -125,11 +156,7 @@ bool World::is_point_inside_polygon(std::shared_ptr<Body> b, Vec point) {
 	return true;
 }
 
-
-void World::generate_manifold(std::shared_ptr<Body> a, std::shared_ptr<Body> b) {
-
-	if (a->type == CIRCLE || b->type == CIRCLE)
-		return;
+void World::generate_pp_manifold(std::shared_ptr<Body> a, std::shared_ptr<Body> b) {
 
 	Vec position_a(a->get_x(),a->get_y());
 	Vec position_b(b->get_x(),b->get_y());

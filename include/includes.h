@@ -1,7 +1,7 @@
 #ifndef INCLUDES_H
 #define INCLUDES_H
 
-#define MAX_V 20
+#define MAX_V 10
 #define MIN_V 3
 #define DEF_GRAV 0.5
 #define MAX_BODIES 100

@@ -11,12 +11,13 @@ class World {
 	private:
 		std::shared_ptr<Body> Bodies[MAX_BODIES];
 		std::vector<Manifold> contacts;
+		std::vector<Vec> contact_points;
 		int bodies = 0;
 		float gravity = 0.5;
 		Vec mouse_position;
 		int glob_options = 0;
 		Vec rel_mouse_position;
-		void generate_manifold(std::shared_ptr<Body> a, std::shared_ptr<Body> b);
+		void generate_pp_manifold(std::shared_ptr<Body> a, std::shared_ptr<Body> b);
 		bool is_point_inside_polygon(std::shared_ptr<Body> b, Vec point);
 		bool is_point_inside_circle(std::shared_ptr<Body> b, Vec point);
 		bool point_inside(std::shared_ptr<Body> b, Vec point);

@@ -42,7 +42,7 @@ void update() {
 }
 
 void render() {	
-	world.get_body(0)->set_orientation(ori+=0.05);
+	//world.get_body(0)->set_orientation(ori+=0.05);
 	if (ori>360)
 		ori = 0;
 	world.render(&display);
@@ -50,9 +50,21 @@ void render() {
 
 void init() {
 
-	world.show_normals(true);
-	std::shared_ptr<Body> b = std::make_shared<Body>(POLYGON);
 
+	world.show_normals(true);
+	
+	std::shared_ptr<Body> a = std::make_shared<Body>(POLYGON);
+	a->generate_polygon();
+	a->set_x(1000);
+	a->set_y(300);
+	a->set_orig_color(
+		(char) 70,
+		(char) 200,
+		(char) 70
+	);
+	a->init();
+
+	std::shared_ptr<Body> b = std::make_shared<Body>(POLYGON);
 	b->add_vertex(Vec(140,120));
 	b->add_vertex(Vec(-120,170));
 	b->add_vertex(Vec(-160,140));
@@ -108,6 +120,7 @@ void init() {
 	b4->set_y(W_HEIGHT-((height/2)+margin));
 	b4->init();
 
+	world.add_body(a);
 	world.add_body(b);
 	world.add_body(b2);
 	world.add_body(b3);
@@ -117,6 +130,7 @@ void init() {
 
 int main() {
 	
+	srand (time(NULL));
 	bool quit = false;
 	SDL_Event e;
 	init();

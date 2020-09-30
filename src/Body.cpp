@@ -55,6 +55,11 @@ float Body::get_orientation() {
 	return this->orientation;
 }
 
+void Body::generate() {
+	if (this->get_type()==POLYGON)
+		this->generate_polygon();
+}
+
 void Body::set_orientation(float angle) {
 	this->orientation = angle;
 }

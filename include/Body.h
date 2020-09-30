@@ -28,6 +28,7 @@ class Body : public Polygon, public Circle {
 		void set_orig_color(char r, char g, char b);
 		void set_orig_color(char color[3]);
 		void reset_color();
+		void generate();
 		void mouse_contact(bool val); 
 		bool get_mouse_contact(); 
 		~Body();
