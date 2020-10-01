@@ -40,8 +40,24 @@ void World::render(Display* d) {
 	};
 	for (int i = this->contact_points.size()-1; i >= 0; i--) {
 		d->draw_circle(this->contact_points[i],10,0,color);
+		this->contact_points[i].print();
 		this->contact_points.pop_back();
 	}
+
+	for (int i = this->collision_normals.size()-1; i >= 0; i--) {
+		Vec norm = this->collision_normals[i].normalize() * 50;
+		d->draw_line(Vec(200,200),norm+Vec(200,200),color);
+		this->collision_normals.pop_back();
+	}
+
+
+	for (int i = this->edges.size()-1; i >= 0; i--) {
+		d->draw_line(edges[i].first,edges[i].second,color);
+		this->edges.pop_back();
+	}
+
+
+	std::cout << "" << std::endl;
 	this->reset_colors();
 }
 
@@ -77,6 +93,7 @@ void World::reset_colors() {
 void World::resolve_manifolds() {
 
 	for (int i = contacts.size()-1; i>=0; i--) {
+		collision_normals.push_back(this->contacts[i].mtv);
 		std::shared_ptr<Body> A = this->contacts[i].A;	
 		std::shared_ptr<Body> B = this->contacts[i].B;
 		A->set_color(YELLOW);
@@ -86,19 +103,112 @@ void World::resolve_manifolds() {
 
 		float best_proj = -9999999;
 		Vec best_vertex;
-		for (int j = 0; j < B->get_vertices(); j++) {
+		Vec best_vertex1;
+		int index = 0;
+		for (int j = 0; j < B->get_vertices()-1; j++) {
 			Vec v = B->get_vertex(j)->rotate(B->get_orientation()) + Vec(B->get_x(),B->get_y());
 			float proj = v.dot(this->contacts[i].mtv);
 	
 			if (proj > best_proj) {
 				best_vertex = v;
 				best_proj = proj;
+				index = j;
 			}
 			
 		}
 
+		int nexti;
+		int previ;
+	
+		
+		if (index+1 >= B->get_vertices()-1)
+			nexti = 0;
+		else
+			nexti = index+1;
+
+		if (index-1 < 0)
+			previ = B->get_vertices()-2;
+		else 
+			previ = index-1;
+
+		Vec prev = B->get_vertex(previ)->rotate(B->get_orientation()) + Vec(B->get_x(),B->get_y()); 
+		Vec next = B->get_vertex(nexti)->rotate(B->get_orientation()) + Vec(B->get_x(),B->get_y()); 
+
+		Vec left = (best_vertex - prev).normalize();
+		Vec right = (best_vertex - next).normalize();
+			
+	
+		Vec contact1;	
+		Vec contact2;	
+		if (right.dot(this->contacts[i].mtv) <= left.dot(this->contacts[i].mtv)) {			
+			contact_points.push_back(next);
+			contact1 = next;
+			
+		}
+		else {
+			contact_points.push_back(prev);
+			contact1 = prev;
+		}
+
+		Vec e1 = best_vertex-contact1;
 		contact_points.push_back(best_vertex);
+
+		this->contacts[i].mtv = this->contacts[i].mtv * -1;
+
+		best_proj = -9999999;
+		index = 0;
+		for (int j = 0; j < A->get_vertices()-1; j++) {
+			Vec v = A->get_vertex(j)->rotate(A->get_orientation()) + Vec(A->get_x(),A->get_y());
+			float proj = v.dot(this->contacts[i].mtv);
+	
+			if (proj > best_proj) {
+				best_vertex1 = v;
+				best_proj = proj;
+				index = j;
+			}
+			
+		}
+
+		if (index+1 >= A->get_vertices()-1)
+			nexti = 0;
+		else
+			nexti = index+1;
+
+		if (index-1 < 0)
+			previ = A->get_vertices()-2;
+		else 
+			previ = index-1;
+
+		prev = A->get_vertex(previ)->rotate(A->get_orientation()) + Vec(A->get_x(),A->get_y()); 
+		next = A->get_vertex(nexti)->rotate(A->get_orientation()) + Vec(A->get_x(),A->get_y()); 
+
+		left = (best_vertex1 - prev).normalize();
+		right = (best_vertex1 - next).normalize();
+		
+		if (right.dot(this->contacts[i].mtv) <= left.dot(this->contacts[i].mtv)) {			
+			contact_points.push_back(next);
+			contact2 = next;
+			
+		}
+		else {
+			contact_points.push_back(prev);
+			contact2 = prev;
+		}
+
+
+		contact_points.push_back(best_vertex1);
 		this->contacts.pop_back();
+
+
+		Vec e2 = best_vertex1-contact2;
+	
+		if (abs(e1.dot(this->contacts[i].mtv)) <= abs(e2.dot(this->contacts[i].mtv))) {
+			edges.push_back(std::make_pair(best_vertex,contact1));
+		}
+		else {
+			edges.push_back(std::make_pair(best_vertex1,contact2));
+		}	
+
 	}
 
 }

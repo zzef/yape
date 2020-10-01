@@ -12,6 +12,8 @@ class World {
 		std::shared_ptr<Body> Bodies[MAX_BODIES];
 		std::vector<Manifold> contacts;
 		std::vector<Vec> contact_points;
+		std::vector<Vec> collision_normals;
+		std::vector<std::pair<Vec,Vec>> edges;
 		int bodies = 0;
 		float gravity = 0.5;
 		Vec mouse_position;
