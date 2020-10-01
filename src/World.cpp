@@ -93,122 +93,18 @@ void World::reset_colors() {
 void World::resolve_manifolds() {
 
 	for (int i = contacts.size()-1; i>=0; i--) {
-		collision_normals.push_back(this->contacts[i].mtv);
+		Vec sep_norm = this->contacts[i].mtv.normalize();
+		collision_normals.push_back(sep_norm);
 		std::shared_ptr<Body> A = this->contacts[i].A;	
 		std::shared_ptr<Body> B = this->contacts[i].B;
 		A->set_color(YELLOW);
 		B->set_color(YELLOW);
+
+
 		//A->set_x(A->get_x()+this->contacts[i].mtv.get_x());
 		//A->set_y(A->get_y()+this->contacts[i].mtv.get_y());
 
-		float best_proj = -9999999;
-		Vec best_vertex;
-		Vec best_vertex1;
-		int index = 0;
-		for (int j = 0; j < B->get_vertices()-1; j++) {
-			Vec v = B->get_vertex(j)->rotate(B->get_orientation()) + Vec(B->get_x(),B->get_y());
-			float proj = v.dot(this->contacts[i].mtv);
-	
-			if (proj > best_proj) {
-				best_vertex = v;
-				best_proj = proj;
-				index = j;
-			}
-			
-		}
-
-		int nexti;
-		int previ;
-	
-		
-		if (index+1 >= B->get_vertices()-1)
-			nexti = 0;
-		else
-			nexti = index+1;
-
-		if (index-1 < 0)
-			previ = B->get_vertices()-2;
-		else 
-			previ = index-1;
-
-		Vec prev = B->get_vertex(previ)->rotate(B->get_orientation()) + Vec(B->get_x(),B->get_y()); 
-		Vec next = B->get_vertex(nexti)->rotate(B->get_orientation()) + Vec(B->get_x(),B->get_y()); 
-
-		Vec left = (best_vertex - prev).normalize();
-		Vec right = (best_vertex - next).normalize();
-			
-	
-		Vec contact1;	
-		Vec contact2;	
-		if (right.dot(this->contacts[i].mtv) <= left.dot(this->contacts[i].mtv)) {			
-			contact_points.push_back(next);
-			contact1 = next;
-			
-		}
-		else {
-			contact_points.push_back(prev);
-			contact1 = prev;
-		}
-
-		Vec e1 = best_vertex-contact1;
-		contact_points.push_back(best_vertex);
-
-		this->contacts[i].mtv = this->contacts[i].mtv * -1;
-
-		best_proj = -9999999;
-		index = 0;
-		for (int j = 0; j < A->get_vertices()-1; j++) {
-			Vec v = A->get_vertex(j)->rotate(A->get_orientation()) + Vec(A->get_x(),A->get_y());
-			float proj = v.dot(this->contacts[i].mtv);
-	
-			if (proj > best_proj) {
-				best_vertex1 = v;
-				best_proj = proj;
-				index = j;
-			}
-			
-		}
-
-		if (index+1 >= A->get_vertices()-1)
-			nexti = 0;
-		else
-			nexti = index+1;
-
-		if (index-1 < 0)
-			previ = A->get_vertices()-2;
-		else 
-			previ = index-1;
-
-		prev = A->get_vertex(previ)->rotate(A->get_orientation()) + Vec(A->get_x(),A->get_y()); 
-		next = A->get_vertex(nexti)->rotate(A->get_orientation()) + Vec(A->get_x(),A->get_y()); 
-
-		left = (best_vertex1 - prev).normalize();
-		right = (best_vertex1 - next).normalize();
-		
-		if (right.dot(this->contacts[i].mtv) <= left.dot(this->contacts[i].mtv)) {			
-			contact_points.push_back(next);
-			contact2 = next;
-			
-		}
-		else {
-			contact_points.push_back(prev);
-			contact2 = prev;
-		}
-
-
-		contact_points.push_back(best_vertex1);
-		this->contacts.pop_back();
-
-
-		Vec e2 = best_vertex1-contact2;
-	
-		if (abs(e1.dot(this->contacts[i].mtv)) <= abs(e2.dot(this->contacts[i].mtv))) {
-			edges.push_back(std::make_pair(best_vertex,contact1));
-		}
-		else {
-			edges.push_back(std::make_pair(best_vertex1,contact2));
-		}	
-
+		contacts.pop_back();
 	}
 
 }
@@ -266,6 +162,72 @@ bool World::is_point_inside_polygon(std::shared_ptr<Body> b, Vec point) {
 	return true;
 }
 
+int World::find_support_point(std::shared_ptr<Body> body, Vec direction) {
+	
+	float best_proj = -9999999;
+	int index = 0;
+	for (int j = 0; j < body->get_vertices()-1; j++) {
+		Vec v = body->get_vertex(j)->rotate(body->get_orientation()) + Vec(body->get_x(),body->get_y());
+		float proj = v.dot(direction);
+
+		if (proj > best_proj) {
+			best_proj = proj;
+			index = j;	
+		}
+			
+	}
+
+	return index;
+
+}
+
+Vec World::find_support_contact(std::shared_ptr<Body> body, int index, Vec sep_norm) {
+	
+	Vec contact;	
+	Vec best_vertex = body->get_vertex(index)->rotate(body->get_orientation()) + Vec(body->get_x(),body->get_y());	
+	Vec prev = body->prev_vertex(index)->rotate(body->get_orientation()) + Vec(body->get_x(),body->get_y()); 
+	Vec next = body->next_vertex(index)->rotate(body->get_orientation()) + Vec(body->get_x(),body->get_y()); 
+	Vec left = (best_vertex - prev).normalize();
+	Vec right = (best_vertex - next).normalize();
+	
+	if (right.dot(sep_norm) <= left.dot(sep_norm)) {			
+		contact_points.push_back(next);
+		contact = next;		
+	}
+	else {
+		contact_points.push_back(prev);
+		contact = prev;
+	}
+
+	return contact;
+
+}
+
+
+void World::generate_contact_points(std::shared_ptr<Body> A, std::shared_ptr<Body> B, Vec sep_norm)  {
+
+	int index = find_support_point(B,sep_norm);
+	Vec best_vertex = B->get_vertex(index)->rotate(B->get_orientation()) + Vec(B->get_x(),B->get_y());	
+	contact_points.push_back(best_vertex);
+	Vec contact1 = find_support_contact(B,index,sep_norm);
+	Vec e1 = best_vertex-contact1;
+			
+	sep_norm = sep_norm * -1;
+	index = find_support_point(A,sep_norm);
+	Vec best_vertex1 = A->get_vertex(index)->rotate(A->get_orientation()) + Vec(A->get_x(),A->get_y());
+	contact_points.push_back(best_vertex1);
+	Vec contact2 = find_support_contact(A,index,sep_norm);
+	Vec e2 = best_vertex1-contact2;
+	
+	if (abs(e1.dot(sep_norm)) <= abs(e2.dot(sep_norm))) {
+		edges.push_back(std::make_pair(best_vertex,contact1));
+	}
+	else {
+		edges.push_back(std::make_pair(best_vertex1,contact2));
+	}	
+
+}
+
 void World::generate_pp_manifold(std::shared_ptr<Body> a, std::shared_ptr<Body> b) {
 
 	Vec position_a(a->get_x(),a->get_y());
@@ -311,14 +273,13 @@ void World::generate_pp_manifold(std::shared_ptr<Body> a, std::shared_ptr<Body> 
 					max_b=vp;
 			}
 		
-			
 			float overlap;
 			if (min_a < min_b)
 				overlap = min_b - max_a;
 			else 
 				overlap = min_a - max_b;	
 	
-			if ( overlap > 0)
+			if ( overlap >= 0)
 				return;
 		
 			overlap = abs(overlap);
@@ -333,6 +294,7 @@ void World::generate_pp_manifold(std::shared_ptr<Body> a, std::shared_ptr<Body> 
 			}
 		}
 	}
+	this->generate_contact_points(a,b,mtv_axis);
 	contacts.push_back(Manifold(a,b,mtv_axis*mt));
 }
 

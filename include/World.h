@@ -23,6 +23,9 @@ class World {
 		bool is_point_inside_polygon(std::shared_ptr<Body> b, Vec point);
 		bool is_point_inside_circle(std::shared_ptr<Body> b, Vec point);
 		bool point_inside(std::shared_ptr<Body> b, Vec point);
+		Vec find_support_contact(std::shared_ptr<Body> body, int index, Vec sep_norm);
+		int find_support_point(std::shared_ptr<Body> body, Vec direction);
+		void generate_contact_points(std::shared_ptr<Body> A, std::shared_ptr<Body> B, Vec sep_norm);
 
 
 	public:

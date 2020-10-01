@@ -33,6 +33,30 @@ void Polygon::add_vertex(Vec v) {
 	this->vertices++;
 }
 
+Vec* Polygon::prev_vertex(int index) {
+
+	int previ;
+	if (index-1 < 0)
+		previ = this->get_vertices()-2;
+	else 
+		previ = index-1;
+
+	return this->get_vertex(previ);
+
+}
+
+Vec* Polygon::next_vertex(int index) {
+
+	int nexti;
+	if (index+1 >= this->get_vertices()-1)
+		nexti = 0;
+	else
+		nexti = index+1;
+
+	return this->get_vertex(nexti);
+
+}
+
 Vec* Polygon::get_vertex(int index) {
 	if (index<0 || index>this->vertices-1)
 		return NULL;
@@ -48,7 +72,7 @@ void Polygon::generate_polygon() {
 	std::cout << "verts " << edges << std::endl;
 	int min = 10;
 	int max = 180;
-	int radius = random(40,200);
+	int radius = random(MIN_POLY_RAD,MAX_POLY_RAD);
 	int sum_of_differences = 0;
 	std::vector<float> differences;
 	

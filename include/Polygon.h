@@ -14,6 +14,8 @@ class Polygon : public Shape {
 		void clear_verts();
 		void add_vertex(Vec v);
 		Vec* get_vertex(int index);
+		Vec* prev_vertex(int index);	
+		Vec* next_vertex(int index);	
 		Vec verts[MAX_V];	
 		~Polygon();
 		void print();

@@ -7,6 +7,8 @@
 #define MAX_BODIES 100
 #define POLYGON 0
 #define CIRCLE 1
+#define MIN_POLY_RAD 70
+#define MAX_POLY_RAD 200
 
 #define RED 240, 50, 80
 #define YELLOW 222, 237, 11
