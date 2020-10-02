@@ -1,6 +1,8 @@
 #ifndef VECTOR_H
 #define VECTOR_H
 
+struct Edge;
+
 class Vec {
 	
 	private:
@@ -10,6 +12,8 @@ class Vec {
 	public:
 		Vec();
 		void print();
+		Vec(Vec& v1, Vec& v2);
+		Vec(Edge& e);
 		float get_x() const;
 		float get_y() const;
 		void set_x(float x);
@@ -32,6 +36,19 @@ class Vec {
 		Vec operator*(float s);
 		Vec operator/(float s);
 					
+};
+
+struct Edge {
+	Vec v1;
+	Vec v2;
+	Edge() {
+		this->v1 = Vec(0,0);
+		this->v2 = Vec(0,0);
+	}
+	Edge(Vec v1, Vec v2) {
+		this->v1=v1;
+		this->v2=v2;
+	}
 };
 
 #endif

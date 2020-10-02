@@ -13,7 +13,7 @@ class World {
 		std::vector<Manifold> contacts;
 		std::vector<Vec> contact_points;
 		std::vector<Vec> collision_normals;
-		std::vector<std::pair<Vec,Vec>> edges;
+		std::vector<Edge> edges;
 		int bodies = 0;
 		float gravity = 0.5;
 		Vec mouse_position;
@@ -23,10 +23,10 @@ class World {
 		bool is_point_inside_polygon(std::shared_ptr<Body> b, Vec point);
 		bool is_point_inside_circle(std::shared_ptr<Body> b, Vec point);
 		bool point_inside(std::shared_ptr<Body> b, Vec point);
-		Vec find_support_contact(std::shared_ptr<Body> body, int index, Vec sep_norm);
+		Edge find_support_edge(std::shared_ptr<Body> body, int index, Vec sep_norm);
 		int find_support_point(std::shared_ptr<Body> body, Vec direction);
 		void generate_contact_points(std::shared_ptr<Body> A, std::shared_ptr<Body> B, Vec sep_norm);
-
+		void clip(Edge incident, Vec ref_norm, float min_ref);
 
 	public:
 		World();

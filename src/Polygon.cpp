@@ -141,7 +141,7 @@ void Polygon::render(Display* d, Vec position, float orientation, char color[3],
 		}
 	}
 
-	d->draw_line(position,verts[0].rotate(orientation) + position, color);
+	//d->draw_line(position,verts[0].rotate(orientation) + position, color);
 
 }
 

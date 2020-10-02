@@ -52,10 +52,9 @@ void World::render(Display* d) {
 
 
 	for (int i = this->edges.size()-1; i >= 0; i--) {
-		d->draw_line(edges[i].first,edges[i].second,color);
+		d->draw_line(edges[i].v1,edges[i].v2,color);
 		this->edges.pop_back();
 	}
-
 
 	std::cout << "" << std::endl;
 	this->reset_colors();
@@ -94,7 +93,7 @@ void World::resolve_manifolds() {
 
 	for (int i = contacts.size()-1; i>=0; i--) {
 		Vec sep_norm = this->contacts[i].mtv.normalize();
-		collision_normals.push_back(sep_norm);
+		//collision_normals.push_back(sep_norm);
 		std::shared_ptr<Body> A = this->contacts[i].A;	
 		std::shared_ptr<Body> B = this->contacts[i].B;
 		A->set_color(YELLOW);
@@ -169,19 +168,16 @@ int World::find_support_point(std::shared_ptr<Body> body, Vec direction) {
 	for (int j = 0; j < body->get_vertices()-1; j++) {
 		Vec v = body->get_vertex(j)->rotate(body->get_orientation()) + Vec(body->get_x(),body->get_y());
 		float proj = v.dot(direction);
-
 		if (proj > best_proj) {
 			best_proj = proj;
 			index = j;	
-		}
-			
+		}		
 	}
-
 	return index;
 
 }
 
-Vec World::find_support_contact(std::shared_ptr<Body> body, int index, Vec sep_norm) {
+Edge World::find_support_edge(std::shared_ptr<Body> body, int index, Vec sep_norm) {
 	
 	Vec contact;	
 	Vec best_vertex = body->get_vertex(index)->rotate(body->get_orientation()) + Vec(body->get_x(),body->get_y());	
@@ -192,39 +188,58 @@ Vec World::find_support_contact(std::shared_ptr<Body> body, int index, Vec sep_n
 	
 	if (right.dot(sep_norm) <= left.dot(sep_norm)) {			
 		contact_points.push_back(next);
-		contact = next;		
+		return Edge(next,best_vertex);
 	}
 	else {
 		contact_points.push_back(prev);
-		contact = prev;
-	}
-
-	return contact;
+		return Edge(best_vertex,prev);;
+	};
 
 }
 
+void World::clip(Edge incident, Vec ref_norm, float min_ref) {
+
+	float p1 = incident.v1.dot(ref_norm);
+	float p2 = incident.v2.dot(ref_norm);
+
+	
+
+}
 
 void World::generate_contact_points(std::shared_ptr<Body> A, std::shared_ptr<Body> B, Vec sep_norm)  {
 
-	int index = find_support_point(B,sep_norm);
+	int index = this->find_support_point(B,sep_norm);
 	Vec best_vertex = B->get_vertex(index)->rotate(B->get_orientation()) + Vec(B->get_x(),B->get_y());	
 	contact_points.push_back(best_vertex);
-	Vec contact1 = find_support_contact(B,index,sep_norm);
-	Vec e1 = best_vertex-contact1;
+	Edge s_edge_1 = this->find_support_edge(B,index,sep_norm);
+	Vec e1(s_edge_1);
 			
 	sep_norm = sep_norm * -1;
-	index = find_support_point(A,sep_norm);
+	index = this->find_support_point(A,sep_norm);
 	Vec best_vertex1 = A->get_vertex(index)->rotate(A->get_orientation()) + Vec(A->get_x(),A->get_y());
 	contact_points.push_back(best_vertex1);
-	Vec contact2 = find_support_contact(A,index,sep_norm);
-	Vec e2 = best_vertex1-contact2;
+	Edge s_edge_2 = this->find_support_edge(A,index,sep_norm);
+	Vec e2(s_edge_2);
+	
+	Edge incident;
+	Edge reference;
 	
 	if (abs(e1.dot(sep_norm)) <= abs(e2.dot(sep_norm))) {
-		edges.push_back(std::make_pair(best_vertex,contact1));
+		reference = s_edge_1;
+		incident = s_edge_2;
 	}
 	else {
-		edges.push_back(std::make_pair(best_vertex1,contact2));
-	}	
+		reference = s_edge_2;
+		incident = s_edge_1;
+	}
+	
+	edges.push_back(reference);
+	//edges.push_back(incident);
+	
+	Vec ref_norm = Vec(reference).normalize();
+
+	float min_ref = ref_norm.dot(reference.v1);
+	this->clip(incident,ref_norm,min_ref);
 
 }
 

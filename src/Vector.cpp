@@ -27,6 +27,18 @@ Vec::Vec(float x, float y) {
 	this->y = y;
 }
 
+Vec::Vec(Edge& e) {
+	Vec v = e.v2 - e.v1;
+	this->x = v.x;
+	this->y = v.y;
+}
+
+Vec::Vec(Vec& v1, Vec& v2) {
+	Vec v = v2 - v1;
+	this->x = v.x;
+	this->y = v.y;
+}
+
 Vec::Vec(float x, float y, float x1, float y1) {
 	this->x = x1-x;
 	this->y = y1-y;
