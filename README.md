@@ -3,7 +3,7 @@
 Rigid body physics engine written in C++
 
 ## How to run
-You will need linuz to run. Please do the following to run:
+You will need linux to run. Please do the following to run:
 
 `git clone https://github.com/zzef/zef-physics-engine.git`
 
