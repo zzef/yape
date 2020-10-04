@@ -18,11 +18,7 @@ void add_new_polygon(Vec position) {
 	a->set_x(position.get_x());
 	a->set_y(position.get_y());
 	a->set_orientation(random(0,360)*(M_PI/180.0f));
-	a->set_orig_color(
-		(char) 70,
-		(char) 200,
-		(char) 70
-	);
+	a->generate_color();
 	a->initialize();
 	world.add_body(a);
 }

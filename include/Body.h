@@ -44,8 +44,8 @@ class Body : public Polygon, public Circle {
 		void apply_impulse(Vec normal,Vec contact);
 		void initialize();
 		void set_im(float val);
-		float get_im();
-	
+		float get_im();	
+		void generate_color();
 		void set_iI(float val);
 		float get_iI();
 		

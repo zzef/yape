@@ -15,6 +15,11 @@ Body::Body(int type, bool is_earthed) {
 	this->is_earth = is_earthed;
 }
 
+void Body::generate_color() {
+	struct Color c = hsv_to_rgb(random(0,360),100,100);
+	this->set_orig_color((char)c.r,(char)c.g,(char)c.b);
+}
+
 void Body::initialize() {
 
 	if (this->type == POLYGON) {
@@ -23,6 +28,7 @@ void Body::initialize() {
 		this->im = 1.0f/m;
 		this->iI = 1.0f/(this->Polygon::get_radius() * this->Polygon::get_radius() * m);
 	}
+
 }
 
 void Body::set_type(int type) {
