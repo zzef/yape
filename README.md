@@ -17,6 +17,10 @@ A Rigid body impulse based physics engine written in C++. This was written to ga
 - Fix timestep (Currently directly tied to framerate so not very portable)
 - Rotation and position vector applied at every vertex. This is unnecessary and slow.
 
+## Dependencies
+- libSDL2
+- gcc
+
 ## How to run
 You will need linux to run. Please do the following to run:
 
