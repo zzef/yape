@@ -16,6 +16,10 @@ void Polygon::print() {
 	std::cout<<"HI IM A POLYGON"<<std::endl;
 }
 
+float Polygon::get_radius() {
+	return this->radius;
+}
+
 int Polygon::get_vertices() {
 	return this->vertices;
 }
@@ -73,6 +77,7 @@ void Polygon::generate_polygon() {
 	int min = 10;
 	int max = 180;
 	int radius = random(MIN_POLY_RAD,MAX_POLY_RAD);
+	this->radius = radius;
 	int sum_of_differences = 0;
 	std::vector<float> differences;
 	
@@ -114,7 +119,7 @@ void Polygon::generate_polygon() {
 	int i = 0;
 	for (i = 0; i < differences.size() ; i++) {
 		disp+=differences[i];
-		Vec vertex = rad.rotate(disp);
+		Vec vertex = rad.rotate(disp*(M_PI/180.0f));
 		verts[i+1] = vertex;
 	}
 	verts[i+1]=verts[0];
@@ -141,7 +146,8 @@ void Polygon::render(Display* d, Vec position, float orientation, char color[3],
 		}
 	}
 
-	//d->draw_line(position,verts[0].rotate(orientation) + position, color);
+	if (options & SHOW_POLYMIDS)
+		d->draw_line(position,verts[0].rotate(orientation) + position, color);
 
 }
 

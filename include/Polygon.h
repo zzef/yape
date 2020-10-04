@@ -10,6 +10,7 @@ class Polygon : public Shape {
 		Polygon();
 		Polygon(int edges);
 		int get_vertices();
+		float get_radius();
 		int get_edges();
 		void clear_verts();
 		void add_vertex(Vec v);
@@ -26,6 +27,7 @@ class Polygon : public Shape {
 	private:
 		int edges = 0;
 		int vertices = 0;
+		float radius = 50;
 
 };
 

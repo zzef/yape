@@ -76,6 +76,9 @@ float Vec::mag() {
 }
 
 Vec Vec::normalize() {
+	if (this->x == 0 && this->y == 0)
+		return Vec(0,0);
+
 	float m = this->mag();
 	Vec vec(this->x/m,this->y/m);
 	return vec;
@@ -83,9 +86,8 @@ Vec Vec::normalize() {
 
 Vec Vec::rotate(float w) {
 		
-	float r = ((w*M_PI)/180);
-    float csn = cos(r);
-    float sn = sin(r);
+    float csn = cos(w);
+    float sn = sin(w);
     Vec vec(this->x * csn - this->y * sn, this->x * sn + this->y * csn);
 	return vec;
 

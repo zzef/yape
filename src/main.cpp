@@ -14,6 +14,7 @@ void handle_mouse_motion(SDL_MouseMotionEvent e) {
 	world.set_mouse_position(Vec(e.x,e.y));
 	switch(e.state) {
 		case SDL_BUTTON_LMASK : {
+			world.set_mouse_down(true);
 			world.set_rel_mouse_position(Vec(e.xrel,e.yrel));
 			break;
 		}
@@ -21,6 +22,7 @@ void handle_mouse_motion(SDL_MouseMotionEvent e) {
 			break;
 		}
 		default: {
+			world.set_mouse_down(false);
 			world.set_rel_mouse_position(Vec(0,0));
 		}
 	}		
@@ -37,6 +39,7 @@ void handle_event(SDL_Event e) {
 
 void update() {
 	world.detect_mouse_insidedness();
+	world.simulate();
 	world.generate_manifolds();
 	world.resolve_manifolds();
 }
@@ -48,21 +51,24 @@ void render() {
 	world.render(&display);
 }
 
-void init() {
+void initialize() {
 
 
-	world.show_normals(true);
+	world.show_polymids(true);
+	world.show_collisions(false);
+	world.show_contacts(true);
+	world.show_normals(false);
 	
 	std::shared_ptr<Body> a = std::make_shared<Body>(POLYGON);
 	a->generate_polygon();
-	a->set_x(1000);
+	a->set_x(900);
 	a->set_y(300);
 	a->set_orig_color(
 		(char) 70,
 		(char) 200,
 		(char) 70
 	);
-	a->init();
+	a->initialize();
 
 	std::shared_ptr<Body> b = std::make_shared<Body>(POLYGON);
 	b->add_vertex(Vec(140,120));
@@ -78,7 +84,7 @@ void init() {
 		(char) 200,
 		(char) 70
 	);
-	b->init();
+	b->initialize();
 
 	std::shared_ptr<Body> b2 = std::make_shared<Body>(POLYGON);
 	b2->add_vertex(Vec(80,60));
@@ -94,7 +100,7 @@ void init() {
 		(char) 30,
 		(char) 180
 	);
-	b2->init();
+	b2->initialize();
 
 	std::shared_ptr<Body> b3 = std::make_shared<Body>(CIRCLE);
 	b3->set_x(700);
@@ -110,7 +116,7 @@ void init() {
 	int height = 70;
 	int margin = 20;
 	int width = W_WIDTH-(margin*2);
-	std::shared_ptr<Body> b4 = std::make_shared<Body>(POLYGON);
+	std::shared_ptr<Body> b4 = std::make_shared<Body>(POLYGON,true);
 	b4->add_vertex(Vec(width/2,height/2));
 	b4->add_vertex(Vec(-width/2,height/2));
 	b4->add_vertex(Vec(-width/2,-height/2));
@@ -118,12 +124,16 @@ void init() {
 	b4->add_vertex(Vec(width/2,height/2));
 	b4->set_x(W_WIDTH/2);
 	b4->set_y(W_HEIGHT-((height/2)+margin));
-	b4->init();
+	b4->initialize();
+	b4->set_iI(0);
+	b4->set_im(0);
 
 	world.add_body(a);
+	a->set_orientation(random(0,360)*(M_PI/180.0f));
 	world.add_body(b);
+	b2->set_orientation(random(0,360)*(M_PI/180.0f));
 	world.add_body(b2);
-	world.add_body(b3);
+	//world.add_body(b3);
 	world.add_body(b4);
 
 }
@@ -133,7 +143,7 @@ int main() {
 	srand (time(NULL));
 	bool quit = false;
 	SDL_Event e;
-	init();
+	initialize();
 	while(!quit) {	
 		while (SDL_PollEvent( &e )) {
 
