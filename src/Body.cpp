@@ -21,7 +21,7 @@ void Body::initialize() {
 		this->init();
 		float m = this->Polygon::get_radius() * this->Polygon::get_radius() * M_PI * 7.2f;
 		this->im = 1.0f/m;
-		this->iI = 1.0f/(this->Polygon::get_radius() * this->Polygon::get_radius() * 250.0f/m * 600000000);
+		this->iI = 1.0f/(this->Polygon::get_radius() * this->Polygon::get_radius() * m);
 	}
 }
 

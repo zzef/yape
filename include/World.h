@@ -10,6 +10,7 @@ class World {
 	
 	private:
 		std::shared_ptr<Body> Bodies[MAX_BODIES];
+		std::shared_ptr<Body> Bods[MAX_BODIES];
 		std::vector<Manifold> contacts;
 		std::vector<Vec> contact_points;
 		std::vector<Vec> collision_normals;
@@ -30,6 +31,9 @@ class World {
 		int find_support_point(std::shared_ptr<Body> body, Vec direction);
 		void generate_contact_points(Manifold& m);
 		std::vector<Vec> clip(Edge incident, Vec ref_norm, float min_ref);
+		void generate_manifolds();
+		void resolve_manifolds();
+		void integrate();
 
 	public:
 		World();
@@ -49,8 +53,6 @@ class World {
 		void show_polymids(bool show);
 		void show_collisions(bool show);
 		void show_contacts(bool show);
-		void generate_manifolds();
-		void resolve_manifolds();
 		void reset_colors();
 		void simulate();
 

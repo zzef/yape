@@ -24,6 +24,7 @@ void World::add_body(std::shared_ptr<Body> b) {
 		return;
 	this->Bodies[this->bodies]=b;
 	this->bodies++;
+	std::cout << "added" << std::endl;
 }
 
 void World::render(Display* d) {
@@ -107,6 +108,9 @@ void World::simulate() {
 		b->set_orientation(b->get_orientation()+b->get_ang_vel());
 	}
 
+	this->generate_manifolds();
+	this->resolve_manifolds();
+
 }
 
 void World::set_mouse_down(bool val) {
@@ -124,6 +128,7 @@ void World::show_contacts(bool show) {
 void World::resolve_manifolds() {
 
 	for (int i = contacts.size()-1; i>=0; i--) {
+	
 		Vec sep_norm = this->contacts[i].mtv;
 		std::shared_ptr<Body> A = this->contacts[i].A;	
 		std::shared_ptr<Body> B = this->contacts[i].B;
@@ -142,96 +147,95 @@ void World::resolve_manifolds() {
 		float ang_vel_a = A->get_ang_vel();
 		float ang_vel_b = B->get_ang_vel();
 
-		float e = 0.6f;
+		float e = 0.4f;
 		Vec mv = this->contacts[i].mtv * this->contacts[i].mtvm;
 		Vec mtv = this->contacts[i].mtv;
 	
 		for (int j = 0; j<this->contacts[i].no_contacts; j++) {
 
-				this->contact_points.push_back(this->contacts[i].contacts[j]);
+			this->contact_points.push_back(this->contacts[i].contacts[j]);
 
-				Vec ra = this->contacts[i].contacts[j] - position_a;	
-				Vec rb = this->contacts[i].contacts[j] - position_b;
+			Vec ra = this->contacts[i].contacts[j] - position_a;	
+			Vec rb = this->contacts[i].contacts[j] - position_b;
 				
-				Vec rv = velocity_a + ra.cross(ang_vel_a) - (velocity_b + rb.cross(ang_vel_b)); 
+			Vec rv = velocity_a + ra.cross(ang_vel_a) - (velocity_b + rb.cross(ang_vel_b)); 
 	
-				//std::cout << "---------" << std::endl;	
-				//rv.print();		
+			//std::cout << "---------" << std::endl;	
+			//rv.print();		
 		
-				float contact_vel = rv.dot(sep_norm);	
+			float contact_vel = rv.dot(sep_norm);	
 	
-				//std::cout << "contact vel " << contact_vel << std::endl;
+			//std::cout << "contact vel " << contact_vel << std::endl;
 
-				if (contact_vel > 0) {
-					//std::cout << "reyurning" << std::endl;
-					break;
-				}
-				//std::cout << "ra " <<std::endl;
-				//ra.print();
-				//sep_norm.print();
-				float racrossn = ra.cross(sep_norm);
-				float rbcrossn = rb.cross(sep_norm);
-
-				//std::cout << "racrossn " << racrossn << std::endl;
+			if (contact_vel > 0) {
+				//std::cout << "reyurning" << std::endl;
+				break;
+			}
+			//std::cout << "ra " <<std::endl;
+			//ra.print();
+			//sep_norm.print();
+			float racrossn = ra.cross(sep_norm);
+			float rbcrossn = rb.cross(sep_norm);
+			//std::cout << "racrossn " << racrossn << std::endl;
 		
-				float inv_mass_sum = (float) (A->get_im() +  ((racrossn*racrossn) * A->get_iI())) + (B->get_im() +  ((racrossn*racrossn) * B->get_iI()));
+			float inv_mass_sum = (float) (A->get_im() +  ((racrossn*racrossn) * A->get_iI())) + (B->get_im() +  ((racrossn*racrossn) * B->get_iI()));
 
-				//std::cout << "inv_mass_sum " << inv_mass_sum << std::endl;
-			
-				float ji = -(1.0f + e) * contact_vel;
-				ji /= inv_mass_sum;
-				//std::cout << "ji " << ji << std::endl;
-				ji /= this->contacts[i].no_contacts; 
-				//std::cout << "ji " << ji << std::endl;
+			//std::cout << "inv_mass_sum " << inv_mass_sum << std::endl;
+		
+			float ji = -(1.0f + e) * contact_vel;
+			ji /= inv_mass_sum;
+			//std::cout << "ji " << ji << std::endl;
+			ji /= this->contacts[i].no_contacts; 
+			//std::cout << "ji " << ji << std::endl;
 	
-				Vec impulse = sep_norm * ji;
-				if (A->get_im() > 0)
-					A->apply_impulse(impulse,ra);
+			Vec impulse = sep_norm * ji;
+			if (A->get_im() > 0)
+				A->apply_impulse(impulse,ra);
 
-				Vec nimpulse = sep_norm * ji * -1;
-				if (B->get_im() > 0)
-					B->apply_impulse(nimpulse, rb);		
+			Vec nimpulse = sep_norm * ji * -1;
+			if (B->get_im() > 0)
+				B->apply_impulse(nimpulse, rb);		
 
 
-				float df = 0.35;
-				float mu = 0.45;
+			float df = 0.40;
+			float mu = 0.50;
 				
-				velocity_a = Vec(A->get_vel_x(),A->get_vel_y());
-				velocity_b = Vec(B->get_vel_x(),B->get_vel_y());
+			velocity_a = Vec(A->get_vel_x(),A->get_vel_y());
+			velocity_b = Vec(B->get_vel_x(),B->get_vel_y());
 				
-				rv = velocity_a + ra.cross(ang_vel_a) - (velocity_b + rb.cross(ang_vel_b)); 
+			rv = velocity_a + ra.cross(ang_vel_a) - (velocity_b + rb.cross(ang_vel_b)); 
 			
-				Vec t = rv - (sep_norm * (rv.dot(sep_norm)));
+			Vec t = rv - (sep_norm * (rv.dot(sep_norm)));
 				
-				//std::cout << "t ---" << std::endl;
-				//rv.print();
-				//sep_norm.print();
-				//t.print(); 
-
-				t = t.normalize();
-				//std::cout << "== norms" << std::endl;
-				//t.print();
-
-				float jt = -rv.dot(t);
-				jt /= inv_mass_sum;
-
-				if (abs(jt)<0.001)
-					break;
+			//std::cout << "t ---" << std::endl;
+			//rv.print();
+			//sep_norm.print();
+			//t.print(); 
+			t = t.normalize();
 				
-				Vec fimpulse;
-				if (abs(jt) < ji*mu) {
-					fimpulse = t * jt;
-				}
-				else {
-					fimpulse = t * (-ji * df);
-				}
+			//std::cout << "== norms" << std::endl;
+			//t.print();
 
-				if (A->get_im() > 0)
-					A->apply_impulse(fimpulse,ra);
+			float jt = -rv.dot(t);
+			jt /= inv_mass_sum;
 
-				Vec nfimpulse = fimpulse * -1;			
-				if (B->get_im() > 0)
-					B->apply_impulse(nfimpulse, rb);		
+			if (abs(jt)<0.001)
+				break;
+				
+			Vec fimpulse;
+			if (abs(jt) < ji*mu) {
+				fimpulse = t * jt;
+			}
+			else {
+				fimpulse = t * (-ji * df);
+			}
+
+			if (A->get_im() > 0)
+				A->apply_impulse(fimpulse,ra);
+
+			Vec nfimpulse = fimpulse * -1;			
+			if (B->get_im() > 0)
+				B->apply_impulse(nfimpulse, rb);		
 
 		}
 

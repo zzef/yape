@@ -1,31 +1,67 @@
 #include "../include/includes.h"
 
-#define W_WIDTH 1280
-#define W_HEIGHT 720
+#define W_WIDTH 1600
+#define W_HEIGHT 900
 #define WINDOW_TITLE "Engine"
 
 float ori = 0;
 int mx, my;
+bool interactive = false;
+
 
 Display display = Display(W_WIDTH,W_HEIGHT,WINDOW_TITLE);
 World world;
+
+void add_new_polygon(Vec position) {
+	std::shared_ptr<Body> a = std::make_shared<Body>(POLYGON);
+	a->generate_polygon();
+	a->set_x(position.get_x());
+	a->set_y(position.get_y());
+	a->set_orientation(random(0,360)*(M_PI/180.0f));
+	a->set_orig_color(
+		(char) 70,
+		(char) 200,
+		(char) 70
+	);
+	a->initialize();
+	world.add_body(a);
+}
 
 void handle_mouse_motion(SDL_MouseMotionEvent e) {
 	world.set_mouse_position(Vec(e.x,e.y));
 	switch(e.state) {
 		case SDL_BUTTON_LMASK : {
-			world.set_mouse_down(true);
 			world.set_rel_mouse_position(Vec(e.xrel,e.yrel));
 			break;
 		}
 		case SDL_BUTTON_RMASK : {
-			break;
+			
 		}
 		default: {
-			world.set_mouse_down(false);
 			world.set_rel_mouse_position(Vec(0,0));
 		}
 	}		
+}
+
+void handle_mouse_up(SDL_MouseButtonEvent e) {
+	world.set_mouse_down(false);
+}
+
+void handle_mouse_down(SDL_MouseButtonEvent e) {
+	world.set_mouse_down(true);
+
+	if (e.button == SDL_BUTTON_LEFT)	
+		if (!interactive)
+			add_new_polygon(Vec(e.x,e.y));
+}
+
+void handle_keydown(SDL_KeyboardEvent e) {
+	switch(e.keysym.sym) {
+		case SDLK_i : {
+			interactive = !interactive;
+			break;
+		}
+	}
 }
 
 void handle_event(SDL_Event e) {	
@@ -34,14 +70,23 @@ void handle_event(SDL_Event e) {
 			handle_mouse_motion(e.motion);
 			break;
 		}
+		case SDL_MOUSEBUTTONDOWN : {
+			handle_mouse_down(e.button);
+			break;
+		}
+		case SDL_MOUSEBUTTONUP : {
+			handle_mouse_up(e.button);
+			break;
+		}
+		case SDL_KEYDOWN : {
+			handle_keydown(e.key);
+		}
 	}
 }
 
 void update() {
 	world.detect_mouse_insidedness();
 	world.simulate();
-	world.generate_manifolds();
-	world.resolve_manifolds();
 }
 
 void render() {	
@@ -51,14 +96,8 @@ void render() {
 	world.render(&display);
 }
 
-void initialize() {
+void test() {
 
-
-	world.show_polymids(true);
-	world.show_collisions(false);
-	world.show_contacts(true);
-	world.show_normals(false);
-	
 	std::shared_ptr<Body> a = std::make_shared<Body>(POLYGON);
 	a->generate_polygon();
 	a->set_x(900);
@@ -112,7 +151,25 @@ void initialize() {
 		(char) 210
 	);
 
+	world.add_body(a);
+	a->set_orientation(random(0,360)*(M_PI/180.0f));
+	world.add_body(b);
+	b2->set_orientation(random(0,360)*(M_PI/180.0f));
+	world.add_body(b2);
+	//world.add_body(b3);
 
+}
+
+void initialize() {
+
+
+	world.show_polymids(false);
+	world.show_collisions(false);
+	world.show_contacts(false);
+	world.show_normals(false);
+		
+	//test();
+	
 	int height = 70;
 	int margin = 20;
 	int width = W_WIDTH-(margin*2);
@@ -127,13 +184,6 @@ void initialize() {
 	b4->initialize();
 	b4->set_iI(0);
 	b4->set_im(0);
-
-	world.add_body(a);
-	a->set_orientation(random(0,360)*(M_PI/180.0f));
-	world.add_body(b);
-	b2->set_orientation(random(0,360)*(M_PI/180.0f));
-	world.add_body(b2);
-	//world.add_body(b3);
 	world.add_body(b4);
 
 }

@@ -27,7 +27,7 @@ class Polygon : public Shape {
 	private:
 		int edges = 0;
 		int vertices = 0;
-		float radius = 50;
+		float radius = 200;
 
 };
 
