@@ -2,6 +2,11 @@
 
 A Rigid body impulse based physics engine written in C++. This was written to gain better understanding into rigid body physics engines. 
 
+<p align="center">
+  <img src="https://raw.githubusercontent.com/zzef/zef-physics-engine/master/demos/demo1.gif">
+</p>
+
+
 ## Useful resources for this project
 
 - Randy Gauls impulse engine https://www.randygaul.net/projects-open-sources/impulse-engine/
