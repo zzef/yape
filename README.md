@@ -20,7 +20,8 @@ A Rigid body impulse based physics engine written in C++. This was written to ga
 - Inertia tensor for polygons could be based on area giving better realistic movement
 - Generate neon colors for each polygon
 - Fix timestep (Currently directly tied to framerate so not very portable)
-- Rotation and position vector applied at every vertex. This is unnecessary and slow.
+- During manifold generation the bodies rotation and position vector is applied every time some new calculation is done. This is unnecessary and slow as it need only be done once. Solution is to store world space after each integration and use this to perform calculations.
+ 
 
 ## Dependencies
 - libSDL2
