@@ -33,6 +33,7 @@ class World {
 		std::vector<Vec> clip(Edge incident, Vec ref_norm, float min_ref);
 		void generate_manifolds();
 		void resolve_manifolds();
+		void resolve_constraints();
 		void integrate();
 
 	public:

@@ -26,7 +26,7 @@ void Body::initialize() {
 		this->init();
 		float m = this->Polygon::get_radius() * this->Polygon::get_radius() * M_PI * 7.2f;
 		this->im = 1.0f/m;
-		this->iI = 1.0f/(this->Polygon::get_radius() * this->Polygon::get_radius() * m);
+		this->iI = 1.0f/(this->Polygon::get_radius() * this->Polygon::get_radius() * m );
 	}
 
 }
@@ -141,6 +141,9 @@ float Body::get_iI() {
 
 void Body::apply_impulse(Vec normal, Vec contact) {
 
+	if (this->get_im()==0)
+		return;
+
     Vec velocity = normal * this->im;
     float ang_vel = contact.cross(normal) * this->iI;
 	//std::cout << "angular velocity " << ang_vel << std::endl;
@@ -148,6 +151,11 @@ void Body::apply_impulse(Vec normal, Vec contact) {
 	this->vel_x += velocity.get_x();
 	this->vel_y += velocity.get_y();
 	this->ang_vel += ang_vel;
+
+	//fake damping
+	this->vel_x *= 0.9999;
+	this->vel_y *= 0.9999;
+	this->ang_vel *= 0.9999;
 }
 
 void Body::set_orig_color(char r, char g, char b) {

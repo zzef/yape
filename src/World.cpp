@@ -89,6 +89,30 @@ void World::reset_colors() {
 	}
 }
 
+void World::resolve_constraints() {
+	Vec pivot(700,100);
+	float dist_const = 500;
+	for (int i = 0; i < this->bodies; i++ ) {
+		std::shared_ptr<Body> b = this->Bodies[i];	
+		if (b->get_im ()== 0)
+			continue;
+		Vec position(b->get_x(),b->get_y()); 
+		Vec d = pivot - position;
+		float distance = d.mag();
+		float vel = distance - dist_const;
+		Vec dn = d.normalize();
+		Vec f = dn * vel * 0.009;
+		Vec velocity(b->get_vel_x(),b->get_vel_y());
+		float const_vel = dn.dot(velocity);
+		f = f - (dn*const_vel);
+		f = f*10000;
+		Vec contact = Vec(0,b->Polygon::get_radius()-(b->Polygon::get_radius()*0.5)).rotate(b->get_orientation());
+		b->apply_impulse(f,contact);
+		Vec pos = position + contact;
+		edges.push_back(Edge(pivot,pos));	
+	}
+}
+
 void World::simulate() {
 	
 	for (int i = 0; i < this->bodies; i++) {
@@ -110,6 +134,7 @@ void World::simulate() {
 
 	this->generate_manifolds();
 	this->resolve_manifolds();
+	this->resolve_constraints();
 
 }
 
@@ -147,11 +172,11 @@ void World::resolve_manifolds() {
 		float ang_vel_a = A->get_ang_vel();
 		float ang_vel_b = B->get_ang_vel();
 
-		float e = 0.4f;
+		float e = 0.5f;
 		Vec mv = this->contacts[i].mtv * this->contacts[i].mtvm;
 		Vec mtv = this->contacts[i].mtv;
-	
-		for (int j = 0; j<this->contacts[i].no_contacts; j++) {
+		float contacts_ = this->contacts[i].no_contacts;	
+		for (int j = 0; j<contacts_; j++) {
 
 			this->contact_points.push_back(this->contacts[i].contacts[j]);
 
@@ -164,6 +189,8 @@ void World::resolve_manifolds() {
 			//rv.print();		
 		
 			float contact_vel = rv.dot(sep_norm);	
+
+			//std::cout << "contacts " << contacts_ << std::endl;
 	
 			//std::cout << "contact vel " << contact_vel << std::endl;
 
@@ -185,21 +212,21 @@ void World::resolve_manifolds() {
 			float ji = -(1.0f + e) * contact_vel;
 			ji /= inv_mass_sum;
 			//std::cout << "ji " << ji << std::endl;
-			ji /= this->contacts[i].no_contacts; 
+			ji /= contacts_; 
 			//std::cout << "ji " << ji << std::endl;
 	
 			Vec impulse = sep_norm * ji;
-			if (A->get_im() > 0)
-				A->apply_impulse(impulse,ra);
-
+			A->apply_impulse(impulse,ra);
 			Vec nimpulse = sep_norm * ji * -1;
-			if (B->get_im() > 0)
-				B->apply_impulse(nimpulse, rb);		
+			B->apply_impulse(nimpulse, rb);		
 
 
 			float df = 0.40;
 			float mu = 0.50;
-				
+		
+			ang_vel_a = A->get_ang_vel();
+			ang_vel_b = B->get_ang_vel();
+	
 			velocity_a = Vec(A->get_vel_x(),A->get_vel_y());
 			velocity_b = Vec(B->get_vel_x(),B->get_vel_y());
 				
@@ -218,6 +245,7 @@ void World::resolve_manifolds() {
 
 			float jt = -rv.dot(t);
 			jt /= inv_mass_sum;
+			jt /= contacts_;
 
 			if (abs(jt)<0.001)
 				break;
@@ -230,12 +258,10 @@ void World::resolve_manifolds() {
 				fimpulse = t * (-ji * df);
 			}
 
-			if (A->get_im() > 0)
-				A->apply_impulse(fimpulse,ra);
-
+			A->apply_impulse(fimpulse,ra);
 			Vec nfimpulse = fimpulse * -1;			
-			if (B->get_im() > 0)
-				B->apply_impulse(nfimpulse, rb);		
+			B->apply_impulse(nfimpulse, rb);
+				
 
 		}
 
