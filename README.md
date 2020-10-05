@@ -1,6 +1,11 @@
 # zef-physics-engine
 
-A Rigid body impulse based physics engine written in C++. This was written to gain better understanding into rigid body physics engines. 
+A Rigid body impulse based physics engine written in C++. This was written to gain better understanding into rigid body physics engines. Features include:
+
+- Random polygon generation
+- Collision detection (Separated axis theorem)
+- Impulse based collision response
+- Friction
 
 <p align="center">
   <img src="https://raw.githubusercontent.com/zzef/zef-physics-engine/master/demos/demo1.gif">
@@ -21,7 +26,8 @@ A Rigid body impulse based physics engine written in C++. This was written to ga
 - Generate neon colors for each polygon
 - Fix timestep (Currently directly tied to framerate so not very portable)
 - During manifold generation the bodies rotation and position vector is applied every time some new calculation is done. This is unnecessary and slow as it need only be done once. Solution is to store world space after each integration and use this to perform calculations.
- 
+- Add joints
+- Add springs
 
 ## Dependencies
 - libSDL2
