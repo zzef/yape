@@ -169,8 +169,8 @@ void test() {
 	//world.add_body(b2);
 
 
-	int height = 20;
-	int width = 300;
+	int height = 40;
+	int width = 600;
 	std::shared_ptr<Body> b4 = std::make_shared<Body>(POLYGON);
 	b4->add_vertex(Vec(width/2,height/2));
 	b4->add_vertex(Vec(-width/2,height/2));
@@ -183,7 +183,7 @@ void test() {
 	world.add_body(b4);
 
 
-	Joint joint(a,Vec(0,50),b4,Vec(0,50),200);	
+	Joint joint(a,Vec(0,50),b4,Vec(0,50),0);	
 	world.add_joint(joint);
 	
 	//world.add_body(b3);

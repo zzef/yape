@@ -53,7 +53,7 @@ class Body : public Polygon, public Circle {
 		~Body();
 
 	private:
-		float im = (float) 1.0f/100.0f;
+		float im = (float) 1.0f/1000.0f;
 		float iI = (float) 1.0f/1000000.0f;
 		float x = 0;
 		float y = 0;

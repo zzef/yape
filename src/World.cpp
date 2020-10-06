@@ -135,17 +135,29 @@ void World::keep_distance(Vec pivot, std::shared_ptr<Body> a, std::shared_ptr<Bo
 	std::cout << distance << " dist " << std::endl;
 	std::cout << dist_const << " distcon " << std::endl;
 	Vec dn = d.normalize();
-	Vec f = dn * vel * 0.1;
+	Vec dn2 = d.normalize();
+	Vec f = dn * vel * 0.3;
+	Vec fn = f * -1;
 	Vec velocity_a(a->get_vel_x(),a->get_vel_y());
 	Vec velocity_b(b->get_vel_x(),b->get_vel_y());	
 	Vec vrel = velocity_b - velocity_a;
+	Vec vrel2 =  velocity_a - velocity_b;
 	vrel.print();
 	float const_vel = dn.dot(vrel);
+	float const_vel2 = dn2.dot(vrel2);
 	std::cout << vel << " vel" << std::endl;
 	f = f - (dn*const_vel);
-	f = f/(b->get_im());
+	fn = fn - (dn*const_vel2);
+	f = f/(b->get_im()*30);
+	fn = fn/(a->get_im()*30);
 	b->apply_impulse(f,contact);
-	
+	a->apply_impulse(fn,contact);
+
+	if (dist_const == 0) {	
+		a->set_x(b->get_x());
+		a->set_y(b->get_y());
+	}
+
 	connections.push_back(pivot);
 	connections.push_back(position);
 	edges.push_back(Edge(pivot,position));	
