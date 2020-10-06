@@ -183,7 +183,7 @@ void test() {
 	world.add_body(b4);
 
 
-	Joint joint(a,Vec(0,50),b4,Vec(0,50),0);	
+	Joint joint(a,Vec(0,50),b4,Vec(0,50),200);	
 	world.add_joint(joint);
 	
 	//world.add_body(b3);
