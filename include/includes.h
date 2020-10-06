@@ -28,6 +28,7 @@
 #include "math.h"
 #include "Body.h"
 #include "World.h"
+#include "Joints.h"
 #include <memory>
 
 #endif

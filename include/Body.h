@@ -6,6 +6,7 @@
 #include "Manifold.h"
 #include "Circle.h"
 #include "Polygon.h"
+#include "Joints.h"
 
 class Body : public Polygon, public Circle {
 	

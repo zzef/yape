@@ -105,6 +105,18 @@ void test() {
 	);
 	a->initialize();
 
+	std::shared_ptr<Body> a2 = std::make_shared<Body>(POLYGON);
+	a2->generate_polygon();
+	a2->set_x(200);
+	a2->set_y(200);
+	a2->set_orig_color(
+		(char) 70,
+		(char) 200,
+		(char) 70
+	);
+	a2->initialize();
+
+
 	std::shared_ptr<Body> b = std::make_shared<Body>(POLYGON);
 	b->add_vertex(Vec(140,120));
 	b->add_vertex(Vec(-120,170));
@@ -147,12 +159,41 @@ void test() {
 		(char) 210
 	);
 
+	world.add_body(a2);
+	a2->set_orientation(random(0,360)*(M_PI/180.0f));	
 	world.add_body(a);
 	a->set_orientation(random(0,360)*(M_PI/180.0f));
-	world.add_body(b);
-	b2->set_orientation(random(0,360)*(M_PI/180.0f));
-	world.add_body(b2);
+	
+	//world.add_body(b);
+	//b2->set_orientation(random(0,360)*(M_PI/180.0f));
+	//world.add_body(b2);
+
+
+	int height = 20;
+	int width = 300;
+	std::shared_ptr<Body> b4 = std::make_shared<Body>(POLYGON);
+	b4->add_vertex(Vec(width/2,height/2));
+	b4->add_vertex(Vec(-width/2,height/2));
+	b4->add_vertex(Vec(-width/2,-height/2));
+	b4->add_vertex(Vec(width/2,-height/2));
+	b4->add_vertex(Vec(width/2,height/2));
+	b4->set_x(500);
+	b4->set_y(500);
+	b4->initialize();
+	world.add_body(b4);
+
+
+	Joint joint(a,Vec(0,50),b4,Vec(0,50),0);	
+	world.add_joint(joint);
+	
 	//world.add_body(b3);
+
+
+
+
+
+
+
 
 }
 
@@ -162,9 +203,10 @@ void initialize() {
 	world.show_polymids(false);
 	world.show_collisions(false);
 	world.show_contacts(false);
+	world.show_connections(true);
 	world.show_normals(false);
 		
-	//test();
+	test();
 	
 	int height = 70;
 	int margin = 20;

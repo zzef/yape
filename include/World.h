@@ -5,6 +5,7 @@
 #include "Display.h"
 #include <memory>
 #include <vector>
+#include "Joints.h"
 
 class World {
 	
@@ -13,8 +14,10 @@ class World {
 		std::shared_ptr<Body> Bods[MAX_BODIES];
 		std::vector<Manifold> contacts;
 		std::vector<Vec> contact_points;
+		std::vector<Vec> connections;
 		std::vector<Vec> collision_normals;
 		std::vector<Edge> edges;
+		std::vector<Joint> joints;
 		int bodies = 0;
 		float gravity = 0.5;
 		Vec mouse_position;
@@ -22,6 +25,7 @@ class World {
 		Vec rel_mouse_position;
 		bool show_coll = true;
 		bool show_conts = true;
+		bool show_conns = true;
 		bool mouse_down;
 		void generate_pp_manifold(std::shared_ptr<Body> a, std::shared_ptr<Body> b);
 		bool is_point_inside_polygon(std::shared_ptr<Body> b, Vec point);
@@ -34,7 +38,9 @@ class World {
 		void generate_manifolds();
 		void resolve_manifolds();
 		void resolve_constraints();
+		void keep_distance(Vec pivot, std::shared_ptr<Body> a, std::shared_ptr<Body> b, Vec pp, float dist_const);
 		void integrate();
+		bool is_joined(std::shared_ptr<Body> a, std::shared_ptr<Body> b);
 
 	public:
 		World();
@@ -53,8 +59,10 @@ class World {
 		void show_normals(bool show);
 		void show_polymids(bool show);
 		void show_collisions(bool show);
+		void show_connections(bool show);
 		void show_contacts(bool show);
 		void reset_colors();
+		void add_joint(Joint joint);
 		void simulate();
 
 };

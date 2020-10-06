@@ -2,6 +2,7 @@
 #include "../include/utils.h"
 #include "../include/Body.h"
 #include "../include/World.h"
+#include "../include/Joints.h"
 
 World::World() {
  	this->gravity = DEF_GRAV;
@@ -39,6 +40,20 @@ void World::render(Display* d) {
 		(char) 0,
 		(char) 0
 	};
+
+	char blue[3] = {
+		(char) 120,
+		(char) 140,
+		(char) 230
+	};
+
+	if (show_conns) {
+		for (int i = this->connections.size()-1; i >= 0; i--) {
+			d->draw_circle(this->connections[i],7.5,0,blue);
+			this->connections.pop_back();
+		}
+	}
+
 
 	if (show_conts) {
 		for (int i = this->contact_points.size()-1; i >= 0; i--) {
@@ -83,34 +98,84 @@ void World::set_glob_options(int options) {
 	this->glob_options = options;
 }
 
+void World::show_connections(bool show) {
+	this->show_conns=show;
+}
+
 void World::reset_colors() {
 	for (int i = 0; i<this->bodies; i++) {
 		this->Bodies[i]->reset_color();
 	}
 }
 
+void World::add_joint(Joint joint) {
+	this->joints.push_back(joint);
+}
+
+void World::keep_distance(Vec pivot, std::shared_ptr<Body> a, std::shared_ptr<Body> b, Vec pp, float dist_const) {
+
+	Vec contact = pp;
+	std::cout << "contact" << std::endl;
+	pp.print();	
+	Vec position(b->get_x(),b->get_y());
+
+
+	std::cout << "(" << b->get_x() << "," << b->get_y() << ")" << std::endl;
+
+	std::cout << "first pos ";
+	position.print(); 
+	position = position + contact;
+	std::cout << "piv" << std::endl;
+	pivot.print();
+	Vec d = pivot - position;
+	std::cout << "d" << std::endl;
+	d.print();
+	float distance = d.mag();
+	float vel = distance - dist_const;
+	std::cout << distance << " dist " << std::endl;
+	std::cout << dist_const << " distcon " << std::endl;
+	Vec dn = d.normalize();
+	Vec f = dn * abs(vel) * 1000;
+	Vec velocity_a(a->get_vel_x(),a->get_vel_y());
+	Vec velocity_b(b->get_vel_x(),b->get_vel_y());	
+	Vec vrel = velocity_b - velocity_a;
+	vrel.print();
+	float const_vel = dn.dot(vrel);
+	std::cout << vel << " vel" << std::endl;
+	f = f - (dn*const_vel*10000);
+
+	b->apply_impulse(f,contact);
+	
+	connections.push_back(pivot);
+	connections.push_back(position);
+	edges.push_back(Edge(pivot,position));	
+
+}
+
 void World::resolve_constraints() {
-	Vec pivot(700,100);
-	float dist_const = 500;
-	for (int i = 0; i < this->bodies; i++ ) {
-		std::shared_ptr<Body> b = this->Bodies[i];	
-		if (b->get_im ()== 0)
-			continue;
-		Vec position(b->get_x(),b->get_y()); 
-		Vec d = pivot - position;
-		float distance = d.mag();
-		float vel = distance - dist_const;
-		Vec dn = d.normalize();
-		Vec f = dn * vel * 0.009;
-		Vec velocity(b->get_vel_x(),b->get_vel_y());
-		float const_vel = dn.dot(velocity);
-		f = f - (dn*const_vel);
-		f = f*10000;
-		Vec contact = Vec(0,b->Polygon::get_radius()-(b->Polygon::get_radius()*0.5)).rotate(b->get_orientation());
-		b->apply_impulse(f,contact);
-		Vec pos = position + contact;
-		edges.push_back(Edge(pivot,pos));	
-	}
+
+
+	for (int i = 0; i < joints.size(); i++ ) {
+		//std::cout << "yooo" << std::endl;
+		std::shared_ptr<Body> a = joints[i].a;
+		std::shared_ptr<Body> b = joints[i].b;
+		this->keep_distance(
+			Vec(b->get_x(),b->get_y()),
+			b,
+			a,
+			Vec(0,0),
+			joints[i].d
+		);
+		this->keep_distance(
+			Vec(a->get_x(),a->get_y()),
+			a,
+			b,
+			Vec(0,0),
+			joints[i].d
+		);		
+	} 
+	
+
 }
 
 void World::simulate() {
@@ -133,8 +198,8 @@ void World::simulate() {
 	}
 
 	this->generate_manifolds();
-	this->resolve_manifolds();
 	this->resolve_constraints();
+	this->resolve_manifolds();
 
 }
 
@@ -282,6 +347,15 @@ void World::resolve_manifolds() {
 
 }
 
+bool World::is_joined(std::shared_ptr<Body> a, std::shared_ptr<Body> b)  {
+
+	for (int i = 0; i<this->joints.size(); i++) {
+		if ((joints[i].a == a && joints[i].b == b) || (joints[i].a == b && joints[i].b == a))
+			return true;
+	}
+	return false;
+}
+
 void World::generate_manifolds() {
 	
 	for(int i = 0; i<this->bodies; i++) {
@@ -291,6 +365,9 @@ void World::generate_manifolds() {
 			std::shared_ptr<Body> B = this->Bodies[j];
 			
 			if (A->get_type()==POLYGON && B->get_type()==POLYGON) {
+				if (this->is_joined(A,B)) {
+					continue;
+				}
 				this->generate_pp_manifold(A,B);
 			}
 
