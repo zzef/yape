@@ -21,8 +21,11 @@ A Rigid body impulse based physics engine written in C++. This was written to ga
 
 ## Useful resources for this project
 
+- https://www.youtube.com/watch?v=7Ik2vowGcU0 javidx9 on convex polygon collision detection using Seperated Axis theorem
 - Randy Gauls impulse engine https://www.randygaul.net/projects-open-sources/impulse-engine/
 - https://gamedevelopment.tutsplus.com/tutorials/how-to-create-a-custom-2d-physics-engine-the-basics-and-impulse-resolution--gamedev-6331
+- https://www.randygaul.net/2013/03/28/custom-physics-engine-part-2-manifold-generation/
+- http://www.dyn4j.org/2011/11/contact-points-using-clipping/
 - https://www.gafferongames.com/post/collision_response_and_coulomb_friction/
 - https://www.gafferongames.com/post/integration_basics/
 
