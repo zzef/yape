@@ -1,12 +1,12 @@
 #include "../include/includes.h"
 
-#define W_WIDTH 1600
+#define W_WIDTH 1700
 #define W_HEIGHT 900
 #define WINDOW_TITLE "Engine"
 
 float ori = 0;
 int mx, my;
-bool interactive = false;
+bool interactive = true;
 
 
 Display display = Display(W_WIDTH,W_HEIGHT,WINDOW_TITLE);
@@ -96,7 +96,7 @@ void test() {
 
 	std::shared_ptr<Body> a = std::make_shared<Body>(POLYGON);
 	a->generate_polygon();
-	a->set_x(900);
+	a->set_x(1300);
 	a->set_y(300);
 	a->set_orig_color(
 		(char) 70,
@@ -168,26 +168,25 @@ void test() {
 	//b2->set_orientation(random(0,360)*(M_PI/180.0f));
 	//world.add_body(b2);
 
-
-	int height = 40;
-	int width = 600;
-	std::shared_ptr<Body> b4 = std::make_shared<Body>(POLYGON);
-	b4->add_vertex(Vec(width/2,height/2));
-	b4->add_vertex(Vec(-width/2,height/2));
-	b4->add_vertex(Vec(-width/2,-height/2));
-	b4->add_vertex(Vec(width/2,-height/2));
-	b4->add_vertex(Vec(width/2,height/2));
-	b4->set_x(500);
-	b4->set_y(500);
-	b4->initialize();
-	world.add_body(b4);
-
-
-	Joint joint(a,Vec(0,50),b4,Vec(0,50),0);	
-	world.add_joint(joint);
+	std::shared_ptr<Body> rect1 = std::make_shared<Body>(POLYGON);
+	rect1->rect(30,200);
+	rect1->set_pos(600,300);
+	std::shared_ptr<Body> rect2 = std::make_shared<Body>(POLYGON);
+	rect2->rect(30,200);
+	rect2->set_pos(500,300);
+	std::shared_ptr<Body> rect3 = std::make_shared<Body>(POLYGON);
+	rect3->rect(30,200);
+	rect3->set_pos(600,300);
 	
-	//world.add_body(b3);
+	Joint joint(rect1,Vec(80,0),rect2,Vec(-80,0),0);	
+	Joint joint2(rect2,Vec(80,0),rect3,Vec(-80,0),0);	
+	world.add_joint(joint);
+	world.add_joint(joint2);
+	
 
+	world.add_body(rect1);
+	world.add_body(rect2);
+	world.add_body(rect3);
 
 
 

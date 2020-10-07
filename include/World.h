@@ -38,7 +38,7 @@ class World {
 		void generate_manifolds();
 		void resolve_manifolds();
 		void resolve_constraints();
-		void keep_distance(Vec pivot, std::shared_ptr<Body> a, std::shared_ptr<Body> b, Vec pp, float dist_const);
+		void keep_distance(std::shared_ptr<Body> a, Vec pp_a, std::shared_ptr<Body> b, Vec pp_b, float dist_const);
 		void integrate();
 		bool is_joined(std::shared_ptr<Body> a, std::shared_ptr<Body> b);
 

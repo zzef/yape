@@ -49,7 +49,11 @@ class Body : public Polygon, public Circle {
 		void generate_color();
 		void set_iI(float val);
 		float get_iI();
-		
+		void set_density(float density);
+		void set_pos(Vec p);
+		void set_pos(float x, float y);
+		void rect(float height, float width);
+
 		~Body();
 
 	private:
@@ -65,6 +69,7 @@ class Body : public Polygon, public Circle {
 		float vel_x = 0;
 		float vel_y = 0;
 		bool is_earth = false;
+		float density = 7.2f;
 
 };
 

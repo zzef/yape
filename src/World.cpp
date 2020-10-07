@@ -112,22 +112,35 @@ void World::add_joint(Joint joint) {
 	this->joints.push_back(joint);
 }
 
-void World::keep_distance(Vec pivot, std::shared_ptr<Body> a, std::shared_ptr<Body> b, Vec pp, float dist_const) {
+void World::keep_distance(std::shared_ptr<Body> a, Vec pp_a, std::shared_ptr<Body> b, Vec pp_b, float dist_const) {
 
-	Vec contact = pp;
+	float damping = 0.25;
+	if (dist_const == 0)
+		damping = 1;
+
+	Vec b_pos(b->get_x(),b->get_y());
+	Vec a_pos(a->get_x(),a->get_y());
+
+	Vec contact_b = pp_b.rotate(b->get_orientation());
+	Vec contact_a = pp_a.rotate(a->get_orientation());
+
+	Vec pivot_b = b_pos + contact_b;
+	Vec pivot_a = a_pos + contact_a;
+
 	std::cout << "contact" << std::endl;
-	pp.print();	
 	Vec position(b->get_x(),b->get_y());
 
+	Vec ra = pp_a * -1;
+	Vec rb = pp_b * -1;
 
 	std::cout << "(" << b->get_x() << "," << b->get_y() << ")" << std::endl;
 
 	std::cout << "first pos ";
 	position.print(); 
-	position = position + contact;
+	//position = position + contact;
 	std::cout << "piv" << std::endl;
-	pivot.print();
-	Vec d = pivot - position;
+	//pivot.print();
+	Vec d = pivot_a - pivot_b;
 	std::cout << "d" << std::endl;
 	d.print();
 	float distance = d.mag();
@@ -136,10 +149,10 @@ void World::keep_distance(Vec pivot, std::shared_ptr<Body> a, std::shared_ptr<Bo
 	std::cout << dist_const << " distcon " << std::endl;
 	Vec dn = d.normalize();
 	Vec dn2 = d.normalize();
-	Vec f = dn * vel * 0.3;
+	Vec f = dn * vel * damping;
 	Vec fn = f * -1;
-	Vec velocity_a(a->get_vel_x(),a->get_vel_y());
-	Vec velocity_b(b->get_vel_x(),b->get_vel_y());	
+	Vec velocity_a = Vec(a->get_vel_x(),a->get_vel_y()) + ra.cross(a->get_ang_vel());
+	Vec velocity_b = Vec(b->get_vel_x(),b->get_vel_y()) + rb.cross(b->get_ang_vel());	
 	Vec vrel = velocity_b - velocity_a;
 	Vec vrel2 =  velocity_a - velocity_b;
 	vrel.print();
@@ -148,19 +161,21 @@ void World::keep_distance(Vec pivot, std::shared_ptr<Body> a, std::shared_ptr<Bo
 	std::cout << vel << " vel" << std::endl;
 	f = f - (dn*const_vel);
 	fn = fn - (dn*const_vel2);
-	f = f/(b->get_im()*30);
-	fn = fn/(a->get_im()*30);
-	b->apply_impulse(f,contact);
-	a->apply_impulse(fn,contact);
+	f = f/(b->get_im() * 200);
+	fn = fn/(a->get_im() * 200);
+	b->apply_impulse(f,contact_b);
+	a->apply_impulse(fn,contact_a);
 
 	if (dist_const == 0) {	
-		a->set_x(b->get_x());
-		a->set_y(b->get_y());
+		a->set_x(a->get_x()-(d.get_x()/2.0f));
+		a->set_y(a->get_y()-(d.get_y()/2.0f));
+		b->set_x(b->get_x()+(d.get_x()/2.0f));
+		b->set_y(b->get_y()+(d.get_y()/2.0f));
 	}
 
-	connections.push_back(pivot);
-	connections.push_back(position);
-	edges.push_back(Edge(pivot,position));	
+	connections.push_back(pivot_a);
+	connections.push_back(pivot_b);
+	edges.push_back(Edge(pivot_a,pivot_b));	
 
 }
 
@@ -171,20 +186,8 @@ void World::resolve_constraints() {
 		//std::cout << "yooo" << std::endl;
 		std::shared_ptr<Body> a = joints[i].a;
 		std::shared_ptr<Body> b = joints[i].b;
-		this->keep_distance(
-			Vec(a->get_x(),a->get_y()),
-			a,
-			b,
-			Vec(0,0),
-			joints[i].d
-		);
-		this->keep_distance(
-			Vec(b->get_x(),b->get_y()),
-			b,
-			a,
-			Vec(0,0),
-			joints[i].d
-		);
+		this->keep_distance( a, joints[i].pp_a, b, joints[i].pp_b, joints[i].d );
+		this->keep_distance( b, joints[i].pp_b, a, joints[i].pp_a, joints[i].d );
 
 	} 
 	

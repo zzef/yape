@@ -20,11 +20,41 @@ void Body::generate_color() {
 	this->set_orig_color((char)c.r,(char)c.g,(char)c.b);
 }
 
+void Body::set_pos(Vec p) {
+	this->x = p.get_x();
+	this->y = p.get_y();
+}
+
+void Body::set_pos(float x, float y) {
+	this->x = x;
+	this->y = y;
+}
+
+void Body::rect(float height, float width) {
+	this->add_vertex(Vec(width/2,height/2));
+	this->add_vertex(Vec(-width/2,height/2));
+	this->add_vertex(Vec(-width/2,-height/2));
+	this->add_vertex(Vec(width/2,-height/2));
+	this->add_vertex(Vec(width/2,height/2));
+	this->init();
+	float area = height * width;
+	float m = area * this->density;
+	this->im = 1.0f/m;
+	this->iI = 1.0f/(area*m);
+
+
+}
+
+void Body::set_density(float density) {
+	this->density = density;
+	this->initialize();
+}
+
 void Body::initialize() {
 
 	if (this->type == POLYGON) {
 		this->init();
-		float m = this->Polygon::get_radius() * this->Polygon::get_radius() * M_PI * 7.2f;
+		float m = this->Polygon::get_radius() * this->Polygon::get_radius() * M_PI * this->density;
 		this->im = 1.0f/m;
 		this->iI = 1.0f/(this->Polygon::get_radius() * this->Polygon::get_radius() * m );
 	}
