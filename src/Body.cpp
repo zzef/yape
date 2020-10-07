@@ -182,7 +182,7 @@ void Body::apply_impulse(Vec normal, Vec contact) {
 	this->vel_y += velocity.get_y();
 	this->ang_vel += ang_vel;
 
-	//fake damping
+	//fake air resistance
 	this->vel_x *= 0.9999;
 	this->vel_y *= 0.9999;
 	this->ang_vel *= 0.9999;

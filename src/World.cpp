@@ -50,6 +50,7 @@ void World::render(Display* d) {
 	if (show_conns) {
 		for (int i = this->connections.size()-1; i >= 0; i--) {
 			d->draw_circle(this->connections[i],7.5,0,blue);
+			d->draw_circle(this->connections[i],2,0,color);
 			this->connections.pop_back();
 		}
 	}
@@ -114,7 +115,7 @@ void World::add_joint(Joint joint) {
 
 void World::keep_distance(std::shared_ptr<Body> a, Vec pp_a, std::shared_ptr<Body> b, Vec pp_b, float dist_const) {
 
-	float damping = 0.25;
+	float damping = 0.4;
 	if (dist_const == 0)
 		damping = 1;
 
@@ -127,26 +128,26 @@ void World::keep_distance(std::shared_ptr<Body> a, Vec pp_a, std::shared_ptr<Bod
 	Vec pivot_b = b_pos + contact_b;
 	Vec pivot_a = a_pos + contact_a;
 
-	std::cout << "contact" << std::endl;
+	//std::cout << "contact" << std::endl;
 	Vec position(b->get_x(),b->get_y());
 
 	Vec ra = pp_a * -1;
 	Vec rb = pp_b * -1;
 
-	std::cout << "(" << b->get_x() << "," << b->get_y() << ")" << std::endl;
+	//std::cout << "(" << b->get_x() << "," << b->get_y() << ")" << std::endl;
 
-	std::cout << "first pos ";
-	position.print(); 
+	//std::cout << "first pos ";
+	//position.print(); 
 	//position = position + contact;
-	std::cout << "piv" << std::endl;
+	//std::cout << "piv" << std::endl;
 	//pivot.print();
 	Vec d = pivot_a - pivot_b;
-	std::cout << "d" << std::endl;
-	d.print();
+	//std::cout << "d" << std::endl;
+	//d.print();
 	float distance = d.mag();
 	float vel = distance - dist_const;
-	std::cout << distance << " dist " << std::endl;
-	std::cout << dist_const << " distcon " << std::endl;
+	//std::cout << distance << " dist " << std::endl;
+	//std::cout << dist_const << " distcon " << std::endl;
 	Vec dn = d.normalize();
 	Vec dn2 = d.normalize();
 	Vec f = dn * vel * damping;
@@ -155,22 +156,28 @@ void World::keep_distance(std::shared_ptr<Body> a, Vec pp_a, std::shared_ptr<Bod
 	Vec velocity_b = Vec(b->get_vel_x(),b->get_vel_y()) + rb.cross(b->get_ang_vel());	
 	Vec vrel = velocity_b - velocity_a;
 	Vec vrel2 =  velocity_a - velocity_b;
-	vrel.print();
+	//vrel.print();
+	float ta = dn.cross(1.0f).dot(vrel2);
+	float tb = dn.cross(1.0f).dot(vrel);
+
+	Vec tva = dn.cross(1.0f) * ta;
+	Vec tvb = dn.cross(1.0f) * tb;
+
 	float const_vel = dn.dot(vrel);
 	float const_vel2 = dn2.dot(vrel2);
-	std::cout << vel << " vel" << std::endl;
-	f = f - (dn*const_vel);
-	fn = fn - (dn*const_vel2);
-	f = f/(b->get_im() * 200);
-	fn = fn/(a->get_im() * 200);
+	//std::cout << vel << " vel" << std::endl;
+	f = f - (dn*const_vel) - (tvb * 0.0025); // - tvb for rotational damping
+	fn = fn - (dn*const_vel2) - (tva * 0.0025);
+	f = f/(b->get_im() * 100);
+	fn = fn/(a->get_im() * 100);
 	b->apply_impulse(f,contact_b);
 	a->apply_impulse(fn,contact_a);
 
 	if (dist_const == 0) {	
-		a->set_x(a->get_x()-(d.get_x()/2.0f));
-		a->set_y(a->get_y()-(d.get_y()/2.0f));
-		b->set_x(b->get_x()+(d.get_x()/2.0f));
-		b->set_y(b->get_y()+(d.get_y()/2.0f));
+		//a->set_x(a->get_x()-(d.get_x()/2.0f));
+		//a->set_y(a->get_y()-(d.get_y()/2.0f));
+		//b->set_x(b->get_x()+(d.get_x()/2.0f));
+		//b->set_y(b->get_y()+(d.get_y()/2.0f));
 	}
 
 	connections.push_back(pivot_a);
@@ -199,7 +206,7 @@ void World::simulate() {
 	for (int i = 0; i < this->bodies; i++) {
 
 		std::shared_ptr<Body> b = this->Bodies[i];	
-		if (b->is_earthed())
+		if (b->get_im()==0)
 			continue;
 
 		if(this->mouse_down && b->get_mouse_contact()) {

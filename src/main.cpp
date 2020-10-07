@@ -169,24 +169,39 @@ void test() {
 	//world.add_body(b2);
 
 	std::shared_ptr<Body> rect1 = std::make_shared<Body>(POLYGON);
-	rect1->rect(30,200);
+	rect1->rect(30,100);
 	rect1->set_pos(600,300);
 	std::shared_ptr<Body> rect2 = std::make_shared<Body>(POLYGON);
-	rect2->rect(30,200);
-	rect2->set_pos(500,300);
+	rect2->rect(30,100);
+	rect2->set_pos(800,300);
 	std::shared_ptr<Body> rect3 = std::make_shared<Body>(POLYGON);
-	rect3->rect(30,200);
-	rect3->set_pos(600,300);
+	rect3->rect(30,100);
+	rect3->set_pos(1000,300);
+	std::shared_ptr<Body> rect4 = std::make_shared<Body>(POLYGON);
+	rect4->rect(30,100);
+	rect4->set_pos(1200,300);
+
+
+	std::shared_ptr<Body> rect5 = std::make_shared<Body>(POLYGON);
+	rect5->rect(150,150);
+	rect5->set_pos(1500,300);
 	
-	Joint joint(rect1,Vec(80,0),rect2,Vec(-80,0),0);	
-	Joint joint2(rect2,Vec(80,0),rect3,Vec(-80,0),0);	
+	Joint joint(rect1,Vec(40,0),rect2,Vec(-40,0),0);	
+	Joint joint2(rect2,Vec(40,0),rect3,Vec(-40,0),0);	
+	Joint joint3(rect3,Vec(40,0),rect4,Vec(-40,0),0);	
+	Joint joint4(rect4,Vec(40,0),rect5,Vec(0,0),300);	
+
 	world.add_joint(joint);
 	world.add_joint(joint2);
+	world.add_joint(joint3);
+	world.add_joint(joint4);
 	
 
 	world.add_body(rect1);
 	world.add_body(rect2);
 	world.add_body(rect3);
+	world.add_body(rect4);
+	world.add_body(rect5);
 
 
 
@@ -206,11 +221,12 @@ void initialize() {
 	world.show_normals(false);
 		
 	test();
-	
-	int height = 70;
-	int margin = 20;
+
+	int thickness = 40;	
+	int height = thickness;
+	int margin = 40;
 	int width = W_WIDTH-(margin*2);
-	std::shared_ptr<Body> b4 = std::make_shared<Body>(POLYGON,true);
+	std::shared_ptr<Body> b4 = std::make_shared<Body>(POLYGON);
 	b4->add_vertex(Vec(width/2,height/2));
 	b4->add_vertex(Vec(-width/2,height/2));
 	b4->add_vertex(Vec(-width/2,-height/2));
@@ -221,6 +237,25 @@ void initialize() {
 	b4->initialize();
 	b4->set_iI(0);
 	b4->set_im(0);
+
+
+	float wh = 600;
+
+	std::shared_ptr<Body> wall1 = std::make_shared<Body>(POLYGON);
+	wall1->rect(wh,thickness);
+	wall1->set_iI(0);
+	wall1->set_im(0);
+	wall1->set_pos((thickness/2.0f) + W_WIDTH - margin - thickness,100 + (wh/2));
+
+	std::shared_ptr<Body> wall2 = std::make_shared<Body>(POLYGON);
+	wall2->rect(wh,thickness);
+	wall2->set_iI(0);
+	wall2->set_im(0);
+	wall2->set_pos((thickness/2.0f) + margin,100 + (wh/2));
+
+	world.add_body(wall1);	
+	world.add_body(wall2);
+
 	world.add_body(b4);
 
 }

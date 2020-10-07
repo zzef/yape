@@ -8,6 +8,10 @@ A Rigid body impulse based physics engine written in C++. This was written to ga
 - Friction
 
 <p align="center">
+  <img src="https://raw.githubusercontent.com/zzef/zef-physics-engine/master/demos/demo2.gif">
+</p>
+
+<p align="center">
   <img src="https://raw.githubusercontent.com/zzef/zef-physics-engine/master/demos/demo1.gif">
 </p>
 
