@@ -50,7 +50,6 @@ void World::render(Display* d) {
 	if (show_conns) {
 		for (int i = this->connections.size()-1; i >= 0; i--) {
 			d->draw_circle(this->connections[i],7.5,0,blue);
-			d->draw_circle(this->connections[i],2,0,color);
 			this->connections.pop_back();
 		}
 	}
@@ -202,6 +201,10 @@ void World::resolve_constraints() {
 }
 
 void World::simulate() {
+
+	this->generate_manifolds();
+	this->resolve_manifolds();
+	this->resolve_constraints();
 	
 	for (int i = 0; i < this->bodies; i++) {
 
@@ -215,14 +218,11 @@ void World::simulate() {
 		}
 			
 		b->set_vel_y(b->get_vel_y()+this->gravity);
-		b->set_y(b->get_y()+b->get_vel_y());
-		b->set_x(b->get_x()+b->get_vel_x());
 		b->set_orientation(b->get_orientation()+b->get_ang_vel());
+		b->set_x(b->get_x()+b->get_vel_x());
+		b->set_y(b->get_y()+b->get_vel_y());
 	}
 
-	this->generate_manifolds();
-	this->resolve_constraints();
-	this->resolve_manifolds();
 
 }
 
