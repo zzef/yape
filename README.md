@@ -5,7 +5,7 @@ A Rigid body impulse based physics engine written in C++. This was written to ga
 - Random polygon generation
 - Collision detection (Separated axis theorem)
 - Impulse based collision response
-- Friction
+- Frictional impulse (Coulomb friction)
 - Springs
 - Distance joints (modelled as springs)
 - Revolute joints (modelled as short (kinda stiff) springs)
