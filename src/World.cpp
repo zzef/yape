@@ -217,10 +217,15 @@ void World::simulate() {
 			continue;
 		}
 			
-		b->set_vel_y(b->get_vel_y()+this->gravity);
-		b->set_orientation(b->get_orientation()+b->get_ang_vel());
-		b->set_x(b->get_x()+b->get_vel_x());
-		b->set_y(b->get_y()+b->get_vel_y());
+		Vec velocity = Vec(b->get_vel_x(),b->get_vel_y());
+		velocity.print();
+		std::cout << "position " << std::endl;
+		Vec position = Vec(b->get_x(),b->get_y());
+		b->set_vel_y(b->get_vel_y()+(this->gravity * (dt / 2.0f)));
+		b->set_orientation(b->get_orientation()+(b->get_ang_vel()*dt));
+		b->set_x(b->get_x()+(b->get_vel_x()*dt));
+		b->set_y(b->get_y()+(b->get_vel_y()*dt));
+		position.print();
 	}
 
 
@@ -272,7 +277,12 @@ void World::resolve_manifolds() {
 			Vec rb = this->contacts[i].contacts[j] - position_b;
 				
 			Vec rv = velocity_a + ra.cross(ang_vel_a) - (velocity_b + rb.cross(ang_vel_b)); 
+			//Vec rv = velocity_a - velocity_b;
 	
+			//if (rv.mag() < this->gravity) 
+			//	e = 0.0f;
+
+
 			//std::cout << "---------" << std::endl;	
 			//rv.print();		
 		
@@ -292,8 +302,10 @@ void World::resolve_manifolds() {
 			float racrossn = ra.cross(sep_norm);
 			float rbcrossn = rb.cross(sep_norm);
 			//std::cout << "racrossn " << racrossn << std::endl;
+			//std::cout << "rbcrossn " << rbcrossn << std::endl;
 		
-			float inv_mass_sum = (float) (A->get_im() +  ((racrossn*racrossn) * A->get_iI())) + (B->get_im() +  ((racrossn*racrossn) * B->get_iI()));
+			float inv_mass_sum = (float) (A->get_im() +  ((racrossn*racrossn) * A->get_iI())) + (B->get_im() +  ((rbcrossn*rbcrossn) * B->get_iI()));
+			//float inv_mass_sum = (float) A->get_im() + B->get_im();
 
 			//std::cout << "inv_mass_sum " << inv_mass_sum << std::endl;
 		
@@ -305,9 +317,9 @@ void World::resolve_manifolds() {
 	
 			Vec impulse = sep_norm * ji;
 			A->apply_impulse(impulse,ra);
-			Vec nimpulse = sep_norm * ji * -1;
-			B->apply_impulse(nimpulse, rb);		
-
+			Vec nimpulse = sep_norm * ji * -1.0f;
+			B->apply_impulse(nimpulse, rb);	
+			//nimpulse.print();	
 
 			float df = 0.40;
 			float mu = 0.50;
@@ -348,9 +360,8 @@ void World::resolve_manifolds() {
 
 			A->apply_impulse(fimpulse,ra);
 			Vec nfimpulse = fimpulse * -1;			
-			B->apply_impulse(nfimpulse, rb);
-				
-
+			B->apply_impulse(nfimpulse, rb);			
+			
 		}
 
 
@@ -392,6 +403,7 @@ void World::generate_manifolds() {
 					continue;
 				}
 				this->generate_pp_manifold(A,B);
+				//std::cout << "checking " << A->get_x() << " against " << B->get_x() << std::endl;
 			}
 
 		}	

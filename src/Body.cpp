@@ -183,9 +183,9 @@ void Body::apply_impulse(Vec normal, Vec contact) {
 	this->ang_vel += ang_vel;
 
 	//fake air resistance
-	this->vel_x *= 0.9999;
-	this->vel_y *= 0.9999;
-	this->ang_vel *= 0.9999;
+	//this->vel_x *= 0.9999;
+	//this->vel_y *= 0.9999;
+	//this->ang_vel *= 0.9999;
 }
 
 void Body::set_orig_color(char r, char g, char b) {

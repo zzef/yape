@@ -161,7 +161,7 @@ void test() {
 
 	world.add_body(a2);
 	a2->set_orientation(random(0,360)*(M_PI/180.0f));	
-	world.add_body(a);
+	//world.add_body(a);
 	a->set_orientation(random(0,360)*(M_PI/180.0f));
 	
 	//world.add_body(b);
@@ -191,17 +191,17 @@ void test() {
 	Joint joint3(rect3,Vec(40,0),rect4,Vec(-40,0),0);	
 	Joint joint4(rect4,Vec(40,0),rect5,Vec(0,0),300);	
 
-	world.add_joint(joint);
-	world.add_joint(joint2);
-	world.add_joint(joint3);
-	world.add_joint(joint4);
+	//world.add_joint(joint);
+	//world.add_joint(joint2);
+	//world.add_joint(joint3);
+	//world.add_joint(joint4);
 	
 
-	world.add_body(rect1);
-	world.add_body(rect2);
-	world.add_body(rect3);
-	world.add_body(rect4);
-	world.add_body(rect5);
+	//world.add_body(rect1);
+	//world.add_body(rect2);
+	//world.add_body(rect3);
+	//world.add_body(rect4);
+	//world.add_body(rect5);
 
 
 
@@ -220,8 +220,6 @@ void initialize() {
 	world.show_connections(true);
 	world.show_normals(false);
 		
-	test();
-
 	int thickness = 40;	
 	int height = thickness;
 	int margin = 40;
@@ -255,30 +253,84 @@ void initialize() {
 
 	world.add_body(wall1);	
 	world.add_body(wall2);
-
 	world.add_body(b4);
+
+	test();
 
 }
 
+float t = 0.0f;
+auto t_prev = std::chrono::high_resolution_clock::now();
+float accumulator = 0.0f;
+float y = 100;
+float x = 100;
+float speed = 0;
+float grav = 60.0f;
+int draws = 0;
+int updates = 0;
+double t_time;
+char color[3] = {(char)255,(char)0,(char)0};
+
 int main() {
-	
-	srand (time(NULL));
+
+	srand (time(NULL));	
 	bool quit = false;
 	SDL_Event e;
 	initialize();
-	while(!quit) {	
-		while (SDL_PollEvent( &e )) {
 
-			if (e.type == SDL_QUIT)
-				quit=true;
-			else
-				handle_event( e );
+	while ( !quit ) {
+	
+		//std::cout << "yooo\n" << std::endl;
+		auto t_now = std::chrono::high_resolution_clock::now();
+		double frame_time = std::chrono::duration_cast<std::chrono::nanoseconds>(t_now - t_prev).count();
+		frame_time *= 1e-9;
+		//std::cout << "frame_time " << frame_time << std::endl;
+		accumulator += frame_time;
+		t_time += frame_time;
+		t_prev = t_now;
+		//std::cout << "accumulator " << accumulator << std::endl;
+
+		if (t_time > 1){
+			std::cout << "updates " << updates << ", renders " << draws << std::endl;
+			t_time = 0;
+			draws = 0;
+			updates = 0;
+		}
+
+		while ( accumulator >= dt ) {
+			//std::cout << "yooi4o" << std::endl;
+			//std::cout << "accumulator " << accumulator << std::endl;
+	
+			while (SDL_PollEvent( &e )) {
+
+				if (e.type == SDL_QUIT)
+					quit=true;
+				else
+					handle_event( e );
+
+			}
+		
+			update();
+			
+			/*speed+=grav;
+			y+=(speed*dtt);
+			if (y>700) {
+				y -= (y+50-700);
+				speed*=-0.9;
+			}
+			*/
+			accumulator -= dt ;
+			updates++;
+
+		} 
+		display.show();
+		render();
+		draws++;
+
+		//std::cout << "drawing" << std::endl;
+		//display.draw_circle(Vec(x,y),50,0,color);
 
 		}
-		update();
-		render();
-		display.show();
-	}
 
 	return 0;
 }

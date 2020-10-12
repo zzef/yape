@@ -3,7 +3,7 @@
 
 #define MAX_V 10
 #define MIN_V 3
-#define DEF_GRAV 0.0006
+#define DEF_GRAV 5000.0f
 #define MAX_BODIES 100
 #define POLYGON 0
 #define CIRCLE 1
@@ -14,10 +14,11 @@
 #define YELLOW 222, 237, 11
 #define SHOW_NORMALS 1 << 0
 #define SHOW_POLYMIDS 1 << 1
-
+const float dt = (float) 1.0f/60.0f;
 
 #include "SDL2/SDL.h"
 #include <iostream>
+#include <chrono>
 #include <string>
 #include "Vector.h"
 #include "Display.h"
