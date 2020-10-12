@@ -293,7 +293,7 @@ void World::resolve_manifolds() {
 			float rbcrossn = rb.cross(sep_norm);
 			//std::cout << "racrossn " << racrossn << std::endl;
 		
-			float inv_mass_sum = (float) (A->get_im() +  ((racrossn*racrossn) * A->get_iI())) + (B->get_im() +  ((racrossn*racrossn) * B->get_iI()));
+			float inv_mass_sum = (float) (A->get_im() +  ((racrossn*racrossn) * A->get_iI())) + (B->get_im() +  ((rbcrossn*rbcrossn) * B->get_iI()));
 
 			//std::cout << "inv_mass_sum " << inv_mass_sum << std::endl;
 		
