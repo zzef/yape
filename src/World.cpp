@@ -114,9 +114,9 @@ void World::add_joint(Joint joint) {
 
 void World::keep_distance(std::shared_ptr<Body> a, Vec pp_a, std::shared_ptr<Body> b, Vec pp_b, float dist_const) {
 
-	float damping = 0.4;
+	float damping = 100;
 	if (dist_const == 0)
-		damping = 1;
+		damping = 160;
 
 	Vec b_pos(b->get_x(),b->get_y());
 	Vec a_pos(a->get_x(),a->get_y());
@@ -202,10 +202,14 @@ void World::resolve_constraints() {
 
 void World::simulate() {
 
-	this->generate_manifolds();
-	this->resolve_manifolds();
-	this->resolve_constraints();
-	
+	for (int i = 0; i < 10; i++) {
+		this->generate_manifolds();
+		this->resolve_manifolds();
+		this->resolve_constraints();
+		this->apply_positional_correction();
+		this->contacts.clear();
+	}
+
 	for (int i = 0; i < this->bodies; i++) {
 
 		std::shared_ptr<Body> b = this->Bodies[i];	
@@ -218,15 +222,16 @@ void World::simulate() {
 		}
 			
 		Vec velocity = Vec(b->get_vel_x(),b->get_vel_y());
-		velocity.print();
-		std::cout << "position " << std::endl;
+		//velocity.print();
+		//std::cout << "position " << std::endl;
 		Vec position = Vec(b->get_x(),b->get_y());
 		b->set_vel_y(b->get_vel_y()+(this->gravity * (dt / 2.0f)));
 		b->set_orientation(b->get_orientation()+(b->get_ang_vel()*dt));
 		b->set_x(b->get_x()+(b->get_vel_x()*dt));
 		b->set_y(b->get_y()+(b->get_vel_y()*dt));
-		position.print();
+		//position.print();
 	}
+
 
 
 }
@@ -241,6 +246,26 @@ void World::show_collisions(bool show) {
 
 void World::show_contacts(bool show) {
 	this->show_conts = show;
+}
+
+void World::apply_positional_correction() {
+  const float k_slop = 0.0f; // Penetration allowance
+  const float percent = 0.8f; // Penetration percentage to correct
+
+	for (int i = contacts.size()-1; i>=0; i--) {
+		std::shared_ptr<Body> A = this->contacts[i].A;	
+		std::shared_ptr<Body> B = this->contacts[i].B;
+		float penetration = this->contacts[i].mtvm;
+		Vec normal = this->contacts[i].mtv;
+		Vec correction = normal * (std::max( penetration - k_slop, 0.0f ) / (A->get_im() + B->get_im())) * percent;
+	
+		A->set_x(A->get_x() + (correction.get_x() * A->get_im()));
+		A->set_y(A->get_y() + (correction.get_y() * A->get_im()));
+
+		B->set_x(B->get_x() - (correction.get_x() * B->get_im()));
+		B->set_y(B->get_y() - (correction.get_y() * B->get_im()));
+		
+	}
 }
 
 void World::resolve_manifolds() {
@@ -258,18 +283,25 @@ void World::resolve_manifolds() {
 
 		Vec position_a(A->get_x(),A->get_y());
 		Vec position_b(B->get_x(),B->get_y());
-		
-		Vec velocity_a(A->get_vel_x(),A->get_vel_y());
-		Vec velocity_b(B->get_vel_x(),B->get_vel_y());
-
-		float ang_vel_a = A->get_ang_vel();
-		float ang_vel_b = B->get_ang_vel();
-
+			
 		float e = 0.5f;
 		Vec mv = this->contacts[i].mtv * this->contacts[i].mtvm;
 		Vec mtv = this->contacts[i].mtv;
 		float contacts_ = this->contacts[i].no_contacts;	
+		//std::cout << "contacts " << contacts_ << std::endl;
+
+		Vec velocity_a(A->get_vel_x(),A->get_vel_y());
+		Vec velocity_b(B->get_vel_x(),B->get_vel_y());
+	
+		float ang_vel_a = A->get_ang_vel();
+		float ang_vel_b = B->get_ang_vel();
+
 		for (int j = 0; j<contacts_; j++) {
+
+			//std::cout << "contact " << j << std::endl;
+			//std::cout << "==========" << std::endl;	
+			//velocity_a.print();
+			//velocity_b.print();
 
 			this->contact_points.push_back(this->contacts[i].contacts[j]);
 
@@ -287,8 +319,6 @@ void World::resolve_manifolds() {
 			//rv.print();		
 		
 			float contact_vel = rv.dot(sep_norm);	
-
-			//std::cout << "contacts " << contacts_ << std::endl;
 	
 			//std::cout << "contact vel " << contact_vel << std::endl;
 
@@ -312,32 +342,27 @@ void World::resolve_manifolds() {
 			float ji = -(1.0f + e) * contact_vel;
 			ji /= inv_mass_sum;
 			//std::cout << "ji " << ji << std::endl;
-			ji /= contacts_; 
+			ji /= (float) contacts_; 
 			//std::cout << "ji " << ji << std::endl;
 	
-			Vec impulse = sep_norm * ji;
-			A->apply_impulse(impulse,ra);
-			Vec nimpulse = sep_norm * ji * -1.0f;
-			B->apply_impulse(nimpulse, rb);	
-			//nimpulse.print();	
-
 			float df = 0.40;
 			float mu = 0.50;
+			
+			//std::cout << "==========" << std::endl;	
+			//velocity_a.print();
+			//velocity_b.print();
 		
-			ang_vel_a = A->get_ang_vel();
-			ang_vel_b = B->get_ang_vel();
+			//std::cout << "velocities" << std::endl;
+			//velocity_a.print();
+			//velocity_b.print();
 	
-			velocity_a = Vec(A->get_vel_x(),A->get_vel_y());
-			velocity_b = Vec(B->get_vel_x(),B->get_vel_y());
-				
-			rv = velocity_a + ra.cross(ang_vel_a) - (velocity_b + rb.cross(ang_vel_b)); 
 			
 			Vec t = rv - (sep_norm * (rv.dot(sep_norm)));
-				
 			//std::cout << "t ---" << std::endl;
 			//rv.print();
 			//sep_norm.print();
 			//t.print(); 
+			//std::cout << "done--" << std::endl;
 			t = t.normalize();
 				
 			//std::cout << "== norms" << std::endl;
@@ -347,35 +372,42 @@ void World::resolve_manifolds() {
 			jt /= inv_mass_sum;
 			jt /= contacts_;
 
-			if (abs(jt)<0.001)
-				break;
-				
-			Vec fimpulse;
+			//if (abs(jt)<1e+6)
+			//	break;
+			
+			//std::cout << "jt " << jt << std::endl;
+	
+			Vec impulse = sep_norm * ji;
 			if (abs(jt) < ji*mu) {
-				fimpulse = t * jt;
+				impulse = impulse + ( t * jt );
 			}
 			else {
-				fimpulse = t * (-ji * df);
+				impulse = impulse + ( t * (-ji * df) );
 			}
 
-			A->apply_impulse(fimpulse,ra);
-			Vec nfimpulse = fimpulse * -1;			
-			B->apply_impulse(nfimpulse, rb);			
-			
+			//fimpulse.print();	
+	
+			A->apply_impulse(impulse,ra);
+			Vec nimpulse = impulse * -1;			
+			B->apply_impulse(nimpulse, rb);			
+
 		}
+
+		/*
+		if (A->get_im()==0 || B->get_im()==0)
+			mv = mv*2;
 
 
 		if (A->get_im() > 0) {
-			A->set_x(A->get_x()+(mv.get_x()*0.25f));
-			A->set_y(A->get_y()+(mv.get_y()*0.25f));
+			A->set_x(A->get_x()+(mv.get_x()*0.5f));
+			A->set_y(A->get_y()+(mv.get_y()*0.5f));
 		}
 		
 		if (B->get_im() > 0) {
-			B->set_x(B->get_x()-(mv.get_x()*0.25f));
-			B->set_y(B->get_y()-(mv.get_y()*0.25f));
+			B->set_x(B->get_x()-(mv.get_x()*0.5f));
+			B->set_y(B->get_y()-(mv.get_y()*0.5f));
 		}
-
-		contacts.pop_back();
+		*/
 
 	}
 

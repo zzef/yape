@@ -41,6 +41,7 @@ class World {
 		void keep_distance(std::shared_ptr<Body> a, Vec pp_a, std::shared_ptr<Body> b, Vec pp_b, float dist_const);
 		void integrate();
 		bool is_joined(std::shared_ptr<Body> a, std::shared_ptr<Body> b);
+		void apply_positional_correction();
 
 	public:
 		World();

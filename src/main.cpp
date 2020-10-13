@@ -191,17 +191,17 @@ void test() {
 	Joint joint3(rect3,Vec(40,0),rect4,Vec(-40,0),0);	
 	Joint joint4(rect4,Vec(40,0),rect5,Vec(0,0),300);	
 
-	//world.add_joint(joint);
-	//world.add_joint(joint2);
-	//world.add_joint(joint3);
-	//world.add_joint(joint4);
+	world.add_joint(joint);
+	world.add_joint(joint2);
+	world.add_joint(joint3);
+	world.add_joint(joint4);
 	
 
-	//world.add_body(rect1);
-	//world.add_body(rect2);
-	//world.add_body(rect3);
-	//world.add_body(rect4);
-	//world.add_body(rect5);
+	world.add_body(rect1);
+	world.add_body(rect2);
+	world.add_body(rect3);
+	world.add_body(rect4);
+	world.add_body(rect5);
 
 
 
@@ -237,7 +237,7 @@ void initialize() {
 	b4->set_im(0);
 
 
-	float wh = 600;
+	float wh = 400;
 
 	std::shared_ptr<Body> wall1 = std::make_shared<Body>(POLYGON);
 	wall1->rect(wh,thickness);
@@ -297,6 +297,8 @@ int main() {
 			updates = 0;
 		}
 
+		accumulator = std::min(0.1f,accumulator); //preventing spiral of death
+
 		while ( accumulator >= dt ) {
 			//std::cout << "yooi4o" << std::endl;
 			//std::cout << "accumulator " << accumulator << std::endl;
@@ -321,12 +323,12 @@ int main() {
 			*/
 			accumulator -= dt ;
 			updates++;
+			display.show();
+			render();
+			draws++;
 
 		} 
-		display.show();
-		render();
-		draws++;
-
+	
 		//std::cout << "drawing" << std::endl;
 		//display.draw_circle(Vec(x,y),50,0,color);
 

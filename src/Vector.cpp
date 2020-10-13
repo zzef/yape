@@ -2,7 +2,8 @@
 #include "../include/utils.h"
 
 Vec::Vec() {
-	
+	this->x = 0;
+	this->y = 0;	
 }
 
 float Vec::get_x() const {
