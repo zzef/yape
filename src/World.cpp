@@ -202,7 +202,7 @@ void World::resolve_constraints() {
 
 void World::simulate() {
 
-	for (int i = 0; i < 10; i++) {
+	for (int i = 0; i < resolution_iterations; i++) {
 		this->generate_manifolds();
 		this->resolve_manifolds();
 		this->resolve_constraints();
@@ -284,7 +284,7 @@ void World::resolve_manifolds() {
 		Vec position_a(A->get_x(),A->get_y());
 		Vec position_b(B->get_x(),B->get_y());
 			
-		float e = 0.5f;
+		float e = 0.4f;
 		Vec mv = this->contacts[i].mtv * this->contacts[i].mtvm;
 		Vec mtv = this->contacts[i].mtv;
 		float contacts_ = this->contacts[i].no_contacts;	
@@ -345,8 +345,8 @@ void World::resolve_manifolds() {
 			ji /= (float) contacts_; 
 			//std::cout << "ji " << ji << std::endl;
 	
-			float df = 0.40;
-			float mu = 0.50;
+			float df = 0.35f;
+			float mu = 0.40f;
 			
 			//std::cout << "==========" << std::endl;	
 			//velocity_a.print();

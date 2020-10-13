@@ -54,7 +54,7 @@ void Body::initialize() {
 
 	if (this->type == POLYGON) {
 		this->init();
-		float m = this->Polygon::get_radius() * this->Polygon::get_radius() * M_PI * this->density;
+		float m = pow(this->Polygon::get_radius(),6) * M_PI * this->density;
 		this->im = 1.0f/m;
 		this->iI = 1.0f/(this->Polygon::get_radius() * this->Polygon::get_radius() * m );
 	}
@@ -183,9 +183,9 @@ void Body::apply_impulse(Vec normal, Vec contact) {
 	this->ang_vel += ang_vel;
 
 	//fake air resistance
-	this->vel_x *= 0.9999;
-	this->vel_y *= 0.9999;
-	this->ang_vel *= 0.9999;
+	//this->vel_x *= 0.9999;
+	//this->vel_y *= 0.9999;
+	//this->ang_vel *= 0.9999;
 }
 
 void Body::set_orig_color(char r, char g, char b) {
