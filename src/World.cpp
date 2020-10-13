@@ -116,7 +116,7 @@ void World::keep_distance(std::shared_ptr<Body> a, Vec pp_a, std::shared_ptr<Bod
 
 	float damping = 100;
 	if (dist_const == 0)
-		damping = 160;
+		damping = 600;
 
 	Vec b_pos(b->get_x(),b->get_y());
 	Vec a_pos(a->get_x(),a->get_y());
@@ -167,8 +167,8 @@ void World::keep_distance(std::shared_ptr<Body> a, Vec pp_a, std::shared_ptr<Bod
 	//std::cout << vel << " vel" << std::endl;
 	f = f - (dn*const_vel) - (tvb * 0.0025); // - tvb for rotational damping
 	fn = fn - (dn*const_vel2) - (tva * 0.0025);
-	f = f/(b->get_im() * 100);
-	fn = fn/(a->get_im() * 100);
+	f = f/(b->get_im() * 80);
+	fn = fn/(a->get_im() * 80);
 	b->apply_impulse(f,contact_b);
 	a->apply_impulse(fn,contact_a);
 

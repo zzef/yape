@@ -4,7 +4,7 @@
 #define MAX_V 10
 #define MIN_V 3
 #define DEF_GRAV 2500.0f
-#define MAX_BODIES 35
+#define MAX_BODIES 45
 #define POLYGON 0
 #define CIRCLE 1
 #define MIN_POLY_RAD 20
@@ -14,7 +14,7 @@
 #define YELLOW 222, 237, 11
 #define SHOW_NORMALS 1 << 0
 #define SHOW_POLYMIDS 1 << 1
-#define resolution_iterations 5
+#define resolution_iterations 10
 const float dt = (float) 1.0f/60.0f;
 
 #include "SDL2/SDL.h"

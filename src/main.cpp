@@ -237,7 +237,7 @@ void initialize() {
 	b4->set_im(0);
 
 
-	float wh = 400;
+	float wh = 700;
 
 	std::shared_ptr<Body> wall1 = std::make_shared<Body>(POLYGON);
 	wall1->rect(wh,thickness);
