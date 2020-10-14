@@ -29,13 +29,14 @@ A Rigid body impulse based physics engine written in C++. This was written to ga
 - https://www.gafferongames.com/post/collision_response_and_coulomb_friction/
 - https://www.gafferongames.com/post/integration_basics/
 
-## Main improvements
+## Todos and Further Improvements
 
 - Finish Circle to circle and circle to polygon collision
 - Inertia tensor for polygons could be based on area giving better realistic movement
 - Generate neon colors for each polygon
 - Fix timestep (Currently directly tied to framerate so not very portable)
 - During manifold generation the bodies rotation and position vector is applied every time some new calculation is done. This is unnecessary and slow as it need only be done once. Solution is to store world space after each integration and use this to perform calculations.
+- Implement warm starting and impulse accumulation for better stability (especially at lower frames, sub 60fps)
 
 ## Dependencies
 - libSDL2
