@@ -54,7 +54,7 @@ void Body::initialize() {
 
 	if (this->type == POLYGON) {
 		this->init();
-		float m = pow(this->Polygon::get_radius(),11) * M_PI * this->density;
+		float m = pow(this->Polygon::get_radius(),2) * M_PI * this->density;
 		this->im = 1.0f/m;
 		this->iI = 1.0f/(this->Polygon::get_radius() * this->Polygon::get_radius() * m );
 	}

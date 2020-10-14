@@ -3,7 +3,7 @@
 
 #define MAX_V 10
 #define MIN_V 3
-#define DEF_GRAV 2500.0f
+#define DEF_GRAV 2000.0f
 #define MAX_BODIES 45
 #define POLYGON 0
 #define CIRCLE 1
@@ -14,8 +14,9 @@
 #define YELLOW 222, 237, 11
 #define SHOW_NORMALS 1 << 0
 #define SHOW_POLYMIDS 1 << 1
-#define resolution_iterations 10
-const float dt = (float) 1.0f/60.0f;
+#define resolution_iterations 1
+#define FPS 60
+const float dt = (float) 1.0f/((float)FPS);
 
 #include "SDL2/SDL.h"
 #include <iostream>

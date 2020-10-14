@@ -202,13 +202,13 @@ void World::resolve_constraints() {
 
 void World::simulate() {
 
-	for (int i = 0; i < resolution_iterations; i++) {
+	//for (int i = 0; i < resolution_iterations; i++) {
 		this->generate_manifolds();
 		this->resolve_manifolds();
 		this->resolve_constraints();
 		this->apply_positional_correction();
 		this->contacts.clear();
-	}
+	//}
 
 	for (int i = 0; i < this->bodies; i++) {
 
