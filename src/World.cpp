@@ -266,7 +266,7 @@ void World::show_contacts(bool show) {
 
 void World::apply_positional_correction() {
   const float k_slop = 0.05f; // Penetration allowance
-  const float percent = 0.65f; // Penetration percentage to correct
+  const float percent = 0.55f; // Penetration percentage to correct
 
 	for (int i = contacts.size()-1; i>=0; i--) {
 		std::shared_ptr<Body> A = this->contacts[i].A;	
@@ -327,8 +327,8 @@ void World::resolve_manifolds() {
 			Vec rv = velocity_a + ra.cross(ang_vel_a) - (velocity_b + rb.cross(ang_vel_b)); 
 			//Vec rv = velocity_a - velocity_b;
 	
-			//if (rv.mag() < this->gravity) 
-			//	e = 0.0f;
+			if (rv.mag() < this->gravity * dt ) // if collision is weaker than gravity then cause bodies to lose energy fast and come to rest 
+				e = 0.0f;
 
 
 			//std::cout << "---------" << std::endl;	
@@ -402,28 +402,11 @@ void World::resolve_manifolds() {
 			}
 
 			//fimpulse.print();	
-	
 			A->apply_impulse(impulse,ra);
 			Vec nimpulse = impulse * -1;			
 			B->apply_impulse(nimpulse, rb);			
 
 		}
-
-		/*
-		if (A->get_im()==0 || B->get_im()==0)
-			mv = mv*2;
-
-
-		if (A->get_im() > 0) {
-			A->set_x(A->get_x()+(mv.get_x()*0.5f));
-			A->set_y(A->get_y()+(mv.get_y()*0.5f));
-		}
-		
-		if (B->get_im() > 0) {
-			B->set_x(B->get_x()-(mv.get_x()*0.5f));
-			B->set_y(B->get_y()-(mv.get_y()*0.5f));
-		}
-		*/
 
 	}
 

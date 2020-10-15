@@ -302,7 +302,7 @@ int main() {
 			else
 				handle_event( e );
 
-			}
+		}
 
 		while ( accumulator >= dt ) {
 			//std::cout << "yooi4o" << std::endl;
