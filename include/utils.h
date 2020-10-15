@@ -2,9 +2,9 @@
 #define UTILS_H
 
 struct Color {
-	int r;
-	int g;
-	int b;
+	float r;
+	float g;
+	float b;
 };
 
 int random(int a, int b);
