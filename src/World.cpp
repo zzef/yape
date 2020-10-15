@@ -3,7 +3,6 @@
 #include "../include/Body.h"
 #include "../include/World.h"
 #include "../include/Joints.h"
-#include "../include/Joints.h"
 
 World::World() {
  	this->gravity = DEF_GRAV;
@@ -103,13 +102,11 @@ void World::show_connections(bool show) {
 	this->show_conns=show;
 }
 
-
 void World::reset_colors() {
 	for (int i = 0; i<this->bodies; i++) {
 		this->Bodies[i]->reset_color();
 	}
 }
-
 
 void World::add_joint(Joint joint) {
 	this->joints.push_back(joint);
@@ -208,20 +205,11 @@ void World::simulate() {
 	this->generate_manifolds();
 	this->resolve_manifolds();
 	this->resolve_constraints();
-
-void World::simulate() {
-
 	
 	for (int i = 0; i < this->bodies; i++) {
 
 		std::shared_ptr<Body> b = this->Bodies[i];	
-
 		if (b->get_im()==0)
-
-		if (b->is_earthed())
-
-		if (b->get_im()==0)
-
 			continue;
 
 		if(this->mouse_down && b->get_mouse_contact()) {
@@ -230,24 +218,10 @@ void World::simulate() {
 		}
 			
 		b->set_vel_y(b->get_vel_y()+this->gravity);
-
 		b->set_orientation(b->get_orientation()+b->get_ang_vel());
 		b->set_x(b->get_x()+b->get_vel_x());
 		b->set_y(b->get_y()+b->get_vel_y());
 	}
-
-
-		b->set_y(b->get_y()+b->get_vel_y());
-		b->set_x(b->get_x()+b->get_vel_x());
-
-
-		b->set_orientation(b->get_orientation()+b->get_ang_vel());
-		b->set_x(b->get_x()+b->get_vel_x());
-		b->set_y(b->get_y()+b->get_vel_y());
-	}
-
-	this->generate_manifolds();
-	this->resolve_manifolds();
 
 
 }
@@ -286,25 +260,11 @@ void World::resolve_manifolds() {
 		float ang_vel_a = A->get_ang_vel();
 		float ang_vel_b = B->get_ang_vel();
 
-
 		float e = 0.5f;
 		Vec mv = this->contacts[i].mtv * this->contacts[i].mtvm;
 		Vec mtv = this->contacts[i].mtv;
 		float contacts_ = this->contacts[i].no_contacts;	
 		for (int j = 0; j<contacts_; j++) {
-
-		float e = 0.4f;
-		Vec mv = this->contacts[i].mtv * this->contacts[i].mtvm;
-		Vec mtv = this->contacts[i].mtv;
-	
-		for (int j = 0; j<this->contacts[i].no_contacts; j++) {
-
-		float e = 0.5f;
-		Vec mv = this->contacts[i].mtv * this->contacts[i].mtvm;
-		Vec mtv = this->contacts[i].mtv;
-		float contacts_ = this->contacts[i].no_contacts;	
-		for (int j = 0; j<contacts_; j++) {
-
 
 			this->contact_points.push_back(this->contacts[i].contacts[j]);
 
@@ -319,10 +279,7 @@ void World::resolve_manifolds() {
 			float contact_vel = rv.dot(sep_norm);	
 
 			//std::cout << "contacts " << contacts_ << std::endl;
-
-
-			//std::cout << "contacts " << contacts_ << std::endl;
-
+	
 			//std::cout << "contact vel " << contact_vel << std::endl;
 
 			if (contact_vel > 0) {
@@ -343,38 +300,21 @@ void World::resolve_manifolds() {
 			float ji = -(1.0f + e) * contact_vel;
 			ji /= inv_mass_sum;
 			//std::cout << "ji " << ji << std::endl;
-
 			ji /= contacts_; 
 			//std::cout << "ji " << ji << std::endl;
 	
 			Vec impulse = sep_norm * ji;
 			A->apply_impulse(impulse,ra);
 			Vec nimpulse = sep_norm * ji * -1;
-			B->apply_impulse(nimpulse, rb);		
-
-			ji /= this->contacts[i].no_contacts; 
-
-			ji /= contacts_; 
-
-			//std::cout << "ji " << ji << std::endl;
-	
-			Vec impulse = sep_norm * ji;
-			A->apply_impulse(impulse,ra);
-			Vec nimpulse = sep_norm * ji * -1;
-
-			if (B->get_im() > 0)
-				B->apply_impulse(nimpulse, rb);		
-
 			B->apply_impulse(nimpulse, rb);		
 
 
 			float df = 0.40;
 			float mu = 0.50;
-
+		
 			ang_vel_a = A->get_ang_vel();
 			ang_vel_b = B->get_ang_vel();
 	
-				
 			velocity_a = Vec(A->get_vel_x(),A->get_vel_y());
 			velocity_b = Vec(B->get_vel_x(),B->get_vel_y());
 				
@@ -393,9 +333,6 @@ void World::resolve_manifolds() {
 
 			float jt = -rv.dot(t);
 			jt /= inv_mass_sum;
-
-			jt /= contacts_;
-
 			jt /= contacts_;
 
 			if (abs(jt)<0.001)
@@ -409,24 +346,10 @@ void World::resolve_manifolds() {
 				fimpulse = t * (-ji * df);
 			}
 
-
 			A->apply_impulse(fimpulse,ra);
 			Vec nfimpulse = fimpulse * -1;			
 			B->apply_impulse(nfimpulse, rb);
 				
-
-			if (A->get_im() > 0)
-				A->apply_impulse(fimpulse,ra);
-
-			Vec nfimpulse = fimpulse * -1;			
-			if (B->get_im() > 0)
-				B->apply_impulse(nfimpulse, rb);		
-
-			A->apply_impulse(fimpulse,ra);
-			Vec nfimpulse = fimpulse * -1;			
-			B->apply_impulse(nfimpulse, rb);
-				
-
 
 		}
 
@@ -447,7 +370,6 @@ void World::resolve_manifolds() {
 
 }
 
-
 bool World::is_joined(std::shared_ptr<Body> a, std::shared_ptr<Body> b)  {
 
 	for (int i = 0; i<this->joints.size(); i++) {
@@ -456,7 +378,6 @@ bool World::is_joined(std::shared_ptr<Body> a, std::shared_ptr<Body> b)  {
 	}
 	return false;
 }
-
 
 void World::generate_manifolds() {
 	
@@ -467,15 +388,9 @@ void World::generate_manifolds() {
 			std::shared_ptr<Body> B = this->Bodies[j];
 			
 			if (A->get_type()==POLYGON && B->get_type()==POLYGON) {
-
 				if (this->is_joined(A,B)) {
 					continue;
 				}
-
-				if (this->is_joined(A,B)) {
-					continue;
-				}
-
 				this->generate_pp_manifold(A,B);
 			}
 

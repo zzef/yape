@@ -6,9 +6,6 @@
 #include "Manifold.h"
 #include "Circle.h"
 #include "Polygon.h"
-
-#include "Joints.h"
-
 #include "Joints.h"
 
 class Body : public Polygon, public Circle {
@@ -52,29 +49,15 @@ class Body : public Polygon, public Circle {
 		void generate_color();
 		void set_iI(float val);
 		float get_iI();
-
 		void set_density(float density);
 		void set_pos(Vec p);
 		void set_pos(float x, float y);
 		void rect(float height, float width);
 
-
 		~Body();
 
 	private:
 		float im = (float) 1.0f/1000.0f;
-
-		
-		~Body();
-
-	private:
-		float im = (float) 1.0f/100.0f;
-
-		~Body();
-
-	private:
-		float im = (float) 1.0f/1000.0f;
-
 		float iI = (float) 1.0f/1000000.0f;
 		float x = 0;
 		float y = 0;
@@ -86,11 +69,7 @@ class Body : public Polygon, public Circle {
 		float vel_x = 0;
 		float vel_y = 0;
 		bool is_earth = false;
-
 		float density = 7.2f;
-
-		float density = 7.2f;
-
 
 };
 

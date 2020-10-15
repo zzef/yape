@@ -5,12 +5,7 @@ A Rigid body impulse based physics engine written in C++. This was written to ga
 - Random polygon generation
 - Collision detection (Separated axis theorem)
 - Impulse based collision response
-
-- Friction
-
-
 - Frictional impulse (Coulomb friction)
-
 - Springs
 - Distance joints (modelled as springs)
 - Revolute joints (modelled as short (kinda stiff) springs)
@@ -19,7 +14,6 @@ A Rigid body impulse based physics engine written in C++. This was written to ga
   <img src="https://raw.githubusercontent.com/zzef/zef-physics-engine/master/demos/demo2.gif">
 </p>
 
-
 <p align="center">
   <img src="https://raw.githubusercontent.com/zzef/zef-physics-engine/master/demos/demo1.gif">
 </p>
@@ -27,23 +21,11 @@ A Rigid body impulse based physics engine written in C++. This was written to ga
 
 ## Useful resources for this project
 
-
 - https://www.youtube.com/watch?v=7Ik2vowGcU0 javidx9 on convex polygon collision detection using Seperated Axis theorem
 - Randy Gauls impulse engine https://www.randygaul.net/projects-open-sources/impulse-engine/
 - https://gamedevelopment.tutsplus.com/tutorials/how-to-create-a-custom-2d-physics-engine-the-basics-and-impulse-resolution--gamedev-6331
 - https://www.randygaul.net/2013/03/28/custom-physics-engine-part-2-manifold-generation/
 - http://www.dyn4j.org/2011/11/contact-points-using-clipping/
-
-- Randy Gauls impulse engine https://www.randygaul.net/projects-open-sources/impulse-engine/
-- https://gamedevelopment.tutsplus.com/tutorials/how-to-create-a-custom-2d-physics-engine-the-basics-and-impulse-resolution--gamedev-6331
-
-
-- https://www.youtube.com/watch?v=7Ik2vowGcU0 javidx9 on convex polygon collision detection using Seperated Axis theorem
-- Randy Gauls impulse engine https://www.randygaul.net/projects-open-sources/impulse-engine/
-- https://gamedevelopment.tutsplus.com/tutorials/how-to-create-a-custom-2d-physics-engine-the-basics-and-impulse-resolution--gamedev-6331
-- https://www.randygaul.net/2013/03/28/custom-physics-engine-part-2-manifold-generation/
-- http://www.dyn4j.org/2011/11/contact-points-using-clipping/
-
 - https://www.gafferongames.com/post/collision_response_and_coulomb_friction/
 - https://www.gafferongames.com/post/integration_basics/
 
@@ -55,13 +37,8 @@ A Rigid body impulse based physics engine written in C++. This was written to ga
 - Generate neon colors for each polygonThomas Jakobsen
 - Fix timestep (Currently directly tied to framerate so not very portable)
 - During manifold generation the bodies rotation and position vector is applied every time some new calculation is done. This is unnecessary and slow as it need only be done once. Solution is to store world space after each integration and use this to perform calculations.
-
-- Add joints
-- Add springs
-
 - Implement warm starting and impulse accumulation for better stability (especially at lower frames, sub 60fps)
 - Finish Circle to circle and circle to polygon collision
-
 
 ## Dependencies
 - libSDL2

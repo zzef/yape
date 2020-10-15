@@ -16,47 +16,10 @@ Body::Body(int type, bool is_earthed) {
 }
 
 void Body::generate_color() {
-
-	struct Color c = hsv_to_rgb(random(0,360),75,100);
-	this->set_orig_color((char)c.r,(char)c.g,(char)c.b);
-}
-
-void Body::set_pos(Vec p) {
-	this->x = p.get_x();
-	this->y = p.get_y();
-}
-
-void Body::set_pos(float x, float y) {
-	this->x = x;
-	this->y = y;
-}
-
-void Body::rect(float height, float width) {
-	this->add_vertex(Vec(width/2,height/2));
-	this->add_vertex(Vec(-width/2,height/2));
-	this->add_vertex(Vec(-width/2,-height/2));
-	this->add_vertex(Vec(width/2,-height/2));
-	this->add_vertex(Vec(width/2,height/2));
-	this->init();
-	float area = height * width;
-	float m = area * this->density;
-	this->im = 1.0f/m;
-	this->iI = 1.0f/(area*m);
-
-
-}
-
-void Body::set_density(float density) {
-	this->density = density;
-	this->initialize();
-}
-
-
 	struct Color c = hsv_to_rgb(random(0,360),100,100);
 	this->set_orig_color((char)c.r,(char)c.g,(char)c.b);
 }
 
-
 void Body::set_pos(Vec p) {
 	this->x = p.get_x();
 	this->y = p.get_y();
@@ -86,25 +49,14 @@ void Body::set_density(float density) {
 	this->density = density;
 	this->initialize();
 }
-
 
 void Body::initialize() {
 
 	if (this->type == POLYGON) {
 		this->init();
-
 		float m = this->Polygon::get_radius() * this->Polygon::get_radius() * M_PI * this->density;
 		this->im = 1.0f/m;
 		this->iI = 1.0f/(this->Polygon::get_radius() * this->Polygon::get_radius() * m );
-
-		float m = this->Polygon::get_radius() * this->Polygon::get_radius() * M_PI * 7.2f;
-		this->im = 1.0f/m;
-		this->iI = 1.0f/(this->Polygon::get_radius() * this->Polygon::get_radius() * m);
-
-		float m = this->Polygon::get_radius() * this->Polygon::get_radius() * M_PI * this->density;
-		this->im = 1.0f/m;
-		this->iI = 1.0f/(this->Polygon::get_radius() * this->Polygon::get_radius() * m );
-
 	}
 
 }
@@ -219,14 +171,8 @@ float Body::get_iI() {
 
 void Body::apply_impulse(Vec normal, Vec contact) {
 
-
 	if (this->get_im()==0)
 		return;
-
-
-	if (this->get_im()==0)
-		return;
-
 
     Vec velocity = normal * this->im;
     float ang_vel = contact.cross(normal) * this->iI;
@@ -240,7 +186,6 @@ void Body::apply_impulse(Vec normal, Vec contact) {
 	this->vel_x *= 0.9999;
 	this->vel_y *= 0.9999;
 	this->ang_vel *= 0.9999;
-
 }
 
 void Body::set_orig_color(char r, char g, char b) {
