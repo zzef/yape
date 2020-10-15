@@ -10,7 +10,7 @@ int random(int a, int b) {
 	return rand() % (b-a) + a;
 }
 
-struct Color hsv_to_rgb(float h, float s, float v) {
+struct Color hsv_to_rgb(float h, float s, float v) { 
 
 	// function to convert from hsv color space to rgb color space
 	// At the moment this function is just returning the same redish pinkish color.
@@ -22,7 +22,6 @@ struct Color hsv_to_rgb(float h, float s, float v) {
 	std::cout << "v : " <<v<< std::endl;
 
 	float r, g, b;
-
 	float x, c, m;
 
 	c = (float) (v/100.0f) * (s/100.0f);
