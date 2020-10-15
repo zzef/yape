@@ -114,9 +114,9 @@ void World::add_joint(Joint joint) {
 
 void World::keep_distance(std::shared_ptr<Body> a, Vec pp_a, std::shared_ptr<Body> b, Vec pp_b, float dist_const) {
 
-	float damping = 100;
+	float damping = 80;
 	if (dist_const == 0)
-		damping = 600;
+		damping = 130;
 
 	Vec b_pos(b->get_x(),b->get_y());
 	Vec a_pos(a->get_x(),a->get_y());
@@ -167,8 +167,8 @@ void World::keep_distance(std::shared_ptr<Body> a, Vec pp_a, std::shared_ptr<Bod
 	//std::cout << vel << " vel" << std::endl;
 	f = f - (dn*const_vel) - (tvb * 0.0025); // - tvb for rotational damping
 	fn = fn - (dn*const_vel2) - (tva * 0.0025);
-	f = f/(b->get_im() * 80);
-	fn = fn/(a->get_im() * 80);
+	f = f/(b->get_im() * 200);
+	fn = fn/(a->get_im() * 200);
 	b->apply_impulse(f,contact_b);
 	a->apply_impulse(fn,contact_a);
 
@@ -200,16 +200,7 @@ void World::resolve_constraints() {
 
 }
 
-void World::simulate() {
-
-	//for (int i = 0; i < resolution_iterations; i++) {
-		this->generate_manifolds();
-		this->resolve_manifolds();
-		this->resolve_constraints();
-		this->apply_positional_correction();
-		this->contacts.clear();
-	//}
-
+void World::integrate_forces() {
 	for (int i = 0; i < this->bodies; i++) {
 
 		std::shared_ptr<Body> b = this->Bodies[i];	
@@ -221,18 +212,43 @@ void World::simulate() {
 			continue;
 		}
 			
-		Vec velocity = Vec(b->get_vel_x(),b->get_vel_y());
-		//velocity.print();
-		//std::cout << "position " << std::endl;
-		Vec position = Vec(b->get_x(),b->get_y());
 		b->set_vel_y(b->get_vel_y()+(this->gravity * (dt / 2.0f)));
+	}
+
+}
+
+void World::integrate_velocities() {
+	for (int i = 0; i < this->bodies; i++) {
+
+		std::shared_ptr<Body> b = this->Bodies[i];	
+		if (b->get_im()==0)
+			continue;
+
+		if(this->mouse_down && b->get_mouse_contact()) {
+			b->reset();
+			continue;
+		}
+			
 		b->set_orientation(b->get_orientation()+(b->get_ang_vel()*dt));
 		b->set_x(b->get_x()+(b->get_vel_x()*dt));
 		b->set_y(b->get_y()+(b->get_vel_y()*dt));
-		//position.print();
 	}
 
+}
 
+void World::simulate() {
+
+		this->integrate_forces();
+		this->generate_manifolds();
+		
+		for (int i = 0; i < resolution_iterations; i++) {
+			this->resolve_manifolds();
+			this->resolve_constraints();
+		}
+
+		this->integrate_velocities();
+		this->apply_positional_correction();
+		this->contacts.clear();
 
 }
 
@@ -249,8 +265,8 @@ void World::show_contacts(bool show) {
 }
 
 void World::apply_positional_correction() {
-  const float k_slop = 0.0f; // Penetration allowance
-  const float percent = 0.8f; // Penetration percentage to correct
+  const float k_slop = 0.05f; // Penetration allowance
+  const float percent = 0.65f; // Penetration percentage to correct
 
 	for (int i = contacts.size()-1; i>=0; i--) {
 		std::shared_ptr<Body> A = this->contacts[i].A;	

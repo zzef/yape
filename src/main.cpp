@@ -205,10 +205,6 @@ void test() {
 
 
 
-
-
-
-
 }
 
 void initialize() {
@@ -298,20 +294,20 @@ int main() {
 		}
 
 		accumulator = std::min(0.1f,accumulator); //preventing spiral of death
+		
+		while (SDL_PollEvent( &e )) {
+
+			if (e.type == SDL_QUIT)
+				quit=true;
+			else
+				handle_event( e );
+
+			}
 
 		while ( accumulator >= dt ) {
 			//std::cout << "yooi4o" << std::endl;
 			//std::cout << "accumulator " << accumulator << std::endl;
-	
-			while (SDL_PollEvent( &e )) {
-
-				if (e.type == SDL_QUIT)
-					quit=true;
-				else
-					handle_event( e );
-
-			}
-		
+			
 			update();
 			
 			/*speed+=grav;

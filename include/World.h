@@ -42,6 +42,8 @@ class World {
 		void integrate();
 		bool is_joined(std::shared_ptr<Body> a, std::shared_ptr<Body> b);
 		void apply_positional_correction();
+		void integrate_velocities();
+		void integrate_forces();
 
 	public:
 		World();

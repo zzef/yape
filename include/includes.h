@@ -14,8 +14,8 @@
 #define YELLOW 222, 237, 11
 #define SHOW_NORMALS 1 << 0
 #define SHOW_POLYMIDS 1 << 1
-#define resolution_iterations 1
-#define FPS 60
+#define resolution_iterations 20
+#define FPS 30
 const float dt = (float) 1.0f/((float)FPS);
 
 #include "SDL2/SDL.h"
