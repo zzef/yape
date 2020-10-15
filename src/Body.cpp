@@ -16,6 +16,7 @@ Body::Body(int type, bool is_earthed) {
 }
 
 void Body::generate_color() {
+<<<<<<< HEAD
 	struct Color c = hsv_to_rgb(random(0,360),75,100);
 	this->set_orig_color((char)c.r,(char)c.g,(char)c.b);
 }
@@ -50,13 +51,25 @@ void Body::set_density(float density) {
 	this->initialize();
 }
 
+=======
+	struct Color c = hsv_to_rgb(random(0,360),100,100);
+	this->set_orig_color((char)c.r,(char)c.g,(char)c.b);
+}
+
+>>>>>>> ff48d433afb346640b1cdb3f3018f41592b056a4
 void Body::initialize() {
 
 	if (this->type == POLYGON) {
 		this->init();
+<<<<<<< HEAD
 		float m = this->Polygon::get_radius() * this->Polygon::get_radius() * M_PI * this->density;
 		this->im = 1.0f/m;
 		this->iI = 1.0f/(this->Polygon::get_radius() * this->Polygon::get_radius() * m );
+=======
+		float m = this->Polygon::get_radius() * this->Polygon::get_radius() * M_PI * 7.2f;
+		this->im = 1.0f/m;
+		this->iI = 1.0f/(this->Polygon::get_radius() * this->Polygon::get_radius() * m);
+>>>>>>> ff48d433afb346640b1cdb3f3018f41592b056a4
 	}
 
 }
@@ -171,9 +184,12 @@ float Body::get_iI() {
 
 void Body::apply_impulse(Vec normal, Vec contact) {
 
+<<<<<<< HEAD
 	if (this->get_im()==0)
 		return;
 
+=======
+>>>>>>> ff48d433afb346640b1cdb3f3018f41592b056a4
     Vec velocity = normal * this->im;
     float ang_vel = contact.cross(normal) * this->iI;
 	//std::cout << "angular velocity " << ang_vel << std::endl;
@@ -181,11 +197,14 @@ void Body::apply_impulse(Vec normal, Vec contact) {
 	this->vel_x += velocity.get_x();
 	this->vel_y += velocity.get_y();
 	this->ang_vel += ang_vel;
+<<<<<<< HEAD
 
 	//fake air resistance
 	this->vel_x *= 0.9999;
 	this->vel_y *= 0.9999;
 	this->ang_vel *= 0.9999;
+=======
+>>>>>>> ff48d433afb346640b1cdb3f3018f41592b056a4
 }
 
 void Body::set_orig_color(char r, char g, char b) {
