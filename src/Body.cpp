@@ -16,7 +16,7 @@ Body::Body(int type, bool is_earthed) {
 }
 
 void Body::generate_color() {
-	struct Color c = hsv_to_rgb(random(0,360),100,100);
+	struct Color c = hsv_to_rgb(random(0,360),75,100);
 	this->set_orig_color((char)c.r,(char)c.g,(char)c.b);
 }
 
