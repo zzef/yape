@@ -60,6 +60,11 @@ void handle_keydown(SDL_KeyboardEvent e) {
 			physics_interpolation = !physics_interpolation;
 			break;
 		}
+		case SDLK_ESCAPE : {
+			exit(0);
+			break;
+		}
+
 
 	}
 }
