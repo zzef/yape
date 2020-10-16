@@ -700,6 +700,7 @@ void World::detect_mouse_insidedness() {
 			this->Bodies[i]->mouse_contact(true);
 			this->Bodies[i]->set_x(this->Bodies[i]->get_x()+this->rel_mouse_position.get_x());
 			this->Bodies[i]->set_y(this->Bodies[i]->get_y()+this->rel_mouse_position.get_y());
+			this->Bodies[i]->prev_pos = Vec(this->Bodies[i]->get_x(),this->Bodies[i]->get_y());
 		}
 		else {
 			this->Bodies[i]->mouse_contact(false);

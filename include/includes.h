@@ -4,11 +4,11 @@
 #define MAX_V 10
 #define MIN_V 3
 #define DEF_GRAV 1500.0f
-#define MAX_BODIES 75
+#define MAX_BODIES 100
 #define POLYGON 0
 #define CIRCLE 1
 #define MIN_POLY_RAD 20
-#define MAX_POLY_RAD 140
+#define MAX_POLY_RAD 50
 
 #define RED 240, 50, 80
 #define YELLOW 222, 237, 11
