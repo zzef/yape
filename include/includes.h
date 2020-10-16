@@ -3,7 +3,7 @@
 
 #define MAX_V 10
 #define MIN_V 3
-#define DEF_GRAV 2000.0f
+#define DEF_GRAV 1500.0f
 #define MAX_BODIES 75
 #define POLYGON 0
 #define CIRCLE 1

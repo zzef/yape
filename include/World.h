@@ -53,7 +53,7 @@ class World {
 		void add_body(std::shared_ptr<Body> b);
 		void remove_body(int i);
 		void remove_body(Body b);
-		void render(Display* d);
+		void render(Display* d, float ratio);
 		void set_mouse_position(Vec v);
 		void set_mouse_down(bool val);
 		void set_rel_mouse_position(Vec v);

@@ -15,7 +15,7 @@ class Body : public Polygon, public Circle {
 		Body(int type);
 		Body(int type, bool is_earthed);
 		int type;
-		void render(Display* d, int options);
+		void render(Display* d, int options, float ratio);
 		void set_x(float x);
 		void set_y(float y);
 		void set_type(int type);
@@ -53,7 +53,8 @@ class Body : public Polygon, public Circle {
 		void set_pos(Vec p);
 		void set_pos(float x, float y);
 		void rect(float height, float width);
-
+		Vec prev_pos;
+		float prev_orientation;
 		~Body();
 
 	private:

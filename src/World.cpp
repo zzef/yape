@@ -28,12 +28,12 @@ void World::add_body(std::shared_ptr<Body> b) {
 	std::cout << "added" << std::endl;
 }
 
-void World::render(Display* d) {
+void World::render(Display* d, float ratio) {
 	for (int i = 0; i<this->bodies; i++) {
 		if(this->Bodies[i]->get_mouse_contact()) {
 			//this->Bodies[i]->set_color(RED);
 		}
-		this->Bodies[i]->render(d,this->glob_options);
+		this->Bodies[i]->render(d,this->glob_options,ratio);
 	}
 	char color[3] = {
 		(char) 255,
@@ -228,7 +228,9 @@ void World::integrate_velocities() {
 			b->reset();
 			continue;
 		}
-			
+
+		b->prev_pos = Vec(b->get_x(),b->get_y());
+		b->prev_orientation = b->get_orientation();
 		b->set_orientation(b->get_orientation()+(b->get_ang_vel()*dt));
 		b->set_x(b->get_x()+(b->get_vel_x()*dt));
 		b->set_y(b->get_y()+(b->get_vel_y()*dt));
@@ -266,7 +268,7 @@ void World::show_contacts(bool show) {
 
 void World::apply_positional_correction() {
   const float k_slop = 0.05f; // Penetration allowance
-  const float percent = 0.55f; // Penetration percentage to correct
+  const float percent = 0.65f; // Penetration percentage to correct
 
 	for (int i = contacts.size()-1; i>=0; i--) {
 		std::shared_ptr<Body> A = this->contacts[i].A;	

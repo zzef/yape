@@ -58,7 +58,8 @@ void Body::initialize() {
 		this->im = 1.0f/m;
 		this->iI = 1.0f/(this->Polygon::get_radius() * this->Polygon::get_radius() * m );
 	}
-
+	this->prev_pos = Vec(this->x,this->y);
+	this->prev_orientation = this->orientation;
 }
 
 void Body::set_type(int type) {
@@ -69,12 +70,25 @@ int Body::get_type() {
 	return this->type;
 }
 
-void Body::render(Display* d, int options) {
+void Body::render(Display* d, int options, float ratio) {
 
 	if (this->type == CIRCLE)
 		this->Circle::render(d,Vec(this->x,this->y),this->orientation,color,options);
-	if (this->type == POLYGON)
-		this->Polygon::render(d,Vec(this->x,this->y),this->orientation,color,options);
+	
+	
+
+	if (this->type == POLYGON) {
+		
+		Vec s_p = this->prev_pos;
+		Vec e_p(this->x,this->y);
+		float s_o = prev_orientation;
+		float e_o = this->orientation;
+		
+		Vec c_p = interpolate(s_p,e_p,ratio);
+		float c_o = interpolate(s_o,e_o,ratio);
+
+		this->Polygon::render(d,c_p,c_o,color,options);
+	}
 
 }
 

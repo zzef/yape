@@ -7,8 +7,7 @@
 float ori = 0;
 int mx, my;
 bool interactive = true;
-
-
+bool physics_interpolation = false;
 Display display = Display(W_WIDTH,W_HEIGHT,WINDOW_TITLE);
 World world;
 
@@ -57,6 +56,11 @@ void handle_keydown(SDL_KeyboardEvent e) {
 			interactive = !interactive;
 			break;
 		}
+		case SDLK_p : {
+			physics_interpolation = !physics_interpolation;
+			break;
+		}
+
 	}
 }
 
@@ -85,11 +89,12 @@ void update() {
 	world.simulate();
 }
 
-void render() {	
+void render(float ratio) {	
 	//world.get_body(0)->set_orientation(ori+=0.05);
 	if (ori>360)
 		ori = 0;
-	world.render(&display);
+	world.render(&display, ratio);
+	display.show();
 }
 
 void test() {
@@ -233,19 +238,21 @@ void initialize() {
 	b4->set_im(0);
 
 
-	float wh = 700;
+	float wh = 400;
 
 	std::shared_ptr<Body> wall1 = std::make_shared<Body>(POLYGON);
 	wall1->rect(wh,thickness);
+	wall1->set_pos((thickness/2.0f) + W_WIDTH - margin - thickness,100 + (wh/2));
+	wall1->initialize();	
 	wall1->set_iI(0);
 	wall1->set_im(0);
-	wall1->set_pos((thickness/2.0f) + W_WIDTH - margin - thickness,100 + (wh/2));
 
 	std::shared_ptr<Body> wall2 = std::make_shared<Body>(POLYGON);
 	wall2->rect(wh,thickness);
+	wall2->set_pos((thickness/2.0f) + margin,100 + (wh/2));
+	wall2->initialize();	
 	wall2->set_iI(0);
 	wall2->set_im(0);
-	wall2->set_pos((thickness/2.0f) + margin,100 + (wh/2));
 
 	world.add_body(wall1);	
 	world.add_body(wall2);
@@ -265,6 +272,8 @@ float grav = 60.0f;
 int draws = 0;
 int updates = 0;
 double t_time;
+float e_time = 0;
+float sf_time = 0;
 char color[3] = {(char)255,(char)0,(char)0};
 
 int main() {
@@ -276,15 +285,13 @@ int main() {
 
 	while ( !quit ) {
 	
-		//std::cout << "yooo\n" << std::endl;
 		auto t_now = std::chrono::high_resolution_clock::now();
 		double frame_time = std::chrono::duration_cast<std::chrono::nanoseconds>(t_now - t_prev).count();
 		frame_time *= 1e-9;
-		//std::cout << "frame_time " << frame_time << std::endl;
 		accumulator += frame_time;
 		t_time += frame_time;
+		sf_time += frame_time;
 		t_prev = t_now;
-		//std::cout << "accumulator " << accumulator << std::endl;
 
 		if (t_time > 1){
 			std::cout << "updates " << updates << ", renders " << draws << std::endl;
@@ -304,31 +311,30 @@ int main() {
 
 		}
 
+		float times = 0;
+		if ( accumulator >= dt) {
+			//std::cout << "end" << std::endl;
+			e_time = 0;
+			sf_time = frame_time;	
+		}
+	
 		while ( accumulator >= dt ) {
-			//std::cout << "yooi4o" << std::endl;
-			//std::cout << "accumulator " << accumulator << std::endl;
-			
-			update();
-			
-			/*speed+=grav;
-			y+=(speed*dtt);
-			if (y>700) {
-				y -= (y+50-700);
-				speed*=-0.9;
-			}
-			*/
+			update();	
 			accumulator -= dt ;
 			updates++;
-
-		} 
-		display.show();
-		render();
+			e_time += dt;
+			times++;
+		}
+	
+		
+		//std::cout << "percentage = " << ((float) sf_time / (float) e_time) << std::endl;
+		float ratio = std::min(1.0f,(float) sf_time / e_time);
+		if (!physics_interpolation)
+			ratio = 1;
+		render(ratio);
 		draws++;
 
-		//std::cout << "drawing" << std::endl;
-		//display.draw_circle(Vec(x,y),50,0,color);
-
-		}
+	}
 
 	return 0;
 }
