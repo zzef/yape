@@ -315,8 +315,8 @@ void World::resolve_manifolds() {
 		float ang_vel_a = A->get_ang_vel();
 		float ang_vel_b = B->get_ang_vel();
 			
-		float bias = 0.2f;
-		float penetration_allowance = 0.5f;
+		float bias = 0.3f;
+		float penetration_allowance = 0.25f;
 
 		for (int j = 0; j<contacts_; j++) {
 	
