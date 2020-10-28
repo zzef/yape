@@ -58,6 +58,7 @@ class Body : public Polygon, public Circle {
 		~Body();
 
 	private:
+		bool is_rect = false;
 		float im = (float) 1.0f/1000.0f;
 		float iI = (float) 1.0f/1000000.0f;
 		float x = 0;

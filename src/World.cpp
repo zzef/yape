@@ -249,7 +249,7 @@ void World::simulate() {
 		}
 
 		this->integrate_velocities();
-		this->apply_positional_correction();
+		//this->apply_positional_correction();
 		this->contacts.clear();
 
 }
@@ -290,7 +290,6 @@ void World::resolve_manifolds() {
 
 	for (int i = contacts.size()-1; i>=0; i--) {
 	
-		Vec sep_norm = this->contacts[i].mtv;
 		std::shared_ptr<Body> A = this->contacts[i].A;	
 		std::shared_ptr<Body> B = this->contacts[i].B;
 		
@@ -302,20 +301,25 @@ void World::resolve_manifolds() {
 		Vec position_a(A->get_x(),A->get_y());
 		Vec position_b(B->get_x(),B->get_y());
 			
-		float e = 0.4f;
-		Vec mv = this->contacts[i].mtv * this->contacts[i].mtvm;
+		float e = 0.5f;
+		float mtvm = this->contacts[i].mtvm;
+		Vec mv = this->contacts[i].mtv * mtvm;
 		Vec mtv = this->contacts[i].mtv;
 		float contacts_ = this->contacts[i].no_contacts;	
+		Vec sep_norm = mtv;
 		//std::cout << "contacts " << contacts_ << std::endl;
 
 		Vec velocity_a(A->get_vel_x(),A->get_vel_y());
-		Vec velocity_b(B->get_vel_x(),B->get_vel_y());
-	
+		Vec velocity_b(B->get_vel_x(),B->get_vel_y());		
+
 		float ang_vel_a = A->get_ang_vel();
 		float ang_vel_b = B->get_ang_vel();
+			
+		float bias = 0.2f;
+		float penetration_allowance = 0.5f;
 
 		for (int j = 0; j<contacts_; j++) {
-
+	
 			//std::cout << "contact " << j << std::endl;
 			//std::cout << "==========" << std::endl;	
 			//velocity_a.print();
@@ -325,6 +329,8 @@ void World::resolve_manifolds() {
 
 			Vec ra = this->contacts[i].contacts[j] - position_a;	
 			Vec rb = this->contacts[i].contacts[j] - position_b;
+			//ra.print();
+			//rb.print();
 				
 			Vec rv = velocity_a + ra.cross(ang_vel_a) - (velocity_b + rb.cross(ang_vel_b)); 
 			//Vec rv = velocity_a - velocity_b;
@@ -340,10 +346,10 @@ void World::resolve_manifolds() {
 	
 			//std::cout << "contact vel " << contact_vel << std::endl;
 
-			if (contact_vel > 0) {
+			//if (contact_vel > 0) {
 				//std::cout << "reyurning" << std::endl;
-				break;
-			}
+			//	break;
+			//}
 			//std::cout << "ra " <<std::endl;
 			//ra.print();
 			//sep_norm.print();
@@ -351,18 +357,25 @@ void World::resolve_manifolds() {
 			float rbcrossn = rb.cross(sep_norm);
 			//std::cout << "racrossn " << racrossn << std::endl;
 			//std::cout << "rbcrossn " << rbcrossn << std::endl;
-		
-			float inv_mass_sum = (float) (A->get_im() +  ((racrossn*racrossn) * A->get_iI())) + (B->get_im() +  ((rbcrossn*rbcrossn) * B->get_iI()));
+
+			float inv_mass_sum = (float) (A->get_im() + B->get_im());
+			inv_mass_sum += (float)  (racrossn * racrossn * A->get_iI()) +  (rbcrossn * rbcrossn * B->get_iI());
+			//inv_mass_sum += (A->get_iI() * (rad - (rna*rna))) +  (B->get_iI() * (rbd - (rnb*rnb))); 
 			//float inv_mass_sum = (float) A->get_im() + B->get_im();
 
 			//std::cout << "inv_mass_sum " << inv_mass_sum << std::endl;
 		
 			float ji = -(1.0f + e) * contact_vel;
+			//std::cout << "mtvm " << mtvm << std::endl;
+			ji += -bias * (1.0f/dt) * std::min(0.0f, penetration_allowance - mtvm);
 			ji /= inv_mass_sum;
+			
 			//std::cout << "ji " << ji << std::endl;
 			ji /= (float) contacts_; 
-			//std::cout << "ji " << ji << std::endl;
+			//std::cout << "jii " << ji << std::endl;
 	
+			ji = std::max(ji,0.0f);
+
 			float df = 0.35f;
 			float mu = 0.40f;
 			
@@ -388,7 +401,7 @@ void World::resolve_manifolds() {
 
 			float jt = -rv.dot(t);
 			jt /= inv_mass_sum;
-			jt /= contacts_;
+			jt /= (float) contacts_;
 
 			//if (abs(jt)<1e+6)
 			//	break;

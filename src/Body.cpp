@@ -31,17 +31,16 @@ void Body::set_pos(float x, float y) {
 }
 
 void Body::rect(float height, float width) {
+	this->is_rect=true;
 	this->add_vertex(Vec(width/2,height/2));
 	this->add_vertex(Vec(-width/2,height/2));
 	this->add_vertex(Vec(-width/2,-height/2));
 	this->add_vertex(Vec(width/2,-height/2));
 	this->add_vertex(Vec(width/2,height/2));
-	this->init();
 	float area = height * width;
 	float m = area * this->density;
 	this->im = 1.0f/m;
-	this->iI = 1.0f/(area*m);
-
+	this->iI = 1.0f/(area*m);	
 
 }
 
@@ -54,9 +53,11 @@ void Body::initialize() {
 
 	if (this->type == POLYGON) {
 		this->init();
-		float m = pow(this->Polygon::get_radius(),2) * M_PI * this->density;
-		this->im = 1.0f/m;
-		this->iI = 1.0f/(this->Polygon::get_radius() * this->Polygon::get_radius() * m );
+		if(!is_rect) {	
+			float m = pow(this->Polygon::get_radius(),2) * M_PI * this->density;
+			this->im = 1.0f/m;
+			this->iI = 1.0f/(this->Polygon::get_radius() * this->Polygon::get_radius() * m );
+		}
 	}
 	this->prev_pos = Vec(this->x,this->y);
 	this->prev_orientation = this->orientation;

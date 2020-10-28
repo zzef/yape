@@ -7,9 +7,20 @@
 float ori = 0;
 int mx, my;
 bool interactive = true;
-bool physics_interpolation = false;
+bool physics_interpolation = true;
+bool box_mode = false;
 Display display = Display(W_WIDTH,W_HEIGHT,WINDOW_TITLE);
 World world;
+
+void add_new_box(Vec position){
+	std::shared_ptr<Body> rect1 = std::make_shared<Body>(POLYGON);
+	rect1->rect(70,70);
+	rect1->set_pos(position);
+	rect1->set_orientation(0);
+	rect1->generate_color();
+	rect1->initialize();
+	world.add_body(rect1);
+}
 
 void add_new_polygon(Vec position) {
 	std::shared_ptr<Body> a = std::make_shared<Body>(POLYGON);
@@ -45,9 +56,14 @@ void handle_mouse_up(SDL_MouseButtonEvent e) {
 void handle_mouse_down(SDL_MouseButtonEvent e) {
 	world.set_mouse_down(true);
 
-	if (e.button == SDL_BUTTON_LEFT)	
-		if (!interactive)
-			add_new_polygon(Vec(e.x,e.y));
+	if (e.button == SDL_BUTTON_LEFT) {
+		if (!interactive) {
+			if (box_mode)
+				add_new_box(Vec(e.x,e.y));
+			else
+				add_new_polygon(Vec(e.x,e.y));
+		}
+	}
 }
 
 void handle_keydown(SDL_KeyboardEvent e) {
@@ -58,6 +74,10 @@ void handle_keydown(SDL_KeyboardEvent e) {
 		}
 		case SDLK_p : {
 			physics_interpolation = !physics_interpolation;
+			break;
+		}
+		case SDLK_b : {
+			box_mode = !box_mode;
 			break;
 		}
 		case SDLK_ESCAPE : {
@@ -263,7 +283,7 @@ void initialize() {
 	world.add_body(wall2);
 	world.add_body(b4);
 
-	test();
+	//test();
 
 }
 
