@@ -1,4 +1,5 @@
 #include "../include/includes.h"
+#include "SDL_ttf.h"
 
 Display::Display() {
 	this->initialize();
@@ -37,6 +38,25 @@ Display::Display(int width, int height, std::string title) {
 		
 void Display::initialize() {
 	//Start SDL
+
+	char buffer[1024];
+	GetCurrentDirectory(1024, buffer);
+	std::string str(buffer);
+	std::string path = str + "/fonts/BalooTamma2-Medium.ttf";
+	
+	if (TTF_Init()==-1) 
+		printf("TTF_Init: %s\n",TTF_GetError());
+
+	for (int i = this->min_font_size; i<=this->max_font_size; i++) {
+
+		TTF_Font *font = TTF_OpenFont(path.c_str(),i);
+		if (!font)
+			printf("TTF_OpenFont: %s\n",TTF_GetError());
+		else {
+			fonts[i]=font;
+			//printf("Loaded %ipx font!\n",i);
+		}
+	}
 	
 	if(SDL_Init(SDL_INIT_EVERYTHING)<0) {
 		std::cout << "Failed to initialize SDL2 - " << SDL_GetError() << std::endl;
@@ -133,6 +153,28 @@ void Display::draw_circle(Vec position, float radius, float orientation, char co
 	SDL_SetRenderDrawColor( this->renderer, color[0], color[1], color[2], 255 );
 	this->circle(this->renderer, position.get_x(), position.get_y(), radius);
 }	
+
+void Display::draw_text(std::string&& str, int x, int y, char* color, int size) {
+
+	size = std::max(this->min_font_size,std::min(size,this->max_font_size));
+	SDL_Surface* surfaceMessage;
+	SDL_Texture* Message;
+	const char * string = str.c_str();
+	int w,h;
+	TTF_SizeText(this->fonts[size],string,&w,&h);
+	SDL_Color col = {color[0],color[1],color[2]};
+	surfaceMessage = TTF_RenderText_Blended(this->fonts[size],string,col);
+	Message = SDL_CreateTextureFromSurface(this->renderer,surfaceMessage);
+	SDL_Rect Message_rect;
+	Message_rect.x = x;
+	Message_rect.y = y;
+	Message_rect.w = w;
+	Message_rect.h = h;
+	SDL_RenderCopy(this->renderer,Message,NULL,&Message_rect);	
+	SDL_FreeSurface(surfaceMessage);
+	SDL_DestroyTexture(Message);
+
+}
 
 
 

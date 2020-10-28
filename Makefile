@@ -1,5 +1,5 @@
 CC = g++
-LIBS = -lmingw32 -lSDL2main -lSDL2 -lSDL2
+LIBS = -lmingw32 -lSDL2main -lSDL2 -lSDL2 -lSDL2_ttf
 IDIR = include
 EXT_INCLUDE_PATHS = -I SDL2/include
 EXT_LIBRARY_PATHS = -L SDL2/lib

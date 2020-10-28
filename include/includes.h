@@ -15,12 +15,17 @@
 #define SHOW_NORMALS 1 << 0
 #define SHOW_POLYMIDS 1 << 1
 
+#include <unistd.h>
 #include <windows.h>
 #include "SDL.h"
+#include "SDL_ttf.h"
+#include <stdio.h>
+#include <stdlib.h>
 #include <iostream>
 #include <time.h>
 #include <string>
 #include "Vector.h"
+#include <map>
 #include "Display.h"
 #include "Polygon.h"
 #include "Circle.h"
@@ -30,6 +35,8 @@
 #include "Body.h"
 #include "World.h"
 #include "Joints.h"
+#include <sstream>
+#include <fstream>
 #include <memory>
 
 #endif
