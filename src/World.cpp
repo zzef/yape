@@ -308,15 +308,16 @@ void World::resolve_manifolds() {
 		float contacts_ = this->contacts[i].no_contacts;	
 		Vec sep_norm = mtv;
 		//std::cout << "contacts " << contacts_ << std::endl;
+			
+		float bias = 0.3f;
+		float penetration_allowance = 0.25f;
+		float totji = 0.0f;
 
 		Vec velocity_a(A->get_vel_x(),A->get_vel_y());
 		Vec velocity_b(B->get_vel_x(),B->get_vel_y());		
 
 		float ang_vel_a = A->get_ang_vel();
 		float ang_vel_b = B->get_ang_vel();
-			
-		float bias = 0.3f;
-		float penetration_allowance = 0.25f;
 
 		for (int j = 0; j<contacts_; j++) {
 	
@@ -346,10 +347,10 @@ void World::resolve_manifolds() {
 	
 			//std::cout << "contact vel " << contact_vel << std::endl;
 
-			//if (contact_vel > 0) {
+			if (contact_vel > 0) {
 				//std::cout << "reyurning" << std::endl;
-			//	break;
-			//}
+				break;
+			}
 			//std::cout << "ra " <<std::endl;
 			//ra.print();
 			//sep_norm.print();
@@ -373,8 +374,10 @@ void World::resolve_manifolds() {
 			//std::cout << "ji " << ji << std::endl;
 			ji /= (float) contacts_; 
 			//std::cout << "jii " << ji << std::endl;
-	
-			ji = std::max(ji,0.0f);
+			
+			//float tempji = totji;
+			//totji = std::max(totji+ji,0.0f);
+			//ji = totji - tempji;	
 
 			float df = 0.35f;
 			float mu = 0.40f;
@@ -387,7 +390,6 @@ void World::resolve_manifolds() {
 			//velocity_a.print();
 			//velocity_b.print();
 	
-			
 			Vec t = rv - (sep_norm * (rv.dot(sep_norm)));
 			//std::cout << "t ---" << std::endl;
 			//rv.print();
