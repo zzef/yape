@@ -285,6 +285,9 @@ void World::apply_positional_correction() {
 		
 	}
 }
+void World::positional_correction_(bool val) {
+	this->positional_correction = val;
+}
 
 void World::resolve_manifolds() {
 
@@ -309,8 +312,8 @@ void World::resolve_manifolds() {
 		Vec sep_norm = mtv;
 		//std::cout << "contacts " << contacts_ << std::endl;
 			
-		float bias = 0.3f;
-		float penetration_allowance = 0.25f;
+		float bias = this->positional_correction ? 0.3f : 0.0f;
+		float penetration_allowance = 0.15f;
 		float totji = 0.0f;
 
 		Vec velocity_a(A->get_vel_x(),A->get_vel_y());
@@ -369,12 +372,21 @@ void World::resolve_manifolds() {
 			float ji = -(1.0f + e) * contact_vel;
 			//std::cout << "mtvm " << mtvm << std::endl;
 			ji += -bias * (1.0f/dt) * std::min(0.0f, penetration_allowance - mtvm);
+
+			if (contact_vel > 0) {
+				Vec impulse = sep_norm * ji;
+				A->apply_impulse(impulse,ra);
+				Vec nimpulse = impulse * -1;			
+				B->apply_impulse(nimpulse, rb);			
+				break;
+			}
+
 			ji /= inv_mass_sum;
 			
 			//std::cout << "ji " << ji << std::endl;
 			ji /= (float) contacts_; 
 			//std::cout << "jii " << ji << std::endl;
-			
+	
 			//float tempji = totji;
 			//totji = std::max(totji+ji,0.0f);
 			//ji = totji - tempji;	

@@ -9,6 +9,7 @@ int mx, my;
 bool interactive = true;
 bool physics_interpolation = true;
 bool box_mode = false;
+bool positional_correction = true;
 Display display = Display(W_WIDTH,W_HEIGHT,WINDOW_TITLE);
 World world;
 
@@ -75,6 +76,10 @@ void handle_keydown(SDL_KeyboardEvent e) {
 		case SDLK_p : {
 			physics_interpolation = !physics_interpolation;
 			break;
+		}
+		case SDLK_c : {
+			positional_correction = !positional_correction;
+			world.positional_correction_(positional_correction);
 		}
 		case SDLK_b : {
 			box_mode = !box_mode;
@@ -245,7 +250,8 @@ void initialize() {
 	world.show_contacts(false);
 	world.show_connections(true);
 	world.show_normals(false);
-		
+	world.positional_correction_(positional_correction);
+	
 	int thickness = 40;	
 	int height = thickness;
 	int margin = 40;

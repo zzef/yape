@@ -26,6 +26,7 @@ class World {
 		bool show_coll = true;
 		bool show_conts = true;
 		bool show_conns = true;
+		bool positional_correction = true;
 		bool mouse_down;
 		void generate_pp_manifold(std::shared_ptr<Body> a, std::shared_ptr<Body> b);
 		bool is_point_inside_polygon(std::shared_ptr<Body> b, Vec point);
@@ -48,6 +49,7 @@ class World {
 	public:
 		World();
 		World(float gravity);
+		void positional_correction_(bool val);
 		std::shared_ptr<Body> get_body(int i);
 		int body_count();
 		void add_body(std::shared_ptr<Body> b);
