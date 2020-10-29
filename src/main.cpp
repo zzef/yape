@@ -16,7 +16,7 @@ World world;
 
 void add_new_box(Vec position){
 	std::shared_ptr<Body> rect1 = std::make_shared<Body>(POLYGON);
-	rect1->rect(70,70);
+	rect1->rect(40,40);
 	rect1->set_pos(position);
 	rect1->set_orientation(0);
 	rect1->generate_color();
@@ -90,6 +90,10 @@ void handle_keydown(SDL_KeyboardEvent e) {
 		}
 		case SDLK_b : {
 			box_mode = !box_mode;
+			break;
+		}
+		case SDLK_x : {
+			world.clear_bodies();
 			break;
 		}
 		case SDLK_ESCAPE : {

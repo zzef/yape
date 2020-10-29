@@ -647,6 +647,10 @@ void World::generate_contact_points(Manifold& m)  {
 
 }
 
+void World::clear_bodies() {
+	this->bodies = 3;
+}
+
 void World::generate_pp_manifold(std::shared_ptr<Body> a, std::shared_ptr<Body> b) {
 
 	Vec position_a(a->get_x(),a->get_y());

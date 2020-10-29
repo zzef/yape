@@ -51,6 +51,7 @@ class World {
 		World();
 		World(float gravity);
 		void positional_correction_(bool val);
+		void clear_bodies();
 		std::shared_ptr<Body> get_body(int i);
 		int body_count();
 		void add_body(std::shared_ptr<Body> b);
