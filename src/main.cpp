@@ -253,9 +253,7 @@ void test() {
 
 }
 
-void initialize() {
-
-
+void add_world_surfaces() {
 	world.show_polymids(false);
 	world.show_collisions(false);
 	world.show_contacts(show_contacts);
@@ -299,8 +297,29 @@ void initialize() {
 	world.add_body(wall1);	
 	world.add_body(wall2);
 	world.add_body(b4);
+}
 
+
+void stacking_test() {
+
+	int levels = 10;
+	Vec orig(850,800 - (levels*(30+40)));
+	for (int i = 0; i < levels; i++) {
+		Vec start = Vec(-((i*45/2)),(i*45)) + Vec(0,30*i);
+		for (int j = 0; j<i+1; j++) {
+			Vec pos = (orig + start) + Vec(j*45,0);
+			add_new_box(pos);
+		}
+	}
+	
+}
+
+void initialize() {
+
+
+	add_world_surfaces();
 	//test();
+	stacking_test();
 
 }
 

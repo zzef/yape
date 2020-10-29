@@ -309,7 +309,7 @@ void World::resolve_manifolds() {
 		Vec position_a(A->get_x(),A->get_y());
 		Vec position_b(B->get_x(),B->get_y());
 			
-		float e = 0.5f;
+		float e = 0.4f;
 		float mtvm = this->contacts[i].mtvm;
 		Vec mv = this->contacts[i].mtv * mtvm;
 		Vec mtv = this->contacts[i].mtv;
@@ -318,7 +318,7 @@ void World::resolve_manifolds() {
 		//std::cout << "contacts " << contacts_ << std::endl;
 			
 		float bias = this->positional_correction ? 0.3f : 0.0f;
-		float penetration_allowance = 0.15f;
+		float penetration_allowance = 0.10f;
 		float totji = 0.0f;
 
 		Vec velocity_a(A->get_vel_x(),A->get_vel_y());
@@ -381,6 +381,7 @@ void World::resolve_manifolds() {
 
 			if (contact_vel > 0) {
 				Vec impulse = sep_norm * ji;
+				impulse = impulse / (float) contacts_;
 				A->apply_impulse(impulse,ra);
 				Vec nimpulse = impulse * -1;			
 				B->apply_impulse(nimpulse, rb);			
@@ -389,16 +390,15 @@ void World::resolve_manifolds() {
 
 			ji /= inv_mass_sum;
 			
-			//std::cout << "ji " << ji << std::endl;
-			ji /= (float) contacts_; 
+			//std::cout << "ji " << ji << std::endl; 
 			//std::cout << "jii " << ji << std::endl;
 	
 			//float tempji = totji;
 			//totji = std::max(totji+ji,0.0f);
 			//ji = totji - tempji;	
 
-			float df = 0.35f;
-			float mu = 0.40f;
+			float df = 0.45f;
+			float mu = 0.55f;
 			
 			//std::cout << "==========" << std::endl;	
 			//velocity_a.print();
@@ -421,7 +421,6 @@ void World::resolve_manifolds() {
 
 			float jt = -rv.dot(t);
 			jt /= inv_mass_sum;
-			jt /= (float) contacts_;
 
 			//if (abs(jt)<1e+6)
 			//	break;
@@ -435,6 +434,8 @@ void World::resolve_manifolds() {
 			else {
 				impulse = impulse + ( t * (-ji * df) );
 			}
+
+			impulse = impulse / (float) contacts_;
 
 			//fimpulse.print();	
 			A->apply_impulse(impulse,ra);
