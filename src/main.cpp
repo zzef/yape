@@ -10,6 +10,7 @@ bool interactive = true;
 bool physics_interpolation = true;
 bool box_mode = false;
 bool positional_correction = true;
+bool show_contacts = false;
 Display display = Display(W_WIDTH,W_HEIGHT,WINDOW_TITLE);
 World world;
 
@@ -80,6 +81,12 @@ void handle_keydown(SDL_KeyboardEvent e) {
 		case SDLK_c : {
 			positional_correction = !positional_correction;
 			world.positional_correction_(positional_correction);
+			break;
+		}
+		case SDLK_t : {
+			show_contacts = !show_contacts;
+			world.show_contacts(show_contacts);
+			break;
 		}
 		case SDLK_b : {
 			box_mode = !box_mode;
@@ -247,7 +254,7 @@ void initialize() {
 
 	world.show_polymids(false);
 	world.show_collisions(false);
-	world.show_contacts(false);
+	world.show_contacts(show_contacts);
 	world.show_connections(true);
 	world.show_normals(false);
 	world.positional_correction_(positional_correction);
@@ -269,7 +276,7 @@ void initialize() {
 	b4->set_im(0);
 
 
-	float wh = 400;
+	float wh = 700;
 
 	std::shared_ptr<Body> wall1 = std::make_shared<Body>(POLYGON);
 	wall1->rect(wh,thickness);

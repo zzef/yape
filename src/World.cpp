@@ -50,25 +50,21 @@ void World::render(Display* d, float ratio) {
 	if (show_conns) {
 		for (int i = this->connections.size()-1; i >= 0; i--) {
 			d->draw_circle(this->connections[i],7.5,0,blue);
-			this->connections.pop_back();
 		}
 	}
 
 
 	if (show_conts) {
 		for (int i = this->contact_points.size()-1; i >= 0; i--) {
-			d->draw_circle(this->contact_points[i],7.5,0,color);
+			d->draw_circle(this->contact_points[i],5,0,color);
 			//this->contact_points[i].print();
-			this->contact_points.pop_back();
 		}
 	}
 
 	for (int i = this->edges.size()-1; i >= 0; i--) {
 		d->draw_line(edges[i].v1,edges[i].v2,color);
-		this->edges.pop_back();
 	}
 
-	this->reset_colors();
 }
 
 void World::remove_body(Body b) {
@@ -237,9 +233,18 @@ void World::integrate_velocities() {
 	}
 
 }
+void World::clear_up() {
+
+	this->contact_points.clear();
+	this->connections.clear();
+	this->edges.clear();
+
+}
 
 void World::simulate() {
 
+		this->reset_colors();
+		this->clear_up();
 		this->integrate_forces();
 		this->generate_manifolds();
 		
@@ -251,7 +256,7 @@ void World::simulate() {
 		this->integrate_velocities();
 		//this->apply_positional_correction();
 		this->contacts.clear();
-
+		
 }
 
 void World::set_mouse_down(bool val) {
@@ -329,7 +334,8 @@ void World::resolve_manifolds() {
 			//velocity_a.print();
 			//velocity_b.print();
 
-			this->contact_points.push_back(this->contacts[i].contacts[j]);
+			if (show_conts) 
+				this->contact_points.push_back(this->contacts[i].contacts[j]);
 
 			Vec ra = this->contacts[i].contacts[j] - position_a;	
 			Vec rb = this->contacts[i].contacts[j] - position_b;
@@ -595,7 +601,8 @@ void World::generate_contact_points(Manifold& m)  {
 		incident = s_edge_2;
 
 		Vec vt = best_vertex1 + sep_vec;
-		edges.push_back(Edge(vt,best_vertex1));
+		if (show_conts)
+			edges.push_back(Edge(vt,best_vertex1));
 	
 	}
 	else {
@@ -603,7 +610,8 @@ void World::generate_contact_points(Manifold& m)  {
 		incident = s_edge_1;
 
 		Vec vt = best_vertex - sep_vec;
-		edges.push_back(Edge(vt,best_vertex));
+		if (show_conts)
+			edges.push_back(Edge(vt,best_vertex));
 		
 	}	
 	

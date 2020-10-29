@@ -45,6 +45,7 @@ class World {
 		void apply_positional_correction();
 		void integrate_velocities();
 		void integrate_forces();
+		void clear_up();
 
 	public:
 		World();
