@@ -161,6 +161,7 @@ void Display::draw_text(std::string&& str, int x, int y, char* color, int size) 
 	SDL_Texture* Message;
 	const char * string = str.c_str();
 	int w,h;
+	//std::string gravity = "gravity: "+ DEF_GRAV;
 	TTF_SizeText(this->fonts[size],string,&w,&h);
 	SDL_Color col = {color[0],color[1],color[2]};
 	surfaceMessage = TTF_RenderText_Blended(this->fonts[size],string,col);
@@ -175,6 +176,3 @@ void Display::draw_text(std::string&& str, int x, int y, char* color, int size) 
 	SDL_DestroyTexture(Message);
 
 }
-
-
-
