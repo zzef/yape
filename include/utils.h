@@ -8,6 +8,6 @@ struct Color {
 };
 
 int random(int a, int b);
-struct Color hsv_to_rgb(float h, float s, float v);
+struct Color hsv_to_rgb(int h, int s, int v);
 
 #endif

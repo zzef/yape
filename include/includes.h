@@ -21,8 +21,8 @@
 #include "SDL_ttf.h"
 #include <stdio.h>
 #include <stdlib.h>
+
 #include <iostream>
-#include <time.h>
 #include <string>
 #include "Vector.h"
 #include <map>

@@ -1,7 +1,7 @@
 #include "../include/includes.h"
 
-#define W_WIDTH 1200
-#define W_HEIGHT 600
+#define W_WIDTH 1700
+#define W_HEIGHT 900
 #define WINDOW_TITLE "Engine"
 
 float ori = 0;
@@ -31,12 +31,12 @@ void handle_mouse_motion(SDL_MouseMotionEvent e) {
 			break;
 		}
 		case SDL_BUTTON_RMASK : {
-
+			
 		}
 		default: {
 			world.set_rel_mouse_position(Vec(0,0));
 		}
-	}
+	}		
 }
 
 void handle_mouse_up(SDL_MouseButtonEvent e) {
@@ -46,7 +46,7 @@ void handle_mouse_up(SDL_MouseButtonEvent e) {
 void handle_mouse_down(SDL_MouseButtonEvent e) {
 	world.set_mouse_down(true);
 
-	if (e.button == SDL_BUTTON_LEFT)
+	if (e.button == SDL_BUTTON_LEFT)	
 		if (!interactive)
 			add_new_polygon(Vec(e.x,e.y));
 }
@@ -60,7 +60,7 @@ void handle_keydown(SDL_KeyboardEvent e) {
 	}
 }
 
-void handle_event(SDL_Event e) {
+void handle_event(SDL_Event e) {	
 	switch(e.type){
 		case SDL_MOUSEMOTION : {
 			handle_mouse_motion(e.motion);
@@ -85,7 +85,7 @@ void update() {
 	world.simulate();
 }
 
-void render() {
+void render() {	
 	//world.get_body(0)->set_orientation(ori+=0.05);
 	if (ori>360)
 		ori = 0;
@@ -128,7 +128,7 @@ void test() {
 	b->add_vertex(Vec(50,-80));
 	b->add_vertex(Vec(140,120));
 	b->set_x(400);
-	b->set_y(300);
+	b->set_y(300);	
 	b->set_orig_color(
 		(char) 70,
 		(char) 200,
@@ -163,10 +163,10 @@ void test() {
 	);
 
 	world.add_body(a2);
-	a2->set_orientation(random(0,360)*(M_PI/180.0f));
+	a2->set_orientation(random(0,360)*(M_PI/180.0f));	
 	world.add_body(a);
 	a->set_orientation(random(0,360)*(M_PI/180.0f));
-
+	
 	//world.add_body(b);
 	//b2->set_orientation(random(0,360)*(M_PI/180.0f));
 	//world.add_body(b2);
@@ -188,17 +188,17 @@ void test() {
 	std::shared_ptr<Body> rect5 = std::make_shared<Body>(POLYGON);
 	rect5->rect(150,150);
 	rect5->set_pos(1500,300);
-
-	Joint joint(rect1,Vec(40,0),rect2,Vec(-40,0),0);
-	Joint joint2(rect2,Vec(40,0),rect3,Vec(-40,0),0);
-	Joint joint3(rect3,Vec(40,0),rect4,Vec(-40,0),0);
-	Joint joint4(rect4,Vec(40,0),rect5,Vec(0,0),300);
+	
+	Joint joint(rect1,Vec(40,0),rect2,Vec(-40,0),0);	
+	Joint joint2(rect2,Vec(40,0),rect3,Vec(-40,0),0);	
+	Joint joint3(rect3,Vec(40,0),rect4,Vec(-40,0),0);	
+	Joint joint4(rect4,Vec(40,0),rect5,Vec(0,0),300);	
 
 	world.add_joint(joint);
 	world.add_joint(joint2);
 	world.add_joint(joint3);
 	world.add_joint(joint4);
-
+	
 
 	world.add_body(rect1);
 	world.add_body(rect2);
@@ -222,10 +222,10 @@ void initialize() {
 	world.show_contacts(false);
 	world.show_connections(true);
 	world.show_normals(false);
-
+		
 	test();
 
-	int thickness = 40;
+	int thickness = 40;	
 	int height = thickness;
 	int margin = 40;
 	int width = W_WIDTH-(margin*2);
@@ -256,20 +256,20 @@ void initialize() {
 	wall2->set_im(0);
 	wall2->set_pos((thickness/2.0f) + margin,100 + (wh/2));
 
-	world.add_body(wall1);
+	world.add_body(wall1);	
 	world.add_body(wall2);
 
 	world.add_body(b4);
 
 }
 
-int main(int argv, char** args) {
-
+int main() {
+	
 	srand (time(NULL));
 	bool quit = false;
 	SDL_Event e;
 	initialize();
-	while(!quit) {
+	while(!quit) {	
 		while (SDL_PollEvent( &e )) {
 
 			if (e.type == SDL_QUIT)
@@ -285,3 +285,8 @@ int main(int argv, char** args) {
 
 	return 0;
 }
+
+
+
+
+
