@@ -90,6 +90,9 @@ void render() {
 	if (ori>360)
 		ori = 0;
 	world.render(&display);
+	char color[3] = {(char) 255, (char) 255, (char) 255};
+	display.draw_text("Gravity: ", 50, 50, color, 20);
+	//display.draw_text(("Gravity: " + DEF_GRAV), 70, 50, color, 20);
 }
 
 void test() {

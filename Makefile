@@ -1,5 +1,6 @@
 CC = g++
-LIBS = -lSDL2
+
+LIBS = -lmingw32 -lSDL2main -lSDL2 -lSDL2 -lSDL2_ttf
 IDIR = include
 SDIR = src
 OBJDIR = .

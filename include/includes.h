@@ -3,7 +3,7 @@
 
 #define MAX_V 10
 #define MIN_V 3
-#define DEF_GRAV 0.0006
+#define DEF_GRAV 0.006
 #define MAX_BODIES 100
 #define POLYGON 0
 #define CIRCLE 1
@@ -15,11 +15,17 @@
 #define SHOW_NORMALS 1 << 0
 #define SHOW_POLYMIDS 1 << 1
 
+#include <unistd.h>
+#include <windows.h>
+#include "SDL.h"
+#include "SDL_ttf.h"
+#include <stdio.h>
+#include <stdlib.h>
 
-#include "SDL2/SDL.h"
 #include <iostream>
 #include <string>
 #include "Vector.h"
+#include <map>
 #include "Display.h"
 #include "Polygon.h"
 #include "Circle.h"
@@ -29,6 +35,8 @@
 #include "Body.h"
 #include "World.h"
 #include "Joints.h"
+#include <sstream>
+#include <fstream>
 #include <memory>
 
 #endif
