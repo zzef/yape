@@ -309,7 +309,7 @@ void World::resolve_manifolds() {
 		Vec position_a(A->get_x(),A->get_y());
 		Vec position_b(B->get_x(),B->get_y());
 			
-		float e = 0.4f;
+		float e = 0.05f;
 		float mtvm = this->contacts[i].mtvm;
 		Vec mv = this->contacts[i].mtv * mtvm;
 		Vec mtv = this->contacts[i].mtv;
@@ -317,8 +317,8 @@ void World::resolve_manifolds() {
 		Vec sep_norm = mtv;
 		//std::cout << "contacts " << contacts_ << std::endl;
 			
-		float bias = this->positional_correction ? 0.3f : 0.0f;
-		float penetration_allowance = 0.10f;
+		float bias = this->positional_correction ? 0.2f : 0.0f;
+		float penetration_allowance = 0.05f;
 		float totji = 0.0f;
 
 		Vec velocity_a(A->get_vel_x(),A->get_vel_y());

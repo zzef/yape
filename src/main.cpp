@@ -302,8 +302,8 @@ void add_world_surfaces() {
 
 void stacking_test() {
 
-	int levels = 10;
-	Vec orig(850,800 - (levels*(30+40)));
+	int levels = 13;
+	Vec orig(850,920 - (levels*(40+40)));
 	for (int i = 0; i < levels; i++) {
 		Vec start = Vec(-((i*45/2)),(i*45)) + Vec(0,30*i);
 		for (int j = 0; j<i+1; j++) {
