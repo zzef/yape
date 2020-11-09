@@ -273,7 +273,7 @@ void World::show_contacts(bool show) {
 
 void World::apply_positional_correction() {
   const float k_slop = 0.05f; // Penetration allowance
-  const float percent = 0.65f; // Penetration percentage to correct
+  const float percent = 0.85f; // Penetration percentage to correct
 
 	for (int i = contacts.size()-1; i>=0; i--) {
 		std::shared_ptr<Body> A = this->contacts[i].A;	
@@ -309,7 +309,7 @@ void World::resolve_manifolds() {
 		Vec position_a(A->get_x(),A->get_y());
 		Vec position_b(B->get_x(),B->get_y());
 			
-		float e = 0.05f;
+		float e = 0.45f;
 		float mtvm = this->contacts[i].mtvm;
 		Vec mv = this->contacts[i].mtv * mtvm;
 		Vec mtv = this->contacts[i].mtv;
