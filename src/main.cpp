@@ -215,36 +215,38 @@ void test() {
 	//world.add_body(b2);
 
 	std::shared_ptr<Body> rect1 = std::make_shared<Body>(POLYGON);
-	rect1->rect(30,100);
-	rect1->set_pos(600,300);
+	rect1->rect(100,100);
+	rect1->set_pos(600,500);
 	std::shared_ptr<Body> rect2 = std::make_shared<Body>(POLYGON);
-	rect2->rect(30,100);
-	rect2->set_pos(800,300);
+	rect2->rect(100,100);
+	rect2->set_pos(600,300);
+	rect1->set_orientation(random(0,360)*(M_PI/180.0f));	
+	rect2->set_orientation(random(0,360)*(M_PI/180.0f));	
+
+	/*
 	std::shared_ptr<Body> rect3 = std::make_shared<Body>(POLYGON);
 	rect3->rect(30,100);
 	rect3->set_pos(1000,300);
 	std::shared_ptr<Body> rect4 = std::make_shared<Body>(POLYGON);
 	rect4->rect(30,100);
 	rect4->set_pos(1200,300);
-
-
 	std::shared_ptr<Body> rect5 = std::make_shared<Body>(POLYGON);
 	rect5->rect(150,150);
 	rect5->set_pos(1500,300);
-	
-	Joint joint(rect1,Vec(40,0),rect2,Vec(-40,0),0);	
-	Joint joint2(rect2,Vec(40,0),rect3,Vec(-40,0),0);	
-	Joint joint3(rect3,Vec(40,0),rect4,Vec(-40,0),0);	
-	Joint joint4(rect4,Vec(40,0),rect5,Vec(0,0),300);	
+	*/
+	Joint joint(rect1,Vec(0,0),rect2,Vec(0,0),200);	
+	//Joint joint2(rect2,Vec(40,0),rect3,Vec(-40,0),0);	
+	//Joint joint3(rect3,Vec(40,0),rect4,Vec(-40,0),0);	
+	//Joint joint4(rect4,Vec(40,0),rect5,Vec(0,0),300);	
 
-	//world.add_joint(joint);
+	world.add_joint(joint);
 	//world.add_joint(joint2);
 	//world.add_joint(joint3);
 	//world.add_joint(joint4);
 	
 
-	//world.add_body(rect1);
-	//world.add_body(rect2);
+	world.add_body(rect1);
+	world.add_body(rect2);
 	//world.add_body(rect3);
 	//world.add_body(rect4);
 	//world.add_body(rect5);
@@ -302,7 +304,7 @@ void add_world_surfaces() {
 
 void stacking_test() {
 
-	int levels = 13;
+	int levels = 10;
 	Vec orig(850,920 - (levels*(40+40)));
 	for (int i = 0; i < levels; i++) {
 		Vec start = Vec(-((i*45/2)),(i*45)) + Vec(0,30*i);

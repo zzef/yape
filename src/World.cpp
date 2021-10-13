@@ -197,6 +197,7 @@ void World::resolve_constraints() {
 }
 
 void World::integrate_forces() {
+	float time = dt / resolution_iterations;
 	for (int i = 0; i < this->bodies; i++) {
 
 		std::shared_ptr<Body> b = this->Bodies[i];	
@@ -208,12 +209,13 @@ void World::integrate_forces() {
 			continue;
 		}
 			
-		b->set_vel_y(b->get_vel_y()+(this->gravity * (dt / 2.0f)));
+		b->set_vel_y(b->get_vel_y()+(this->gravity * (time / 2.0f)));
 	}
 
 }
 
 void World::integrate_velocities() {
+	float time = dt / resolution_iterations;
 	for (int i = 0; i < this->bodies; i++) {
 
 		std::shared_ptr<Body> b = this->Bodies[i];	
@@ -227,9 +229,9 @@ void World::integrate_velocities() {
 
 		b->prev_pos = Vec(b->get_x(),b->get_y());
 		b->prev_orientation = b->get_orientation();
-		b->set_orientation(b->get_orientation()+(b->get_ang_vel()*dt));
-		b->set_x(b->get_x()+(b->get_vel_x()*dt));
-		b->set_y(b->get_y()+(b->get_vel_y()*dt));
+		b->set_orientation(b->get_orientation()+(b->get_ang_vel()*time));
+		b->set_x(b->get_x()+(b->get_vel_x()*time));
+		b->set_y(b->get_y()+(b->get_vel_y()*time));
 	}
 
 }
@@ -245,17 +247,17 @@ void World::simulate() {
 
 		this->reset_colors();
 		this->clear_up();
-		this->integrate_forces();
-		this->generate_manifolds();
 		
 		for (int i = 0; i < resolution_iterations; i++) {
-			this->resolve_manifolds();
+			this->integrate_forces();
 			this->resolve_constraints();
+			this->generate_manifolds();
+			this->resolve_manifolds();
+			this->integrate_velocities();
+			this->contacts.clear();
 		}
 
-		this->integrate_velocities();
 		//this->apply_positional_correction();
-		this->contacts.clear();
 		
 }
 
@@ -296,6 +298,7 @@ void World::positional_correction_(bool val) {
 
 void World::resolve_manifolds() {
 
+	float time = dt / resolution_iterations;
 	for (int i = contacts.size()-1; i>=0; i--) {
 	
 		std::shared_ptr<Body> A = this->contacts[i].A;	
@@ -309,7 +312,7 @@ void World::resolve_manifolds() {
 		Vec position_a(A->get_x(),A->get_y());
 		Vec position_b(B->get_x(),B->get_y());
 			
-		float e = 0.45f;
+		float e = 0.25f;
 		float mtvm = this->contacts[i].mtvm;
 		Vec mv = this->contacts[i].mtv * mtvm;
 		Vec mtv = this->contacts[i].mtv;
@@ -317,7 +320,7 @@ void World::resolve_manifolds() {
 		Vec sep_norm = mtv;
 		//std::cout << "contacts " << contacts_ << std::endl;
 			
-		float bias = this->positional_correction ? 0.2f : 0.0f;
+		float bias = this->positional_correction ? 0.5f : 0.0f;
 		float penetration_allowance = 0.05f;
 		float totji = 0.0f;
 
@@ -345,7 +348,7 @@ void World::resolve_manifolds() {
 			Vec rv = velocity_a + ra.cross(ang_vel_a) - (velocity_b + rb.cross(ang_vel_b)); 
 			//Vec rv = velocity_a - velocity_b;
 	
-			if (rv.mag() < this->gravity * dt ) // if collision is weaker than gravity then cause bodies to lose energy fast and come to rest 
+			if (rv.mag() < this->gravity * time ) // if collision is weaker than gravity then cause bodies to lose energy fast and come to rest 
 				e = 0.0f;
 
 
@@ -377,7 +380,7 @@ void World::resolve_manifolds() {
 		
 			float ji = -(1.0f + e) * contact_vel;
 			//std::cout << "mtvm " << mtvm << std::endl;
-			ji += -bias * (1.0f/dt) * std::min(0.0f, penetration_allowance - mtvm);
+			ji += -bias * (1.0f/time) * std::min(0.0f, penetration_allowance - mtvm);
 
 			if (contact_vel > 0) {
 				Vec impulse = sep_norm * ji;
