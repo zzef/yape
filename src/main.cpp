@@ -100,8 +100,8 @@ void handle_keydown(SDL_KeyboardEvent e) {
 			break;
 		}
 		case SDLK_r : {
-			world.clear_up();
 			world.clear_bodies();
+			world.clear_up();
 			initialize();
 			break;
 		}
@@ -234,10 +234,12 @@ void test() {
 	rect1->set_orientation(random(0,360)*(M_PI/180.0f));	
 	rect2->set_orientation(random(0,360)*(M_PI/180.0f));	
 
-	/*
 	std::shared_ptr<Body> rect3 = std::make_shared<Body>(POLYGON);
-	rect3->rect(30,100);
+	rect3->rect(100,100);
 	rect3->set_pos(1000,300);
+	rect3->initialize();
+
+	/*
 	std::shared_ptr<Body> rect4 = std::make_shared<Body>(POLYGON);
 	rect4->rect(30,100);
 	rect4->set_pos(1200,300);
@@ -246,19 +248,19 @@ void test() {
 	rect5->set_pos(1500,300);
 	*/
 	Distance_constraint distance_constraint(rect1,Vec(50,50),rect2,Vec(-50,50),0);	
-	//Distance_constraint distance_constraint2(rect2,Vec(40,0),rect3,Vec(-40,0),0);	
+	Distance_constraint distance_constraint2(rect2,Vec(50,50),rect3,Vec(-50,50),0);	
 	//Distance_constraint distance_constraint3(rect3,Vec(40,0),rect4,Vec(-40,0),0);	
 	//Distance_constraint distance_constraint4(rect4,Vec(40,0),rect5,Vec(0,0),300);	
 
 	world.add_distance_constraint(distance_constraint);
-	//world.add_distance_constraint(distance_constraint2);
+	world.add_distance_constraint(distance_constraint2);
 	//world.add_distance_constraint(distance_constraint3);
 	//world.add_distance_constraint(distance_constraint4);
 	
 
 	world.add_body(rect1);
 	world.add_body(rect2);
-	//world.add_body(rect3);
+	world.add_body(rect3);
 	//world.add_body(rect4);
 	//world.add_body(rect5);
 

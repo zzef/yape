@@ -49,19 +49,20 @@ void World::render(Display* d, float ratio) {
 
 	if (show_conns) {
 		for (int i = this->connections.size()-1; i >= 0; i--) {
-			d->draw_circle(this->connections[i],7.5,0,blue);
+			//d->draw_circle(this->connections[i],7.5,0,blue);
 		}
 	}
 
 
 	if (show_conts) {
 		for (int i = this->contact_points.size()-1; i >= 0; i--) {
-			d->draw_circle(this->contact_points[i],5,0,color);
+			//d->draw_circle(this->contact_points[i],5,0,color);
 			//this->contact_points[i].print();
 		}
 	}
 
-	for (int i = this->edges.size()-1; i >= 0; i--) {
+	//printf("edges size ===================> %ld\n",this->edges.size());
+	for (int i = 0; i < this->edges.size(); i++) {
 		d->draw_line(edges[i].v1,edges[i].v2,color);
 	}
 
@@ -116,8 +117,8 @@ void World::resolve_distance_constraint(std::shared_ptr<Body> a, Vec ra, std::sh
 	Vec b_pos(b->get_x(),b->get_y());
 	Vec a_pos(a->get_x(),a->get_y());
 
-	printf("ra-->>\n");	
-	ra.print();
+	//printf("ra-->>\n");	
+	//ra.print();
 
 	rb = rb.rotate(b->get_orientation());
 	ra = ra.rotate(a->get_orientation());
@@ -127,17 +128,17 @@ void World::resolve_distance_constraint(std::shared_ptr<Body> a, Vec ra, std::sh
 	
 	//computing jacobian
 
-	printf("hey\n");
+	//printf("hey\n");
 	Vec d = pb - pa;
 	d=d.normalize();
-	d.print();
+	//d.print();
 	Vec j0 = d * -1;
 	float j1 = ((ra*-1).cross(d));
 	Vec j2 = d;
 	float j3 = (rb.cross(d));
 
-	printf("ra-->>\n");	
-	ra.print();
+	//printf("ra-->>\n");	
+	//ra.print();
 	//printf("j1 %f\n",j1);
 	float offset_length = (pb-pa).mag() - l;
 
@@ -145,8 +146,8 @@ void World::resolve_distance_constraint(std::shared_ptr<Body> a, Vec ra, std::sh
 
 	float wa = a->get_ang_vel(); 
 	float wb = b->get_ang_vel(); 
-	Vec va = *(a->get_vel());
 
+	Vec va = *(a->get_vel());
 	Vec vb = *(b->get_vel());
 	
 	//calculate effective mass
@@ -169,20 +170,20 @@ void World::resolve_distance_constraint(std::shared_ptr<Body> a, Vec ra, std::sh
 	float lambda = -JVpb / effective_mass;
 
 
-	printf("j0 "); j0.print();
-	printf("j2 "); j2.print();
-	printf("j0 dot va = %f\n",j0.dot(va));
-	printf("j2 dot vb = %f\n",j2.dot(vb));
+	//printf("j0 "); j0.print();
+	//printf("j2 "); j2.print();
+	//printf("j0 dot va = %f\n",j0.dot(va));
+	//printf("j2 dot vb = %f\n",j2.dot(vb));
 	//printf("j1 * wa = %f\n",j1*wa);
 	//printf("j3 * wb = %f\n",j3*wb);
-	printf("bias = %f\n",bias);
-	printf("JVpb %f\n",JVpb);
-	printf("effective_mass %f\n",effective_mass);
-	printf("lambda %f\n",lambda);
+	//printf("bias = %f\n",bias);
+	//printf("JVpb %f\n",JVpb);
+	//printf("effective_mass %f\n",effective_mass);
+	//printf("lambda %f\n",lambda);
 	//printf("j1 * lambda * aiI %f\n",j1 * lambda * a->get_iI());
 
-	printf("wa %f\n",wa);
-	printf("wb %f\n",wb);
+	//printf("wa %f\n",wa);
+	//printf("wb %f\n",wb);
 
 	//Apply impulses
 
@@ -253,10 +254,11 @@ void World::integrate_velocities() {
 }
 void World::clear_up() {
 
+	this->contacts.clear();
 	this->contact_points.clear();
 	this->connections.clear();
 	this->edges.clear();
-
+	//printf("cleared!\n");
 }
 
 void World::simulate() {
@@ -479,11 +481,14 @@ bool World::is_joined(std::shared_ptr<Body> a, std::shared_ptr<Body> b)  {
 void World::generate_manifolds() {
 	
 	for(int i = 0; i<this->bodies; i++) {
-		for(int j = i + 1; j<this->bodies; j++) {
+		for(int j = 0; j<this->bodies; j++) {
 			
 			std::shared_ptr<Body> A = this->Bodies[i];
 			std::shared_ptr<Body> B = this->Bodies[j];
-			
+
+			if (A==B)
+				continue;	
+	
 			if (A->get_type()==POLYGON && B->get_type()==POLYGON) {
 				//if (this->is_joined(A,B)) {
 				//	continue;
