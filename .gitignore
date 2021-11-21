@@ -1,3 +1,5 @@
 *.o
 project
 engine
+*.swo
+*.swp

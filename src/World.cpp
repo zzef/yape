@@ -2,7 +2,7 @@
 #include "../include/utils.h"
 #include "../include/Body.h"
 #include "../include/World.h"
-#include "../include/Joints.h"
+#include "../include/Constraints.h"
 
 World::World() {
  	this->gravity = DEF_GRAV;
@@ -104,92 +104,108 @@ void World::reset_colors() {
 	}
 }
 
-void World::add_joint(Joint joint) {
-	this->joints.push_back(joint);
+void World::add_distance_constraint(Distance_constraint distance_constraint) {
+	this->distance_constraints.push_back(distance_constraint);
 }
 
-void World::keep_distance(std::shared_ptr<Body> a, Vec pp_a, std::shared_ptr<Body> b, Vec pp_b, float dist_const) {
+void World::resolve_distance_constraint(std::shared_ptr<Body> a, Vec ra, std::shared_ptr<Body> b, Vec rb, float l) {
 
-	float damping = 80;
-	if (dist_const == 0)
-		damping = 130;
 
+	float time = dt / resolution_iterations;
+	
 	Vec b_pos(b->get_x(),b->get_y());
 	Vec a_pos(a->get_x(),a->get_y());
 
-	Vec contact_b = pp_b.rotate(b->get_orientation());
-	Vec contact_a = pp_a.rotate(a->get_orientation());
+	printf("ra-->>\n");	
+	ra.print();
 
-	Vec pivot_b = b_pos + contact_b;
-	Vec pivot_a = a_pos + contact_a;
+	rb = rb.rotate(b->get_orientation());
+	ra = ra.rotate(a->get_orientation());
 
-	//std::cout << "contact" << std::endl;
-	Vec position(b->get_x(),b->get_y());
+	Vec pb = b_pos + rb;
+	Vec pa = a_pos + ra;
+	
+	//computing jacobian
 
-	Vec ra = pp_a * -1;
-	Vec rb = pp_b * -1;
+	printf("hey\n");
+	Vec d = pb - pa;
+	d=d.normalize();
+	d.print();
+	Vec j0 = d * -1;
+	float j1 = ((ra*-1).cross(d));
+	Vec j2 = d;
+	float j3 = (rb.cross(d));
 
-	//std::cout << "(" << b->get_x() << "," << b->get_y() << ")" << std::endl;
+	printf("ra-->>\n");	
+	ra.print();
+	//printf("j1 %f\n",j1);
+	float offset_length = (pb-pa).mag() - l;
 
-	//std::cout << "first pos ";
-	//position.print(); 
-	//position = position + contact;
-	//std::cout << "piv" << std::endl;
-	//pivot.print();
-	Vec d = pivot_a - pivot_b;
-	//std::cout << "d" << std::endl;
-	//d.print();
-	float distance = d.mag();
-	float vel = distance - dist_const;
-	//std::cout << distance << " dist " << std::endl;
-	//std::cout << dist_const << " distcon " << std::endl;
-	Vec dn = d.normalize();
-	Vec dn2 = d.normalize();
-	Vec f = dn * vel * damping;
-	Vec fn = f * -1;
-	Vec velocity_a = Vec(a->get_vel_x(),a->get_vel_y()) + ra.cross(a->get_ang_vel());
-	Vec velocity_b = Vec(b->get_vel_x(),b->get_vel_y()) + rb.cross(b->get_ang_vel());	
-	Vec vrel = velocity_b - velocity_a;
-	Vec vrel2 =  velocity_a - velocity_b;
-	//vrel.print();
-	float ta = dn.cross(1.0f).dot(vrel2);
-	float tb = dn.cross(1.0f).dot(vrel);
+	float bias = (1.0f/time) * offset_length * 0.2f;
 
-	Vec tva = dn.cross(1.0f) * ta;
-	Vec tvb = dn.cross(1.0f) * tb;
+	float wa = a->get_ang_vel(); 
+	float wb = b->get_ang_vel(); 
+	Vec va = *(a->get_vel());
 
-	float const_vel = dn.dot(vrel);
-	float const_vel2 = dn2.dot(vrel2);
-	//std::cout << vel << " vel" << std::endl;
-	f = f - (dn*const_vel) - (tvb * 0.0025); // - tvb for rotational damping
-	fn = fn - (dn*const_vel2) - (tva * 0.0025);
-	f = f/(b->get_im() * 200);
-	fn = fn/(a->get_im() * 200);
-	b->apply_impulse(f,contact_b);
-	a->apply_impulse(fn,contact_a);
+	Vec vb = *(b->get_vel());
+	
+	//calculate effective mass
 
-	if (dist_const == 0) {	
-		//a->set_x(a->get_x()-(d.get_x()/2.0f));
-		//a->set_y(a->get_y()-(d.get_y()/2.0f));
-		//b->set_x(b->get_x()+(d.get_x()/2.0f));
-		//b->set_y(b->get_y()+(d.get_y()/2.0f));
-	}
+	float effective_mass = (j0 * a->get_im()).dot(j0)
+						+ (j1 * a->get_iI() * j1)
+						+ (j2 * b->get_im()).dot(j2)
+						+ (j3 * b->get_iI() * j3);
 
-	connections.push_back(pivot_a);
-	connections.push_back(pivot_b);
-	edges.push_back(Edge(pivot_a,pivot_b));	
+	//calculate JV + b
+
+	float JVpb = j0.dot(va)
+			+ (j1 * wa)
+			+ j2.dot(vb)
+			+ (j3 * wb)
+			+ bias;
+
+	//calculate lambda	
+
+	float lambda = -JVpb / effective_mass;
+
+
+	printf("j0 "); j0.print();
+	printf("j2 "); j2.print();
+	printf("j0 dot va = %f\n",j0.dot(va));
+	printf("j2 dot vb = %f\n",j2.dot(vb));
+	//printf("j1 * wa = %f\n",j1*wa);
+	//printf("j3 * wb = %f\n",j3*wb);
+	printf("bias = %f\n",bias);
+	printf("JVpb %f\n",JVpb);
+	printf("effective_mass %f\n",effective_mass);
+	printf("lambda %f\n",lambda);
+	//printf("j1 * lambda * aiI %f\n",j1 * lambda * a->get_iI());
+
+	printf("wa %f\n",wa);
+	printf("wb %f\n",wb);
+
+	//Apply impulses
+
+	a->set_vel(va + ((j0 * lambda) * a->get_im()));	
+	a->set_ang_vel(wa + ((j1 * lambda) * a->get_iI()));	
+	b->set_vel(vb + ((j2 * lambda) * b->get_im()));	
+	b->set_ang_vel(wb + ((j3 * lambda) * b->get_iI()));	
+
+
+	connections.push_back(pa);
+	connections.push_back(pb);
+	edges.push_back(Edge(pa,pb));	
 
 }
 
 void World::resolve_constraints() {
 
 
-	for (int i = 0; i < joints.size(); i++ ) {
+	for (int i = 0; i < distance_constraints.size(); i++ ) {
 		//std::cout << "yooo" << std::endl;
-		std::shared_ptr<Body> a = joints[i].a;
-		std::shared_ptr<Body> b = joints[i].b;
-		this->keep_distance( a, joints[i].pp_a, b, joints[i].pp_b, joints[i].d );
-		this->keep_distance( b, joints[i].pp_b, a, joints[i].pp_a, joints[i].d );
+		std::shared_ptr<Body> a = distance_constraints[i].a;
+		std::shared_ptr<Body> b = distance_constraints[i].b;
+		this->resolve_distance_constraint( a, distance_constraints[i].pp_a, b, distance_constraints[i].pp_b, distance_constraints[i].d );
 
 	} 
 	
@@ -245,10 +261,10 @@ void World::clear_up() {
 
 void World::simulate() {
 
-		this->reset_colors();
-		this->clear_up();
 		
 		for (int i = 0; i < resolution_iterations; i++) {
+			this->reset_colors();
+			this->clear_up();
 			this->integrate_forces();
 			this->resolve_constraints();
 			this->generate_manifolds();
@@ -453,8 +469,8 @@ void World::resolve_manifolds() {
 
 bool World::is_joined(std::shared_ptr<Body> a, std::shared_ptr<Body> b)  {
 
-	for (int i = 0; i<this->joints.size(); i++) {
-		if ((joints[i].a == a && joints[i].b == b) || (joints[i].a == b && joints[i].b == a))
+	for (int i = 0; i<this->distance_constraints.size(); i++) {
+		if ((distance_constraints[i].a == a && distance_constraints[i].b == b) || (distance_constraints[i].a == b && distance_constraints[i].b == a))
 			return true;
 	}
 	return false;
@@ -469,9 +485,9 @@ void World::generate_manifolds() {
 			std::shared_ptr<Body> B = this->Bodies[j];
 			
 			if (A->get_type()==POLYGON && B->get_type()==POLYGON) {
-				if (this->is_joined(A,B)) {
-					continue;
-				}
+				//if (this->is_joined(A,B)) {
+				//	continue;
+				//}
 				this->generate_pp_manifold(A,B);
 				//std::cout << "checking " << A->get_x() << " against " << B->get_x() << std::endl;
 			}

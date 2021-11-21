@@ -6,7 +6,7 @@
 #include "Manifold.h"
 #include "Circle.h"
 #include "Polygon.h"
-#include "Joints.h"
+#include "Constraints.h"
 
 class Body : public Polygon, public Circle {
 	
@@ -17,6 +17,7 @@ class Body : public Polygon, public Circle {
 		int type;
 		void render(Display* d, int options, float ratio);
 		void set_x(float x);
+		Vec* get_vel();
 		void set_y(float y);
 		void set_type(int type);
 		int get_type();
@@ -32,7 +33,8 @@ class Body : public Polygon, public Circle {
 		void reset_color();
 		void generate();
 		void mouse_contact(bool val); 
-		bool get_mouse_contact(); 
+		bool get_mouse_contact();
+		void set_vel(Vec vel);
 		void set_vel_x(float val);
 		void set_vel_y(float val);
 		float get_vel_x();

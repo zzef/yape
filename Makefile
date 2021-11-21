@@ -13,13 +13,13 @@ $(BDIR)/engine: $(DEPS) $(OBJDIR)/main.o
 $(OBJDIR)/main.o: $(SDIR)/main.cpp $(IDIR)/main.h $(DEPS)
 	$(CC) -c -o $@ $<
 
-$(OBJDIR)/World.o: $(SDIR)/World.cpp $(IDIR)/World.h $(IDIR)/Joints.h $(OBJDIR)/Body.o $(OBJDIR)/utils.o $(IDIR)/Manifold.h $(IDIR)/includes.h
+$(OBJDIR)/World.o: $(SDIR)/World.cpp $(IDIR)/World.h $(IDIR)/Constraints.h $(OBJDIR)/Body.o $(OBJDIR)/utils.o $(IDIR)/Manifold.h $(IDIR)/includes.h
 	$(CC) -c -o $@ $<
 
 $(OBJDIR)/Display.o: $(SDIR)/Display.cpp $(IDIR)/Display.h $(OBJDIR)/utils.o $(IDIR)/includes.h
 	$(CC) -c -o $@ $<
 
-$(OBJDIR)/Body.o: $(SDIR)/Body.cpp $(IDIR)/Body.h $(IDIR)/Joints.h $(OBJDIR)/Shape.o $(OBJDIR)/utils.o $(IDIR)/includes.h
+$(OBJDIR)/Body.o: $(SDIR)/Body.cpp $(IDIR)/Body.h $(IDIR)/Constraints.h $(OBJDIR)/Shape.o $(OBJDIR)/utils.o $(IDIR)/includes.h
 	$(CC) -c -o $@ $<
 
 $(OBJDIR)/Polygon.o: $(SDIR)/Polygon.cpp $(IDIR)/Polygon.h $(OBJDIR)/Shape.o $(OBJDIR)/utils.o $(IDIR)/includes.h

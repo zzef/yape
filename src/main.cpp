@@ -14,6 +14,8 @@ bool show_contacts = false;
 Display display = Display(W_WIDTH,W_HEIGHT,WINDOW_TITLE);
 World world;
 
+void initialize();
+
 void add_new_box(Vec position){
 	std::shared_ptr<Body> rect1 = std::make_shared<Body>(POLYGON);
 	rect1->rect(40,40);
@@ -93,7 +95,14 @@ void handle_keydown(SDL_KeyboardEvent e) {
 			break;
 		}
 		case SDLK_x : {
+			world.clear_up();
 			world.clear_bodies();
+			break;
+		}
+		case SDLK_r : {
+			world.clear_up();
+			world.clear_bodies();
+			initialize();
 			break;
 		}
 		case SDLK_ESCAPE : {
@@ -205,7 +214,7 @@ void test() {
 		(char) 210
 	);
 
-	world.add_body(a2);
+	//world.add_body(a2);
 	a2->set_orientation(random(0,360)*(M_PI/180.0f));	
 	//world.add_body(a);
 	a->set_orientation(random(0,360)*(M_PI/180.0f));
@@ -217,9 +226,11 @@ void test() {
 	std::shared_ptr<Body> rect1 = std::make_shared<Body>(POLYGON);
 	rect1->rect(100,100);
 	rect1->set_pos(600,500);
+	rect1->initialize();
 	std::shared_ptr<Body> rect2 = std::make_shared<Body>(POLYGON);
 	rect2->rect(100,100);
 	rect2->set_pos(600,300);
+	rect2->initialize();
 	rect1->set_orientation(random(0,360)*(M_PI/180.0f));	
 	rect2->set_orientation(random(0,360)*(M_PI/180.0f));	
 
@@ -234,15 +245,15 @@ void test() {
 	rect5->rect(150,150);
 	rect5->set_pos(1500,300);
 	*/
-	Joint joint(rect1,Vec(0,0),rect2,Vec(0,0),200);	
-	//Joint joint2(rect2,Vec(40,0),rect3,Vec(-40,0),0);	
-	//Joint joint3(rect3,Vec(40,0),rect4,Vec(-40,0),0);	
-	//Joint joint4(rect4,Vec(40,0),rect5,Vec(0,0),300);	
+	Distance_constraint distance_constraint(rect1,Vec(50,50),rect2,Vec(-50,50),0);	
+	//Distance_constraint distance_constraint2(rect2,Vec(40,0),rect3,Vec(-40,0),0);	
+	//Distance_constraint distance_constraint3(rect3,Vec(40,0),rect4,Vec(-40,0),0);	
+	//Distance_constraint distance_constraint4(rect4,Vec(40,0),rect5,Vec(0,0),300);	
 
-	world.add_joint(joint);
-	//world.add_joint(joint2);
-	//world.add_joint(joint3);
-	//world.add_joint(joint4);
+	world.add_distance_constraint(distance_constraint);
+	//world.add_distance_constraint(distance_constraint2);
+	//world.add_distance_constraint(distance_constraint3);
+	//world.add_distance_constraint(distance_constraint4);
 	
 
 	world.add_body(rect1);
@@ -320,8 +331,8 @@ void initialize() {
 
 
 	add_world_surfaces();
-	//test();
-	stacking_test();
+	test();
+	//stacking_test();
 
 }
 

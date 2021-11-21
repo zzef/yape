@@ -31,7 +31,7 @@ const float dt = (float) 1.0f/((float)FPS);
 #include "math.h"
 #include "Body.h"
 #include "World.h"
-#include "Joints.h"
+#include "Constraints.h"
 #include <memory>
 
 #endif

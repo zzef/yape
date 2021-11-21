@@ -30,6 +30,12 @@ void Body::set_pos(float x, float y) {
 	this->y = y;
 }
 
+void Body::set_vel(Vec vel) {
+	this->set_vel_x(vel.get_x());
+	this->set_vel_y(vel.get_y());
+}
+
+
 void Body::rect(float height, float width) {
 	this->is_rect=true;
 	this->add_vertex(Vec(width/2,height/2));
@@ -139,6 +145,10 @@ void Body::set_ang_vel(float val) {
 
 float Body::get_ang_vel() {
 	return this->ang_vel;
+}
+
+Vec* Body::get_vel() {
+	return new Vec(this->get_vel_x(),this->get_vel_y());
 }
 
 float Body::get_vel_y() {
