@@ -6,9 +6,7 @@ A Rigid body impulse based physics engine written in C++. This was written to ga
 - Collision detection (Separated axis theorem)
 - Impulse based collision response
 - Frictional impulse (Coulomb friction)
-- Springs
-- Distance joints (modelled as springs)
-- Revolute joints (modelled as short (kinda stiff) springs)
+- Distance joints (Modelled with constraints)
 
 <p align="center">
   <img src="https://raw.githubusercontent.com/zzef/zef-physics-engine/master/demos/demo2.gif">
@@ -28,14 +26,16 @@ A Rigid body impulse based physics engine written in C++. This was written to ga
 - http://www.dyn4j.org/2011/11/contact-points-using-clipping/
 - https://www.gafferongames.com/post/collision_response_and_coulomb_friction/
 - https://www.gafferongames.com/post/integration_basics/
+- https://research.ncl.ac.uk/game/mastersdegree/gametechnologies/previousinformation/physics3constraints/2017%20Tutorial%203%20-%20Constraints.pdf
+
 
 ## Todos and Further Improvements
 
-- Re-implement revolute joints in a more stable way. Currently it uses springs which are not good for revolute joints as they bounce about alot.
-- Fix jitter issues at lower framerates (especially joints)
+- Fix polygons disappearing bug
+- Fix random jitter
+- Implement some broadphase
+- Allow for user to exert force via click and drag
 - Inertia tensor for polygons could be based on area giving better realistic movement
-- Generate neon colors for each polygonThomas Jakobsen
-- Fix timestep (Currently directly tied to framerate so not very portable)
 - During manifold generation the bodies rotation and position vector is applied every time some new calculation is done. This is unnecessary and slow as it need only be done once. Solution is to store world space after each integration and use this to perform calculations.
 - Implement warm starting and impulse accumulation for better stability (especially at lower frames, sub 60fps)
 - Finish Circle to circle and circle to polygon collision
