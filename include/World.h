@@ -5,7 +5,7 @@
 #include "Display.h"
 #include <memory>
 #include <vector>
-#include "Joints.h"
+#include "Constraints.h"
 
 class World {
 	
@@ -17,7 +17,7 @@ class World {
 		std::vector<Vec> connections;
 		std::vector<Vec> collision_normals;
 		std::vector<Edge> edges;
-		std::vector<Joint> joints;
+		std::vector<Distance_constraint> distance_constraints;
 		int bodies = 0;
 		float gravity = 0.5;
 		Vec mouse_position;
@@ -26,6 +26,7 @@ class World {
 		bool show_coll = true;
 		bool show_conts = true;
 		bool show_conns = true;
+		bool positional_correction = true;
 		bool mouse_down;
 		void generate_pp_manifold(std::shared_ptr<Body> a, std::shared_ptr<Body> b);
 		bool is_point_inside_polygon(std::shared_ptr<Body> b, Vec point);
@@ -38,19 +39,24 @@ class World {
 		void generate_manifolds();
 		void resolve_manifolds();
 		void resolve_constraints();
-		void keep_distance(std::shared_ptr<Body> a, Vec pp_a, std::shared_ptr<Body> b, Vec pp_b, float dist_const);
+		void resolve_distance_constraint(std::shared_ptr<Body> a, Vec pp_a, std::shared_ptr<Body> b, Vec pp_b, float dist_const);
 		void integrate();
 		bool is_joined(std::shared_ptr<Body> a, std::shared_ptr<Body> b);
+		void apply_positional_correction();
+		void integrate_velocities();
+		void integrate_forces();
 
 	public:
 		World();
 		World(float gravity);
+		void positional_correction_(bool val);
+		void clear_bodies();
 		std::shared_ptr<Body> get_body(int i);
 		int body_count();
 		void add_body(std::shared_ptr<Body> b);
 		void remove_body(int i);
 		void remove_body(Body b);
-		void render(Display* d);
+		void render(Display* d, float ratio);
 		void set_mouse_position(Vec v);
 		void set_mouse_down(bool val);
 		void set_rel_mouse_position(Vec v);
@@ -62,8 +68,9 @@ class World {
 		void show_connections(bool show);
 		void show_contacts(bool show);
 		void reset_colors();
-		void add_joint(Joint joint);
+		void add_distance_constraint(Distance_constraint distance_constraint);
 		void simulate();
+		void clear_up();
 
 };
 

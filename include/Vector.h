@@ -6,8 +6,8 @@ struct Edge;
 class Vec {
 	
 	private:
-		float x;
-		float y;
+		float x = 0;
+		float y = 0;
 
 	public:
 		Vec();

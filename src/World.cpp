@@ -2,7 +2,7 @@
 #include "../include/utils.h"
 #include "../include/Body.h"
 #include "../include/World.h"
-#include "../include/Joints.h"
+#include "../include/Constraints.h"
 
 World::World() {
  	this->gravity = DEF_GRAV;
@@ -28,12 +28,12 @@ void World::add_body(std::shared_ptr<Body> b) {
 	std::cout << "added" << std::endl;
 }
 
-void World::render(Display* d) {
+void World::render(Display* d, float ratio) {
 	for (int i = 0; i<this->bodies; i++) {
 		if(this->Bodies[i]->get_mouse_contact()) {
 			//this->Bodies[i]->set_color(RED);
 		}
-		this->Bodies[i]->render(d,this->glob_options);
+		this->Bodies[i]->render(d,this->glob_options,ratio);
 	}
 	char color[3] = {
 		(char) 255,
@@ -50,25 +50,21 @@ void World::render(Display* d) {
 	if (show_conns) {
 		for (int i = this->connections.size()-1; i >= 0; i--) {
 			d->draw_circle(this->connections[i],7.5,0,blue);
-			this->connections.pop_back();
 		}
 	}
 
 
 	if (show_conts) {
 		for (int i = this->contact_points.size()-1; i >= 0; i--) {
-			d->draw_circle(this->contact_points[i],7.5,0,color);
+			d->draw_circle(this->contact_points[i],5,0,color);
 			//this->contact_points[i].print();
-			this->contact_points.pop_back();
 		}
 	}
 
 	for (int i = this->edges.size()-1; i >= 0; i--) {
 		d->draw_line(edges[i].v1,edges[i].v2,color);
-		this->edges.pop_back();
 	}
 
-	this->reset_colors();
 }
 
 void World::remove_body(Body b) {
@@ -108,104 +104,116 @@ void World::reset_colors() {
 	}
 }
 
-void World::add_joint(Joint joint) {
-	this->joints.push_back(joint);
+void World::add_distance_constraint(Distance_constraint distance_constraint) {
+	this->distance_constraints.push_back(distance_constraint);
 }
 
-void World::keep_distance(std::shared_ptr<Body> a, Vec pp_a, std::shared_ptr<Body> b, Vec pp_b, float dist_const) {
+void World::resolve_distance_constraint(std::shared_ptr<Body> a, Vec ra, std::shared_ptr<Body> b, Vec rb, float l) {
 
-	float damping = 0.4;
-	if (dist_const == 0)
-		damping = 1;
 
+	float time = dt / resolution_iterations;
+	
 	Vec b_pos(b->get_x(),b->get_y());
 	Vec a_pos(a->get_x(),a->get_y());
 
-	Vec contact_b = pp_b.rotate(b->get_orientation());
-	Vec contact_a = pp_a.rotate(a->get_orientation());
+	printf("ra-->>\n");	
+	ra.print();
 
-	Vec pivot_b = b_pos + contact_b;
-	Vec pivot_a = a_pos + contact_a;
+	rb = rb.rotate(b->get_orientation());
+	ra = ra.rotate(a->get_orientation());
 
-	//std::cout << "contact" << std::endl;
-	Vec position(b->get_x(),b->get_y());
+	Vec pb = b_pos + rb;
+	Vec pa = a_pos + ra;
+	
+	//computing jacobian
 
-	Vec ra = pp_a * -1;
-	Vec rb = pp_b * -1;
+	printf("hey\n");
+	Vec d = pb - pa;
+	d=d.normalize();
+	d.print();
+	Vec j0 = d * -1;
+	float j1 = ((ra*-1).cross(d));
+	Vec j2 = d;
+	float j3 = (rb.cross(d));
 
-	//std::cout << "(" << b->get_x() << "," << b->get_y() << ")" << std::endl;
+	printf("ra-->>\n");	
+	ra.print();
+	//printf("j1 %f\n",j1);
+	float offset_length = (pb-pa).mag() - l;
 
-	//std::cout << "first pos ";
-	//position.print(); 
-	//position = position + contact;
-	//std::cout << "piv" << std::endl;
-	//pivot.print();
-	Vec d = pivot_a - pivot_b;
-	//std::cout << "d" << std::endl;
-	//d.print();
-	float distance = d.mag();
-	float vel = distance - dist_const;
-	//std::cout << distance << " dist " << std::endl;
-	//std::cout << dist_const << " distcon " << std::endl;
-	Vec dn = d.normalize();
-	Vec dn2 = d.normalize();
-	Vec f = dn * vel * damping;
-	Vec fn = f * -1;
-	Vec velocity_a = Vec(a->get_vel_x(),a->get_vel_y()) + ra.cross(a->get_ang_vel());
-	Vec velocity_b = Vec(b->get_vel_x(),b->get_vel_y()) + rb.cross(b->get_ang_vel());	
-	Vec vrel = velocity_b - velocity_a;
-	Vec vrel2 =  velocity_a - velocity_b;
-	//vrel.print();
-	float ta = dn.cross(1.0f).dot(vrel2);
-	float tb = dn.cross(1.0f).dot(vrel);
+	float bias = (1.0f/time) * offset_length * 0.2f;
 
-	Vec tva = dn.cross(1.0f) * ta;
-	Vec tvb = dn.cross(1.0f) * tb;
+	float wa = a->get_ang_vel(); 
+	float wb = b->get_ang_vel(); 
+	Vec va = *(a->get_vel());
 
-	float const_vel = dn.dot(vrel);
-	float const_vel2 = dn2.dot(vrel2);
-	//std::cout << vel << " vel" << std::endl;
-	f = f - (dn*const_vel) - (tvb * 0.0025); // - tvb for rotational damping
-	fn = fn - (dn*const_vel2) - (tva * 0.0025);
-	f = f/(b->get_im() * 100);
-	fn = fn/(a->get_im() * 100);
-	b->apply_impulse(f,contact_b);
-	a->apply_impulse(fn,contact_a);
+	Vec vb = *(b->get_vel());
+	
+	//calculate effective mass
 
-	if (dist_const == 0) {	
-		//a->set_x(a->get_x()-(d.get_x()/2.0f));
-		//a->set_y(a->get_y()-(d.get_y()/2.0f));
-		//b->set_x(b->get_x()+(d.get_x()/2.0f));
-		//b->set_y(b->get_y()+(d.get_y()/2.0f));
-	}
+	float effective_mass = (j0 * a->get_im()).dot(j0)
+						+ (j1 * a->get_iI() * j1)
+						+ (j2 * b->get_im()).dot(j2)
+						+ (j3 * b->get_iI() * j3);
 
-	connections.push_back(pivot_a);
-	connections.push_back(pivot_b);
-	edges.push_back(Edge(pivot_a,pivot_b));	
+	//calculate JV + b
+
+	float JVpb = j0.dot(va)
+			+ (j1 * wa)
+			+ j2.dot(vb)
+			+ (j3 * wb)
+			+ bias;
+
+	//calculate lambda	
+
+	float lambda = -JVpb / effective_mass;
+
+
+	printf("j0 "); j0.print();
+	printf("j2 "); j2.print();
+	printf("j0 dot va = %f\n",j0.dot(va));
+	printf("j2 dot vb = %f\n",j2.dot(vb));
+	//printf("j1 * wa = %f\n",j1*wa);
+	//printf("j3 * wb = %f\n",j3*wb);
+	printf("bias = %f\n",bias);
+	printf("JVpb %f\n",JVpb);
+	printf("effective_mass %f\n",effective_mass);
+	printf("lambda %f\n",lambda);
+	//printf("j1 * lambda * aiI %f\n",j1 * lambda * a->get_iI());
+
+	printf("wa %f\n",wa);
+	printf("wb %f\n",wb);
+
+	//Apply impulses
+
+	a->set_vel(va + ((j0 * lambda) * a->get_im()));	
+	a->set_ang_vel(wa + ((j1 * lambda) * a->get_iI()));	
+	b->set_vel(vb + ((j2 * lambda) * b->get_im()));	
+	b->set_ang_vel(wb + ((j3 * lambda) * b->get_iI()));	
+
+
+	connections.push_back(pa);
+	connections.push_back(pb);
+	edges.push_back(Edge(pa,pb));	
 
 }
 
 void World::resolve_constraints() {
 
 
-	for (int i = 0; i < joints.size(); i++ ) {
+	for (int i = 0; i < distance_constraints.size(); i++ ) {
 		//std::cout << "yooo" << std::endl;
-		std::shared_ptr<Body> a = joints[i].a;
-		std::shared_ptr<Body> b = joints[i].b;
-		this->keep_distance( a, joints[i].pp_a, b, joints[i].pp_b, joints[i].d );
-		this->keep_distance( b, joints[i].pp_b, a, joints[i].pp_a, joints[i].d );
+		std::shared_ptr<Body> a = distance_constraints[i].a;
+		std::shared_ptr<Body> b = distance_constraints[i].b;
+		this->resolve_distance_constraint( a, distance_constraints[i].pp_a, b, distance_constraints[i].pp_b, distance_constraints[i].d );
 
 	} 
 	
 
 }
 
-void World::simulate() {
-
-	this->generate_manifolds();
-	this->resolve_manifolds();
-	this->resolve_constraints();
-	
+void World::integrate_forces() {
+	float time = dt / resolution_iterations;
 	for (int i = 0; i < this->bodies; i++) {
 
 		std::shared_ptr<Body> b = this->Bodies[i];	
@@ -217,13 +225,56 @@ void World::simulate() {
 			continue;
 		}
 			
-		b->set_vel_y(b->get_vel_y()+this->gravity);
-		b->set_orientation(b->get_orientation()+b->get_ang_vel());
-		b->set_x(b->get_x()+b->get_vel_x());
-		b->set_y(b->get_y()+b->get_vel_y());
+		b->set_vel_y(b->get_vel_y()+(this->gravity * (time / 2.0f)));
 	}
 
+}
 
+void World::integrate_velocities() {
+	float time = dt / resolution_iterations;
+	for (int i = 0; i < this->bodies; i++) {
+
+		std::shared_ptr<Body> b = this->Bodies[i];	
+		if (b->get_im()==0)
+			continue;
+
+		if(this->mouse_down && b->get_mouse_contact()) {
+			b->reset();
+			continue;
+		}
+
+		b->prev_pos = Vec(b->get_x(),b->get_y());
+		b->prev_orientation = b->get_orientation();
+		b->set_orientation(b->get_orientation()+(b->get_ang_vel()*time));
+		b->set_x(b->get_x()+(b->get_vel_x()*time));
+		b->set_y(b->get_y()+(b->get_vel_y()*time));
+	}
+
+}
+void World::clear_up() {
+
+	this->contact_points.clear();
+	this->connections.clear();
+	this->edges.clear();
+
+}
+
+void World::simulate() {
+
+		
+		for (int i = 0; i < resolution_iterations; i++) {
+			this->reset_colors();
+			this->clear_up();
+			this->integrate_forces();
+			this->resolve_constraints();
+			this->generate_manifolds();
+			this->resolve_manifolds();
+			this->integrate_velocities();
+			this->contacts.clear();
+		}
+
+		//this->apply_positional_correction();
+		
 }
 
 void World::set_mouse_down(bool val) {
@@ -238,11 +289,34 @@ void World::show_contacts(bool show) {
 	this->show_conts = show;
 }
 
-void World::resolve_manifolds() {
+void World::apply_positional_correction() {
+  const float k_slop = 0.05f; // Penetration allowance
+  const float percent = 0.85f; // Penetration percentage to correct
 
 	for (int i = contacts.size()-1; i>=0; i--) {
+		std::shared_ptr<Body> A = this->contacts[i].A;	
+		std::shared_ptr<Body> B = this->contacts[i].B;
+		float penetration = this->contacts[i].mtvm;
+		Vec normal = this->contacts[i].mtv;
+		Vec correction = normal * (std::max( penetration - k_slop, 0.0f ) / (A->get_im() + B->get_im())) * percent;
 	
-		Vec sep_norm = this->contacts[i].mtv;
+		A->set_x(A->get_x() + (correction.get_x() * A->get_im()));
+		A->set_y(A->get_y() + (correction.get_y() * A->get_im()));
+
+		B->set_x(B->get_x() - (correction.get_x() * B->get_im()));
+		B->set_y(B->get_y() - (correction.get_y() * B->get_im()));
+		
+	}
+}
+void World::positional_correction_(bool val) {
+	this->positional_correction = val;
+}
+
+void World::resolve_manifolds() {
+
+	float time = dt / resolution_iterations;
+	for (int i = contacts.size()-1; i>=0; i--) {
+	
 		std::shared_ptr<Body> A = this->contacts[i].A;	
 		std::shared_ptr<Body> B = this->contacts[i].B;
 		
@@ -253,32 +327,51 @@ void World::resolve_manifolds() {
 
 		Vec position_a(A->get_x(),A->get_y());
 		Vec position_b(B->get_x(),B->get_y());
-		
+			
+		float e = 0.25f;
+		float mtvm = this->contacts[i].mtvm;
+		Vec mv = this->contacts[i].mtv * mtvm;
+		Vec mtv = this->contacts[i].mtv;
+		float contacts_ = this->contacts[i].no_contacts;	
+		Vec sep_norm = mtv;
+		//std::cout << "contacts " << contacts_ << std::endl;
+			
+		float bias = this->positional_correction ? 0.5f : 0.0f;
+		float penetration_allowance = 0.05f;
+		float totji = 0.0f;
+
 		Vec velocity_a(A->get_vel_x(),A->get_vel_y());
-		Vec velocity_b(B->get_vel_x(),B->get_vel_y());
+		Vec velocity_b(B->get_vel_x(),B->get_vel_y());		
 
 		float ang_vel_a = A->get_ang_vel();
 		float ang_vel_b = B->get_ang_vel();
 
-		float e = 0.5f;
-		Vec mv = this->contacts[i].mtv * this->contacts[i].mtvm;
-		Vec mtv = this->contacts[i].mtv;
-		float contacts_ = this->contacts[i].no_contacts;	
 		for (int j = 0; j<contacts_; j++) {
+	
+			//std::cout << "contact " << j << std::endl;
+			//std::cout << "==========" << std::endl;	
+			//velocity_a.print();
+			//velocity_b.print();
 
-			this->contact_points.push_back(this->contacts[i].contacts[j]);
+			if (show_conts) 
+				this->contact_points.push_back(this->contacts[i].contacts[j]);
 
 			Vec ra = this->contacts[i].contacts[j] - position_a;	
 			Vec rb = this->contacts[i].contacts[j] - position_b;
+			//ra.print();
+			//rb.print();
 				
 			Vec rv = velocity_a + ra.cross(ang_vel_a) - (velocity_b + rb.cross(ang_vel_b)); 
+			//Vec rv = velocity_a - velocity_b;
 	
+			if (rv.mag() < this->gravity * time ) // if collision is weaker than gravity then cause bodies to lose energy fast and come to rest 
+				e = 0.0f;
+
+
 			//std::cout << "---------" << std::endl;	
 			//rv.print();		
 		
 			float contact_vel = rv.dot(sep_norm);	
-
-			//std::cout << "contacts " << contacts_ << std::endl;
 	
 			//std::cout << "contact vel " << contact_vel << std::endl;
 
@@ -292,40 +385,54 @@ void World::resolve_manifolds() {
 			float racrossn = ra.cross(sep_norm);
 			float rbcrossn = rb.cross(sep_norm);
 			//std::cout << "racrossn " << racrossn << std::endl;
-		
-			float inv_mass_sum = (float) (A->get_im() +  ((racrossn*racrossn) * A->get_iI())) + (B->get_im() +  ((rbcrossn*rbcrossn) * B->get_iI()));
+			//std::cout << "rbcrossn " << rbcrossn << std::endl;
+
+			float inv_mass_sum = (float) (A->get_im() + B->get_im());
+			inv_mass_sum += (float)  (racrossn * racrossn * A->get_iI()) +  (rbcrossn * rbcrossn * B->get_iI());
+			//inv_mass_sum += (A->get_iI() * (rad - (rna*rna))) +  (B->get_iI() * (rbd - (rnb*rnb))); 
+			//float inv_mass_sum = (float) A->get_im() + B->get_im();
 
 			//std::cout << "inv_mass_sum " << inv_mass_sum << std::endl;
 		
 			float ji = -(1.0f + e) * contact_vel;
+			//std::cout << "mtvm " << mtvm << std::endl;
+			ji += -bias * (1.0f/time) * std::min(0.0f, penetration_allowance - mtvm);
+
+			if (contact_vel > 0) {
+				Vec impulse = sep_norm * ji;
+				impulse = impulse / (float) contacts_;
+				A->apply_impulse(impulse,ra);
+				Vec nimpulse = impulse * -1;			
+				B->apply_impulse(nimpulse, rb);			
+				break;
+			}
+
 			ji /= inv_mass_sum;
-			//std::cout << "ji " << ji << std::endl;
-			ji /= contacts_; 
-			//std::cout << "ji " << ji << std::endl;
-	
-			Vec impulse = sep_norm * ji;
-			A->apply_impulse(impulse,ra);
-			Vec nimpulse = sep_norm * ji * -1;
-			B->apply_impulse(nimpulse, rb);		
-
-
-			float df = 0.40;
-			float mu = 0.50;
-		
-			ang_vel_a = A->get_ang_vel();
-			ang_vel_b = B->get_ang_vel();
-	
-			velocity_a = Vec(A->get_vel_x(),A->get_vel_y());
-			velocity_b = Vec(B->get_vel_x(),B->get_vel_y());
-				
-			rv = velocity_a + ra.cross(ang_vel_a) - (velocity_b + rb.cross(ang_vel_b)); 
 			
+			//std::cout << "ji " << ji << std::endl; 
+			//std::cout << "jii " << ji << std::endl;
+	
+			//float tempji = totji;
+			//totji = std::max(totji+ji,0.0f);
+			//ji = totji - tempji;	
+
+			float df = 0.45f;
+			float mu = 0.55f;
+			
+			//std::cout << "==========" << std::endl;	
+			//velocity_a.print();
+			//velocity_b.print();
+		
+			//std::cout << "velocities" << std::endl;
+			//velocity_a.print();
+			//velocity_b.print();
+	
 			Vec t = rv - (sep_norm * (rv.dot(sep_norm)));
-				
 			//std::cout << "t ---" << std::endl;
 			//rv.print();
 			//sep_norm.print();
 			//t.print(); 
+			//std::cout << "done--" << std::endl;
 			t = t.normalize();
 				
 			//std::cout << "== norms" << std::endl;
@@ -333,38 +440,28 @@ void World::resolve_manifolds() {
 
 			float jt = -rv.dot(t);
 			jt /= inv_mass_sum;
-			jt /= contacts_;
 
-			if (abs(jt)<0.001)
-				break;
-				
-			Vec fimpulse;
+			//if (abs(jt)<1e+6)
+			//	break;
+			
+			//std::cout << "jt " << jt << std::endl;
+	
+			Vec impulse = sep_norm * ji;
 			if (abs(jt) < ji*mu) {
-				fimpulse = t * jt;
+				impulse = impulse + ( t * jt );
 			}
 			else {
-				fimpulse = t * (-ji * df);
+				impulse = impulse + ( t * (-ji * df) );
 			}
 
-			A->apply_impulse(fimpulse,ra);
-			Vec nfimpulse = fimpulse * -1;			
-			B->apply_impulse(nfimpulse, rb);
-				
+			impulse = impulse / (float) contacts_;
+
+			//fimpulse.print();	
+			A->apply_impulse(impulse,ra);
+			Vec nimpulse = impulse * -1;			
+			B->apply_impulse(nimpulse, rb);			
 
 		}
-
-
-		if (A->get_im() > 0) {
-			A->set_x(A->get_x()+(mv.get_x()*0.25f));
-			A->set_y(A->get_y()+(mv.get_y()*0.25f));
-		}
-		
-		if (B->get_im() > 0) {
-			B->set_x(B->get_x()-(mv.get_x()*0.25f));
-			B->set_y(B->get_y()-(mv.get_y()*0.25f));
-		}
-
-		contacts.pop_back();
 
 	}
 
@@ -372,8 +469,8 @@ void World::resolve_manifolds() {
 
 bool World::is_joined(std::shared_ptr<Body> a, std::shared_ptr<Body> b)  {
 
-	for (int i = 0; i<this->joints.size(); i++) {
-		if ((joints[i].a == a && joints[i].b == b) || (joints[i].a == b && joints[i].b == a))
+	for (int i = 0; i<this->distance_constraints.size(); i++) {
+		if ((distance_constraints[i].a == a && distance_constraints[i].b == b) || (distance_constraints[i].a == b && distance_constraints[i].b == a))
 			return true;
 	}
 	return false;
@@ -388,10 +485,11 @@ void World::generate_manifolds() {
 			std::shared_ptr<Body> B = this->Bodies[j];
 			
 			if (A->get_type()==POLYGON && B->get_type()==POLYGON) {
-				if (this->is_joined(A,B)) {
-					continue;
-				}
+				//if (this->is_joined(A,B)) {
+				//	continue;
+				//}
 				this->generate_pp_manifold(A,B);
+				//std::cout << "checking " << A->get_x() << " against " << B->get_x() << std::endl;
 			}
 
 		}	
@@ -523,7 +621,8 @@ void World::generate_contact_points(Manifold& m)  {
 		incident = s_edge_2;
 
 		Vec vt = best_vertex1 + sep_vec;
-		edges.push_back(Edge(vt,best_vertex1));
+		if (show_conts)
+			edges.push_back(Edge(vt,best_vertex1));
 	
 	}
 	else {
@@ -531,7 +630,8 @@ void World::generate_contact_points(Manifold& m)  {
 		incident = s_edge_1;
 
 		Vec vt = best_vertex - sep_vec;
-		edges.push_back(Edge(vt,best_vertex));
+		if (show_conts)
+			edges.push_back(Edge(vt,best_vertex));
 		
 	}	
 	
@@ -565,6 +665,10 @@ void World::generate_contact_points(Manifold& m)  {
 		}
 	}
 
+}
+
+void World::clear_bodies() {
+	this->bodies = 3;
 }
 
 void World::generate_pp_manifold(std::shared_ptr<Body> a, std::shared_ptr<Body> b) {
@@ -655,6 +759,7 @@ void World::detect_mouse_insidedness() {
 			this->Bodies[i]->mouse_contact(true);
 			this->Bodies[i]->set_x(this->Bodies[i]->get_x()+this->rel_mouse_position.get_x());
 			this->Bodies[i]->set_y(this->Bodies[i]->get_y()+this->rel_mouse_position.get_y());
+			this->Bodies[i]->prev_pos = Vec(this->Bodies[i]->get_x(),this->Bodies[i]->get_y());
 		}
 		else {
 			this->Bodies[i]->mouse_contact(false);

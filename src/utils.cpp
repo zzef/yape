@@ -1,4 +1,5 @@
 #include "../include/utils.h"
+#include "../include/Vector.h"
 #include "stdlib.h"
 #include "time.h"
 #include "iostream"
@@ -10,7 +11,16 @@ int random(int a, int b) {
 	return rand() % (b-a) + a;
 }
 
-struct Color hsv_to_rgb(int h, int s, int v) { 
+float interpolate(float a, float b, float ratio) {
+	return a + (( b - a ) * ratio);
+
+}
+
+Vec interpolate(Vec a, Vec b, float ratio) {
+	return a + (( b - a ) * ratio);
+}
+
+struct Color hsv_to_rgb(int h, int s, int v) {
 
 	// function to convert from hsv color space to rgb color space
 	// At the moment this function is just returning the same redish pinkish color.

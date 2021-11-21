@@ -7,10 +7,24 @@
 float ori = 0;
 int mx, my;
 bool interactive = true;
-
-
+bool physics_interpolation = true;
+bool box_mode = false;
+bool positional_correction = true;
+bool show_contacts = false;
 Display display = Display(W_WIDTH,W_HEIGHT,WINDOW_TITLE);
 World world;
+
+void initialize();
+
+void add_new_box(Vec position){
+	std::shared_ptr<Body> rect1 = std::make_shared<Body>(POLYGON);
+	rect1->rect(40,40);
+	rect1->set_pos(position);
+	rect1->set_orientation(0);
+	rect1->generate_color();
+	rect1->initialize();
+	world.add_body(rect1);
+}
 
 void add_new_polygon(Vec position) {
 	std::shared_ptr<Body> a = std::make_shared<Body>(POLYGON);
@@ -46,9 +60,14 @@ void handle_mouse_up(SDL_MouseButtonEvent e) {
 void handle_mouse_down(SDL_MouseButtonEvent e) {
 	world.set_mouse_down(true);
 
-	if (e.button == SDL_BUTTON_LEFT)	
-		if (!interactive)
-			add_new_polygon(Vec(e.x,e.y));
+	if (e.button == SDL_BUTTON_LEFT) {
+		if (!interactive) {
+			if (box_mode)
+				add_new_box(Vec(e.x,e.y));
+			else
+				add_new_polygon(Vec(e.x,e.y));
+		}
+	}
 }
 
 void handle_keydown(SDL_KeyboardEvent e) {
@@ -57,6 +76,41 @@ void handle_keydown(SDL_KeyboardEvent e) {
 			interactive = !interactive;
 			break;
 		}
+		case SDLK_p : {
+			physics_interpolation = !physics_interpolation;
+			break;
+		}
+		case SDLK_c : {
+			positional_correction = !positional_correction;
+			world.positional_correction_(positional_correction);
+			break;
+		}
+		case SDLK_t : {
+			show_contacts = !show_contacts;
+			world.show_contacts(show_contacts);
+			break;
+		}
+		case SDLK_b : {
+			box_mode = !box_mode;
+			break;
+		}
+		case SDLK_x : {
+			world.clear_up();
+			world.clear_bodies();
+			break;
+		}
+		case SDLK_r : {
+			world.clear_up();
+			world.clear_bodies();
+			initialize();
+			break;
+		}
+		case SDLK_ESCAPE : {
+			exit(0);
+			break;
+		}
+
+
 	}
 }
 
@@ -85,11 +139,12 @@ void update() {
 	world.simulate();
 }
 
-void render() {	
+void render(float ratio) {	
 	//world.get_body(0)->set_orientation(ori+=0.05);
 	if (ori>360)
 		ori = 0;
-	world.render(&display);
+	world.render(&display, ratio);
+	display.show();
 }
 
 void test() {
@@ -159,9 +214,9 @@ void test() {
 		(char) 210
 	);
 
-	world.add_body(a2);
+	//world.add_body(a2);
 	a2->set_orientation(random(0,360)*(M_PI/180.0f));	
-	world.add_body(a);
+	//world.add_body(a);
 	a->set_orientation(random(0,360)*(M_PI/180.0f));
 	
 	//world.add_body(b);
@@ -169,59 +224,56 @@ void test() {
 	//world.add_body(b2);
 
 	std::shared_ptr<Body> rect1 = std::make_shared<Body>(POLYGON);
-	rect1->rect(30,100);
-	rect1->set_pos(600,300);
+	rect1->rect(100,100);
+	rect1->set_pos(600,500);
+	rect1->initialize();
 	std::shared_ptr<Body> rect2 = std::make_shared<Body>(POLYGON);
-	rect2->rect(30,100);
-	rect2->set_pos(800,300);
+	rect2->rect(100,100);
+	rect2->set_pos(600,300);
+	rect2->initialize();
+	rect1->set_orientation(random(0,360)*(M_PI/180.0f));	
+	rect2->set_orientation(random(0,360)*(M_PI/180.0f));	
+
+	/*
 	std::shared_ptr<Body> rect3 = std::make_shared<Body>(POLYGON);
 	rect3->rect(30,100);
 	rect3->set_pos(1000,300);
 	std::shared_ptr<Body> rect4 = std::make_shared<Body>(POLYGON);
 	rect4->rect(30,100);
 	rect4->set_pos(1200,300);
-
-
 	std::shared_ptr<Body> rect5 = std::make_shared<Body>(POLYGON);
 	rect5->rect(150,150);
 	rect5->set_pos(1500,300);
-	
-	Joint joint(rect1,Vec(40,0),rect2,Vec(-40,0),0);	
-	Joint joint2(rect2,Vec(40,0),rect3,Vec(-40,0),0);	
-	Joint joint3(rect3,Vec(40,0),rect4,Vec(-40,0),0);	
-	Joint joint4(rect4,Vec(40,0),rect5,Vec(0,0),300);	
+	*/
+	Distance_constraint distance_constraint(rect1,Vec(50,50),rect2,Vec(-50,50),0);	
+	//Distance_constraint distance_constraint2(rect2,Vec(40,0),rect3,Vec(-40,0),0);	
+	//Distance_constraint distance_constraint3(rect3,Vec(40,0),rect4,Vec(-40,0),0);	
+	//Distance_constraint distance_constraint4(rect4,Vec(40,0),rect5,Vec(0,0),300);	
 
-	world.add_joint(joint);
-	world.add_joint(joint2);
-	world.add_joint(joint3);
-	world.add_joint(joint4);
+	world.add_distance_constraint(distance_constraint);
+	//world.add_distance_constraint(distance_constraint2);
+	//world.add_distance_constraint(distance_constraint3);
+	//world.add_distance_constraint(distance_constraint4);
 	
 
 	world.add_body(rect1);
 	world.add_body(rect2);
-	world.add_body(rect3);
-	world.add_body(rect4);
-	world.add_body(rect5);
-
-
-
-
+	//world.add_body(rect3);
+	//world.add_body(rect4);
+	//world.add_body(rect5);
 
 
 
 }
 
-void initialize() {
-
-
+void add_world_surfaces() {
 	world.show_polymids(false);
 	world.show_collisions(false);
-	world.show_contacts(false);
+	world.show_contacts(show_contacts);
 	world.show_connections(true);
 	world.show_normals(false);
-		
-	test();
-
+	world.positional_correction_(positional_correction);
+	
 	int thickness = 40;	
 	int height = thickness;
 	int margin = 40;
@@ -239,34 +291,91 @@ void initialize() {
 	b4->set_im(0);
 
 
-	float wh = 600;
+	float wh = 700;
 
 	std::shared_ptr<Body> wall1 = std::make_shared<Body>(POLYGON);
 	wall1->rect(wh,thickness);
+	wall1->set_pos((thickness/2.0f) + W_WIDTH - margin - thickness,100 + (wh/2));
+	wall1->initialize();	
 	wall1->set_iI(0);
 	wall1->set_im(0);
-	wall1->set_pos((thickness/2.0f) + W_WIDTH - margin - thickness,100 + (wh/2));
 
 	std::shared_ptr<Body> wall2 = std::make_shared<Body>(POLYGON);
 	wall2->rect(wh,thickness);
+	wall2->set_pos((thickness/2.0f) + margin,100 + (wh/2));
+	wall2->initialize();	
 	wall2->set_iI(0);
 	wall2->set_im(0);
-	wall2->set_pos((thickness/2.0f) + margin,100 + (wh/2));
 
 	world.add_body(wall1);	
 	world.add_body(wall2);
-
 	world.add_body(b4);
+}
+
+
+void stacking_test() {
+
+	int levels = 10;
+	Vec orig(850,920 - (levels*(40+40)));
+	for (int i = 0; i < levels; i++) {
+		Vec start = Vec(-((i*45/2)),(i*45)) + Vec(0,30*i);
+		for (int j = 0; j<i+1; j++) {
+			Vec pos = (orig + start) + Vec(j*45,0);
+			add_new_box(pos);
+		}
+	}
+	
+}
+
+void initialize() {
+
+
+	add_world_surfaces();
+	test();
+	//stacking_test();
 
 }
 
+float t = 0.0f;
+auto t_prev = std::chrono::high_resolution_clock::now();
+float accumulator = 0.0f;
+float y = 100;
+float x = 100;
+float speed = 0;
+float grav = 60.0f;
+int draws = 0;
+int updates = 0;
+double t_time;
+float e_time = 0;
+float sf_time = 0;
+char color[3] = {(char)255,(char)0,(char)0};
+
 int main() {
-	
-	srand (time(NULL));
+
+	srand (time(NULL));	
 	bool quit = false;
 	SDL_Event e;
 	initialize();
-	while(!quit) {	
+
+	while ( !quit ) {
+	
+		auto t_now = std::chrono::high_resolution_clock::now();
+		double frame_time = std::chrono::duration_cast<std::chrono::nanoseconds>(t_now - t_prev).count();
+		frame_time *= 1e-9;
+		accumulator += frame_time;
+		t_time += frame_time;
+		sf_time += frame_time;
+		t_prev = t_now;
+
+		if (t_time > 1){
+			std::cout << "updates " << updates << ", renders " << draws << std::endl;
+			t_time = 0;
+			draws = 0;
+			updates = 0;
+		}
+
+		accumulator = std::min(0.1f,accumulator); //preventing spiral of death
+		
 		while (SDL_PollEvent( &e )) {
 
 			if (e.type == SDL_QUIT)
@@ -275,9 +384,30 @@ int main() {
 				handle_event( e );
 
 		}
-		update();
-		render();
-		display.show();
+
+		float times = 0;
+		if ( accumulator >= dt) {
+			//std::cout << "end" << std::endl;
+			e_time = 0;
+			sf_time = frame_time;	
+		}
+	
+		while ( accumulator >= dt ) {
+			update();	
+			accumulator -= dt ;
+			updates++;
+			e_time += dt;
+			times++;
+		}
+	
+		
+		//std::cout << "percentage = " << ((float) sf_time / (float) e_time) << std::endl;
+		float ratio = std::min(1.0f,(float) sf_time / e_time);
+		if (!physics_interpolation)
+			ratio = 1;
+		render(ratio);
+		draws++;
+
 	}
 
 	return 0;
