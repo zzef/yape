@@ -117,9 +117,6 @@ void World::resolve_distance_constraint(std::shared_ptr<Body> a, Vec ra, std::sh
 	Vec b_pos(b->get_x(),b->get_y());
 	Vec a_pos(a->get_x(),a->get_y());
 
-	//printf("ra-->>\n");	
-	//ra.print();
-
 	rb = rb.rotate(b->get_orientation());
 	ra = ra.rotate(a->get_orientation());
 
@@ -128,22 +125,15 @@ void World::resolve_distance_constraint(std::shared_ptr<Body> a, Vec ra, std::sh
 	
 	//computing jacobian
 
-	//printf("hey\n");
 	Vec d = pb - pa;
 	d=d.normalize();
-	//d.print();
 	Vec j0 = d * -1;
 	float j1 = ((ra*-1).cross(d));
 	Vec j2 = d;
 	float j3 = (rb.cross(d));
 
-	//printf("ra-->>\n");	
-	//ra.print();
-	//printf("j1 %f\n",j1);
 	float offset_length = (pb-pa).mag() - l;
-
-	float bias = (1.0f/time) * offset_length * 0.2f;
-
+	float bias = (1.0f/time) * offset_length * 0.25f;
 	float wa = a->get_ang_vel(); 
 	float wb = b->get_ang_vel(); 
 
@@ -153,9 +143,9 @@ void World::resolve_distance_constraint(std::shared_ptr<Body> a, Vec ra, std::sh
 	//calculate effective mass
 
 	float effective_mass = (j0 * a->get_im()).dot(j0)
-						+ (j1 * a->get_iI() * j1)
-						+ (j2 * b->get_im()).dot(j2)
-						+ (j3 * b->get_iI() * j3);
+							+ (j1 * a->get_iI() * j1)
+							+ (j2 * b->get_im()).dot(j2)
+							+ (j3 * b->get_iI() * j3);
 
 	//calculate JV + b
 
@@ -169,29 +159,12 @@ void World::resolve_distance_constraint(std::shared_ptr<Body> a, Vec ra, std::sh
 
 	float lambda = -JVpb / effective_mass;
 
-
-	//printf("j0 "); j0.print();
-	//printf("j2 "); j2.print();
-	//printf("j0 dot va = %f\n",j0.dot(va));
-	//printf("j2 dot vb = %f\n",j2.dot(vb));
-	//printf("j1 * wa = %f\n",j1*wa);
-	//printf("j3 * wb = %f\n",j3*wb);
-	//printf("bias = %f\n",bias);
-	//printf("JVpb %f\n",JVpb);
-	//printf("effective_mass %f\n",effective_mass);
-	//printf("lambda %f\n",lambda);
-	//printf("j1 * lambda * aiI %f\n",j1 * lambda * a->get_iI());
-
-	//printf("wa %f\n",wa);
-	//printf("wb %f\n",wb);
-
 	//Apply impulses
 
 	a->set_vel(va + ((j0 * lambda) * a->get_im()));	
 	a->set_ang_vel(wa + ((j1 * lambda) * a->get_iI()));	
 	b->set_vel(vb + ((j2 * lambda) * b->get_im()));	
 	b->set_ang_vel(wb + ((j3 * lambda) * b->get_iI()));	
-
 
 	connections.push_back(pa);
 	connections.push_back(pb);
@@ -481,13 +454,10 @@ bool World::is_joined(std::shared_ptr<Body> a, std::shared_ptr<Body> b)  {
 void World::generate_manifolds() {
 	
 	for(int i = 0; i<this->bodies; i++) {
-		for(int j = 0; j<this->bodies; j++) {
+		for(int j = i + 1; j<this->bodies; j++) {
 			
 			std::shared_ptr<Body> A = this->Bodies[i];
 			std::shared_ptr<Body> B = this->Bodies[j];
-
-			if (A==B)
-				continue;	
 	
 			if (A->get_type()==POLYGON && B->get_type()==POLYGON) {
 				//if (this->is_joined(A,B)) {
