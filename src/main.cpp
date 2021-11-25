@@ -174,10 +174,12 @@ void render(float ratio) {
 		ori = 0;
 	display.clear();
 	world.render(ratio);
-	std::string fps = "FPS   " + std::to_string(_FPS);
-	std::string phys = "PHYSICS UPDATES   " + std::to_string(_UPDATES);
+	std::string fps = "FPS  " + std::to_string(_FPS);
+	std::string phys = "PHYSICS UPDATES  " + std::to_string(_UPDATES);
+	std::string bodies = "BODIES  " + std::to_string(world.body_count());
 	display.draw_text(20,20,fps,13);
-	display.draw_text(100,20,phys,13);
+	display.draw_text(90,20,phys,13);
+	display.draw_text(250,20,bodies,13);
 	display.show();
 }
 
