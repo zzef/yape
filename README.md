@@ -32,13 +32,12 @@ Here are some of the resources I used for this project. I know everyone loves Er
 
 ## Todos and Further Improvements
 
-- Improve stacking stability.
+- Broadphase step
+- Implement warm starting (contact coherence) and impulse accumulation for better stability (especially at lower frames, sub 60fps).
 - Fix polygons disappearing bug.
 - Fix random jitter.
-- Implement some broadphase.
 - Allow for user to exert force via click and drag (perhaps model with a point constraint).
 - Remove unneccesary recalculations during manifold generation.
-- Implement warm starting (contact coherence) and impulse accumulation for better stability (especially at lower frames, sub 60fps).
 - Finish Circle to circle (left the easiest till last) and circle to polygon collision.
 - Lots and lots of code refactoring.
 
