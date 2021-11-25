@@ -19,6 +19,7 @@ Yape (Yet another physics engine) is a rigid body impulse based physics engine w
 
 ## Useful resources for this project
 
+- https://www.gafferongames.com/post/fix_your_timestep/
 - https://www.youtube.com/watch?v=7Ik2vowGcU0 javidx9 on convex polygon collision detection using Seperated Axis theorem
 - Randy Gauls impulse engine https://www.randygaul.net/projects-open-sources/impulse-engine/
 - https://gamedevelopment.tutsplus.com/tutorials/how-to-create-a-custom-2d-physics-engine-the-basics-and-impulse-resolution--gamedev-6331
