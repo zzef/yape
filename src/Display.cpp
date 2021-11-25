@@ -36,7 +36,19 @@ void Display::initialize() {
 		this->title,
 		sf::Style::Default,
 		settings);
+
+	char buffer[1024];
+	getcwd(buffer,1024);
+
+	std::string abspath(buffer);
+	std::string _font = abspath + "/fonts/ZektonRegular.otf";
+
+	bool success = font.loadFromFile(_font);
+
+	if (!success)
+		printf("Failed to load font!\n");
 }	
+
 
 void Display::clear() {
 	window->clear(sf::Color(DARK_GREY,255));
@@ -92,6 +104,16 @@ void Display::draw_line(Vec v1, Vec v2, Color& color,float thickness) {
 	
 }
 
+void Display::draw_text(float x, float y, std::string& txt, float size) {
+	
+	sf::Text text(txt, font);
+	text.setCharacterSize(size);
+	text.setFillColor(sf::Color(DARK_GREY_3));
+	text.setPosition(x,y);
+	window->draw(text);
+
+} 
+
 void Display::fill_box(Vec position, float size, Color& color) {
 	float trans = size/2.0f;
 	sf::RectangleShape box(sf::Vector2f(size,size));
@@ -100,12 +122,19 @@ void Display::fill_box(Vec position, float size, Color& color) {
 	window->draw(box);	
 }
 
+void Display::fill_circle(Vec position, float radius, Color& color, float line_thickness, Color& line_color) {
+	sf::CircleShape circle(radius,10);
+	circle.setOutlineColor(sf::Color(line_color.r,line_color.g,line_color.b));
+	circle.setOutlineThickness(line_thickness);
+	circle.setFillColor(sf::Color(color.r,color.g,color.b));
+	circle.setPosition(position.get_x()-radius,position.get_y()-radius);
+	window->draw(circle);
+}	
+
 void Display::fill_circle(Vec position, float radius, Color& color) {
 	sf::CircleShape circle(radius,10);
 	circle.setFillColor(sf::Color(color.r,color.g,color.b));
 	circle.setPosition(position.get_x()-radius,position.get_y()-radius);
 	window->draw(circle);
 }	
-
-
 

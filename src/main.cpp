@@ -4,6 +4,23 @@
 #define W_HEIGHT 900
 #define WINDOW_TITLE "Engine"
 
+
+float t = 0.0f;
+auto t_prev = std::chrono::high_resolution_clock::now();
+float accumulator = 0.0f;
+float y = 100;
+float x = 100;
+float speed = 0;
+float grav = 60.0f;
+int draws = 0;
+int updates = 0;
+double t_time;
+float e_time = 0;
+float sf_time = 0;
+char color[3] = {(char)255,(char)0,(char)0};
+int _FPS = 0;
+int _UPDATES = 0;
+
 float ori = 0;
 int mx, my;
 bool interactive = true;
@@ -157,6 +174,10 @@ void render(float ratio) {
 		ori = 0;
 	display.clear();
 	world.render(ratio);
+	std::string fps = "FPS   " + std::to_string(_FPS);
+	std::string phys = "PHYSICS UPDATES   " + std::to_string(_UPDATES);
+	display.draw_text(20,20,fps,13);
+	display.draw_text(100,20,phys,13);
 	display.show();
 }
 
@@ -269,25 +290,21 @@ void add_world_surfaces() {
 	world.show_normals(false);
 	world.show_poly_outlines(false);
 	world.positional_correction_(positional_correction);
-	int overlap = 20;
-	int thickness = 2;	
+	int overlap = 10;
+	float thickness = 1.5f;	
 	int height = thickness;
 	int margin = 60;
 	int width = W_WIDTH-(margin*2)+overlap;
-	std::shared_ptr<Body> b4 = std::make_shared<Body>(POLYGON);
-	b4->add_vertex(Vec(width/2,height/2));
-	b4->add_vertex(Vec(-width/2,height/2));
-	b4->add_vertex(Vec(-width/2,-height/2));
-	b4->add_vertex(Vec(width/2,-height/2));
-	b4->add_vertex(Vec(width/2,height/2));
-	b4->set_x(W_WIDTH/2);
-	b4->set_y(W_HEIGHT-((height/2)+margin));
-	b4->initialize();
-	b4->set_iI(0);
-	b4->set_im(0);
+	std::shared_ptr<Body> floor = std::make_shared<Body>(POLYGON);
+	floor->rect(thickness,W_WIDTH-(margin*2)+(overlap*2));
+	floor->set_x(W_WIDTH/2);
+	floor->set_y(W_HEIGHT-((height/2)+margin));
+	floor->initialize();
+	floor->set_iI(0);
+	floor->set_im(0);
 
 
-	float wh = W_HEIGHT-(margin*2)+(overlap/2);
+	float wh = W_HEIGHT-(margin*2)+(overlap);
 
 	std::shared_ptr<Body> wall1 = std::make_shared<Body>(POLYGON);
 	wall1->rect(wh,thickness);
@@ -305,7 +322,7 @@ void add_world_surfaces() {
 
 	world.add_body(wall1);	
 	world.add_body(wall2);
-	world.add_body(b4);
+	world.add_body(floor);
 }
 
 
@@ -332,20 +349,6 @@ void initialize() {
 	add_world_surfaces();
 }
 
-float t = 0.0f;
-auto t_prev = std::chrono::high_resolution_clock::now();
-float accumulator = 0.0f;
-float y = 100;
-float x = 100;
-float speed = 0;
-float grav = 60.0f;
-int draws = 0;
-int updates = 0;
-double t_time;
-float e_time = 0;
-float sf_time = 0;
-char color[3] = {(char)255,(char)0,(char)0};
-
 int main() {
 
 	srand (time(NULL));	
@@ -364,7 +367,8 @@ int main() {
 		t_prev = t_now;
 
 		if (t_time > 1){
-			std::cout << "updates " << updates << ", renders " << draws << std::endl;
+			_FPS = draws;
+			_UPDATES = updates;
 			t_time = 0;
 			draws = 0;
 			updates = 0;

@@ -30,6 +30,7 @@ void World::add_body(std::shared_ptr<Body> b) {
 }
 
 void World::render(float ratio) {
+	Color white = {WHITE};
 	for (int i = 0; i<this->Bodies.size(); i++) {
 		if(this->Bodies[i]->get_mouse_contact()) {
 		}
@@ -42,8 +43,9 @@ void World::render(float ratio) {
 	}
 
 	if (show_conns) {
-		for (Vec v : anchor_points)
-			display->fill_circle(v,3,anchor_color);
+		for (Vec v : anchor_points) {
+			display->fill_circle(v,3,anchor_color,1.5f,white);
+		}
 
 		for (Edge e : dconstraints)	
 			display->draw_line(e.v1,e.v2,dconstraint_color,3);

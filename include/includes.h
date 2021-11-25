@@ -15,6 +15,7 @@
 #define GREEN 249,130,39
 #define DARK_GREY 30,30,30
 #define DARK_GREY_2 60,60,60
+#define DARK_GREY_3 100,100,100
 #define YELLOW 222, 237, 11
 #define LIGHT_GREY 210,210,210
 #define SHOW_NORMALS 1 << 0
@@ -52,5 +53,6 @@ const float dt = (float) 1.0f/((float)FPS);
 #include "World.h"
 #include "Constraints.h"
 #include <memory>
+#include <unistd.h>
 
 #endif

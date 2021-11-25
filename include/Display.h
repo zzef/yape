@@ -13,10 +13,11 @@ class Display {
 		void show();
 		void clear();
 
-
+		void draw_text(float x, float y, std::string& text, float size);
 		void fill_box(Vec position, float size, Color& color);
 		void fill_polygon(std::vector<Vec>& verts, Vec position, float orientation, Color& color, int options);
 		void fill_circle(Vec position, float radius, Color& color);
+		void fill_circle(Vec position, float radius, Color& color, float line_thickness, Color& line_color);
 		void draw_line(Vec v1, Vec v2, Color& color,float thickness);
 		bool is_open();
 		void close();
@@ -24,6 +25,7 @@ class Display {
 		~Display();
 
 	private:
+		sf::Font font;
 		int width;	
 		int height;
 		std::string title;
