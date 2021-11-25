@@ -8,14 +8,10 @@ Yape (Yet another physics engine) is a rigid body impulse based physics engine w
 - Frictional impulse (Coulomb friction)
 - Distance joints (Modelled with constraints)
 
-<p align="center">
-  <img src="https://raw.githubusercontent.com/zzef/zef-physics-engine/master/demos/demo2.gif">
+<p float="left">
+  <img src="https://raw.githubusercontent.com/zzef/yape/master/demos/final_demo1.gif" width="100" />
+  <img src="https://raw.githubusercontent.com/zzef/yape/master/demos/final_demo2.gif" width="100" />
 </p>
-
-<p align="center">
-  <img src="https://raw.githubusercontent.com/zzef/zef-physics-engine/master/demos/demo1.gif">
-</p>
-
 
 ## Useful resources for this project
 
