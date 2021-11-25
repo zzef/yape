@@ -233,50 +233,55 @@ void test() {
 
 	std::shared_ptr<Body> rect1 = std::make_shared<Body>(POLYGON);
 	rect1->rect(60,60);
-	rect1->set_pos(250,500);
+	rect1->set_pos(W_WIDTH/2-200,200);
 	rect1->initialize();
 	rect1->generate_color();
 	rect1->set_orientation(random(0,360)*(M_PI/180.0f));
 
 	std::shared_ptr<Body> rect2 = std::make_shared<Body>(POLYGON);
 	rect2->rect(60,60);
-	rect2->set_pos(350,500);
+	rect2->set_pos(W_WIDTH/2-100,200);
 	rect2->initialize();
 	rect2->generate_color();
+	rect2->set_orientation(random(0,360)*(M_PI/180.0f));
 
 	std::shared_ptr<Body> rect3 = std::make_shared<Body>(POLYGON);
 	rect3->rect(60,60);
-	rect3->set_pos(450,500);
+	rect3->set_pos(W_WIDTH/2,100);
 	rect3->initialize();
 	rect3->generate_color();
+	rect3->set_orientation(random(0,360)*(M_PI/180.0f));
 	
 	std::shared_ptr<Body> rect4 = std::make_shared<Body>(POLYGON);
 	rect4->rect(60,60);
-	rect4->set_pos(550,500);
+	rect4->set_pos(W_WIDTH/2+100,200);
 	rect4->initialize();
 	rect4->generate_color();
+	rect4->set_orientation(random(0,360)*(M_PI/180.0f));
 
-	/*
 	std::shared_ptr<Body> rect5 = std::make_shared<Body>(POLYGON);
-	rect5->rect(150,150);
-	rect5->set_pos(1500,300);
-	*/
+	rect5->rect(60,60);
+	rect5->set_pos(W_WIDTH/2+200,150);
+	rect5->initialize();
+	rect5->generate_color();
+	rect5->set_orientation(random(0,360)*(M_PI/180.0f));
+
 	Distance_constraint distance_constraint(rect1,Vec(0,0),rect2,Vec(0,0),100);	
 	Distance_constraint distance_constraint2(rect2,Vec(0,0),rect3,Vec(0,0),100);	
 	Distance_constraint distance_constraint3(rect3,Vec(0,0),rect4,Vec(0,0),100);	
-	//Distance_constraint distance_constraint4(rect4,Vec(40,0),rect5,Vec(0,0),300);	
+	Distance_constraint distance_constraint4(rect4,Vec(30,0),rect5,Vec(0,0),100);	
 
 	world.add_distance_constraint(distance_constraint);
 	world.add_distance_constraint(distance_constraint2);
 	world.add_distance_constraint(distance_constraint3);
-	//world.add_distance_constraint(distance_constraint4);
+	world.add_distance_constraint(distance_constraint4);
 	
 
 	world.add_body(rect1);
 	world.add_body(rect2);
 	world.add_body(rect3);
 	world.add_body(rect4);
-	//world.add_body(rect5);
+	world.add_body(rect5);
 
 
 

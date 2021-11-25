@@ -64,7 +64,7 @@ class Body : public Polygon, public Circle {
 		float y = 0;
 		float ang_vel = 0;
 		float orientation = 0;
-		Color color = {DARK_GREY_2};
+		Color color = {LIGHT_GREY};
 		bool mouse_in = false;
 		float vel_x = 0;
 		float vel_y = 0;

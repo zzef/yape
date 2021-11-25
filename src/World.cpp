@@ -144,9 +144,11 @@ void World::resolve_distance_constraint(std::shared_ptr<Body> a, Vec ra, std::sh
 	//Apply impulses
 
 	a->set_vel(va + ((j0 * lambda) * a->get_im()));	
-	a->set_ang_vel(wa + ((j1 * lambda) * a->get_iI()));	
-	b->set_vel(vb + ((j2 * lambda) * b->get_im()));	
-	b->set_ang_vel(wb + ((j3 * lambda) * b->get_iI()));	
+	b->set_vel(vb + ((j2 * lambda) * b->get_im()));
+	
+	//rotational damping about the anchor point
+	a->set_ang_vel((wa + ((j1 * lambda) * a->get_iI())) * rot_damp_constant);	
+	b->set_ang_vel((wb + ((j3 * lambda) * b->get_iI())) * rot_damp_constant);	
 	
 	
 	if (show_conns) {
@@ -185,7 +187,11 @@ void World::integrate_forces() {
 			continue;
 		}
 			
-		b->set_vel_y(b->get_vel_y()+(this->gravity * (time / 2.0f)));
+		b->set_vel_y(b->get_vel_y()+(this->gravity * time));
+		
+		//global damping
+		//b->set_ang_vel(b->get_ang_vel() * 0.99905f);
+		//b->set_vel(*b->get_vel() * 0.99905f);
 	}
 
 }

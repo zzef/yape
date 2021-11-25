@@ -3,7 +3,7 @@
 
 #define MAX_V 10
 #define MIN_V 3
-#define DEF_GRAV 3000.0f
+#define DEF_GRAV 1500
 #define MAX_BODIES 1000
 #define POLYGON 0
 #define CIRCLE 1
@@ -37,6 +37,13 @@ const float dt = (float) 1.0f/((float)FPS);
 #define LIGHT_GREY_2	0xe6,0xe6,0xe4
 #define LIGHT_GREY_3	0xf9,0xf5,0xef
 #define RED_2			0xfd,0x65,0x74
+
+#define O_RED			0xff,0x4a,0x5a	
+#define O_NAVY			0x3f,0x3c,0x5a
+#define O_ORANGE		0xff,0xa5,0x64
+#define O_CREAM			0xeb,0xe8,0xcd
+
+#define rot_damp_constant 0.999f
 
 #include <SFML/Graphics.hpp>
 #include <iostream>

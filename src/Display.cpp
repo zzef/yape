@@ -51,7 +51,7 @@ void Display::initialize() {
 
 
 void Display::clear() {
-	window->clear(sf::Color(DARK_GREY,255));
+	window->clear(sf::Color(WHITE,255));
 }
 
 void Display::show() {

@@ -8,11 +8,10 @@
 #include <vector>
 
 std::vector<struct Color> pallete = {
-	{RED},
-	{DARK_NAVY},
-	{ORANGE},
-	{CREAM},
-	{BLUE}
+	{O_RED},
+	{O_NAVY},
+	{O_ORANGE},
+	{O_CREAM},
 };
 
 int random(int a, int b) {
