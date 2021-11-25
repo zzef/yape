@@ -15,29 +15,30 @@ Yape (Yet another physics engine) is a rigid body impulse based physics engine w
 
 ## Useful resources for this project
 
+Here are some of the resources I used for this project. I know everyone loves Erin Catto but I found the blog posts by dyn4j (specifically on constraints) and Randy Gaul to be the most helpful.
+
+- http://www.dyn4j.org/2011/11/contact-points-using-clipping/
+- https://dyn4j.org/2010/09/distance-constraint/
 - https://www.gafferongames.com/post/fix_your_timestep/
 - https://www.youtube.com/watch?v=7Ik2vowGcU0 javidx9 on convex polygon collision detection using Seperated Axis theorem
 - Randy Gauls impulse engine https://github.com/RandyGaul/ImpulseEngine
-- Erin Catto's Fast and simple physics using sequential impulse https://vdocument.in/fast-and-simple-physics-using-sequential-impulses-erin-catto-crystal-dynamics.html
-- https://github.com/erincatto/box2d-lite
 - https://gamedevelopment.tutsplus.com/tutorials/how-to-create-a-custom-2d-physics-engine-the-basics-and-impulse-resolution--gamedev-6331
 - https://www.randygaul.net/2013/03/28/custom-physics-engine-part-2-manifold-generation/
-- http://www.dyn4j.org/2011/11/contact-points-using-clipping/
 - https://www.gafferongames.com/post/collision_response_and_coulomb_friction/
 - https://www.gafferongames.com/post/integration_basics/
 - https://research.ncl.ac.uk/game/mastersdegree/gametechnologies/previousinformation/physics3constraints/2017%20Tutorial%203%20-%20Constraints.pdf
-- https://dyn4j.org/2010/09/distance-constraint/
-
+- Erin Catto's Fast and simple physics using sequential impulse https://vdocument.in/fast-and-simple-physics-using-sequential-impulses-erin-catto-crystal-dynamics.html
+- https://github.com/erincatto/box2d-lite
 
 ## Todos and Further Improvements
 
-- Implement stable stacking.
+- Improve stacking stability.
 - Fix polygons disappearing bug.
 - Fix random jitter.
 - Implement some broadphase.
-- Allow for user to exert force via click and drag.
+- Allow for user to exert force via click and drag (perhaps model with a point constraint).
 - Remove unneccesary recalculations during manifold generation.
-- Implement warm starting and impulse accumulation for better stability (especially at lower frames, sub 60fps).
+- Implement warm starting (contact coherence) and impulse accumulation for better stability (especially at lower frames, sub 60fps).
 - Finish Circle to circle (left the easiest till last) and circle to polygon collision.
 
 ## Dependencies
