@@ -1,5 +1,5 @@
 *.o
 project
-engine
+yape
 *.swo
 *.swp

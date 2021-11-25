@@ -2,7 +2,7 @@
 
 #define W_WIDTH 1700
 #define W_HEIGHT 900
-#define WINDOW_TITLE "Engine"
+#define WINDOW_TITLE "Yape Sandbox"
 
 
 float t = 0.0f;
