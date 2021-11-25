@@ -51,16 +51,21 @@ To install libsfml on linux, run the following:
 `sudo apt-get install libsfml-dev`
 
 ## How to run
-You will need linux to run. Please do the following to run:
+You will need linux to run. Please do the following:
 
 `git clone https://github.com/zzef/zef-physics-engine.git`
 
+`make clean`
 `make`
 
-`./engine`
+`./yape`
 
 ## How to use
 
 - Click screen to generate polygons and add them to the scene. 
 - press 'i' to toggle interactive mode. 
 - In interactive mode you can drag polygons around.
+- press 'r' to reset current demo
+- press 'a' to toggle view constraints
+- press 'x' to clear all polygons
+- press 't' to toggle view contact points
