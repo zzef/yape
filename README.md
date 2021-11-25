@@ -9,8 +9,8 @@ Yape (Yet another physics engine) is a rigid body impulse based physics engine w
 - Distance joints (Modelled with constraints)
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/zzef/yape/master/demos/final_demo1.gif" width="50%" />
-  <img src="https://raw.githubusercontent.com/zzef/yape/master/demos/final_demo2.gif" width="50%" /> 
+  <img src="https://raw.githubusercontent.com/zzef/yape/master/demos/final_demo1.gif" width="48%" />
+  <img src="https://raw.githubusercontent.com/zzef/yape/master/demos/final_demo2.gif" width="48%" /> 
 </p>
 
 ## Useful resources for this project
