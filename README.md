@@ -41,8 +41,12 @@ A Rigid body impulse based physics engine written in C++. This was written to ga
 - Finish Circle to circle and circle to polygon collision
 
 ## Dependencies
-- libSDL2
+- libsfml
 - gcc
+
+To install libsfml on linux, run the following:
+
+`sudo apt-get install libsfml-dev`
 
 ## How to run
 You will need linux to run. Please do the following to run:
