@@ -7,7 +7,7 @@ BDIR = .
 
 DEPS = $(OBJDIR)/Circle.o $(OBJDIR)/utils.o $(OBJDIR)/Vector.o $(OBJDIR)/Polygon.o $(OBJDIR)/Body.o $(OBJDIR)/World.o $(OBJDIR)/Shape.o $(OBJDIR)/Display.o 
 
-$(BDIR)/engine: $(DEPS) $(OBJDIR)/main.o
+$(BDIR)/yape: $(DEPS) $(OBJDIR)/main.o
 	$(CC) -o $@ $^ $(LIBS)
 
 $(OBJDIR)/main.o: $(SDIR)/main.cpp $(IDIR)/main.h $(DEPS)
