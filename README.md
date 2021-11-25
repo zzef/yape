@@ -32,15 +32,14 @@ Yape (Yet another physics engine) is a rigid body impulse based physics engine w
 
 ## Todos and Further Improvements
 
-- Stable stacking
-- Fix polygons disappearing bug
-- Fix random jitter
-- Implement some broadphase
-- Allow for user to exert force via click and drag
-- Inertia tensor for polygons could be based on area giving better realistic movement
-- During manifold generation the bodies rotation and position vector is applied every time some new calculation is done. This is unnecessary and slow as it need only be done once. Solution is to store world space after each integration and use this to perform calculations.
-- Implement warm starting and impulse accumulation for better stability (especially at lower frames, sub 60fps)
-- Finish Circle to circle and circle to polygon collision
+- Implement stable stacking.
+- Fix polygons disappearing bug.
+- Fix random jitter.
+- Implement some broadphase.
+- Allow for user to exert force via click and drag.
+- Remove unneccesary recalculations during manifold generation.
+- Implement warm starting and impulse accumulation for better stability (especially at lower frames, sub 60fps).
+- Finish Circle to circle and circle to polygon collision.
 
 ## Dependencies
 - libsfml
