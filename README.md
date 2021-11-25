@@ -17,7 +17,9 @@ Yape (Yet another physics engine) is a rigid body impulse based physics engine w
 
 - https://www.gafferongames.com/post/fix_your_timestep/
 - https://www.youtube.com/watch?v=7Ik2vowGcU0 javidx9 on convex polygon collision detection using Seperated Axis theorem
-- Randy Gauls impulse engine https://www.randygaul.net/projects-open-sources/impulse-engine/
+- Randy Gauls impulse engine https://github.com/RandyGaul/ImpulseEngine
+- Erin Catto's Fast and simple physics using sequential impulse https://vdocument.in/fast-and-simple-physics-using-sequential-impulses-erin-catto-crystal-dynamics.html
+- https://github.com/erincatto/box2d-lite
 - https://gamedevelopment.tutsplus.com/tutorials/how-to-create-a-custom-2d-physics-engine-the-basics-and-impulse-resolution--gamedev-6331
 - https://www.randygaul.net/2013/03/28/custom-physics-engine-part-2-manifold-generation/
 - http://www.dyn4j.org/2011/11/contact-points-using-clipping/
