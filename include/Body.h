@@ -26,11 +26,8 @@ class Body : public Polygon, public Circle {
 		float get_orientation();
 		void identify();
 		void set_orientation(float angle);
-		void set_color(char r, char g, char b);
-		void set_color(char color[3]);
-		void set_orig_color(char r, char g, char b);
-		void set_orig_color(char color[3]);
-		void reset_color();
+		void set_color(Color color);
+		void set_color(Color& color);
 		void generate();
 		void mouse_contact(bool val); 
 		bool get_mouse_contact();
@@ -67,8 +64,7 @@ class Body : public Polygon, public Circle {
 		float y = 0;
 		float ang_vel = 0;
 		float orientation = 0;
-		char color[3] = {(char)150,(char)150,(char)150};
-		char orig_color[3] = {(char)150,(char)150,(char)150};
+		Color color = {DARK_GREY_2};
 		bool mouse_in = false;
 		float vel_x = 0;
 		float vel_y = 0;

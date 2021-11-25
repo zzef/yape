@@ -27,8 +27,8 @@ void Circle::generate() {
 		radius = random(10,40);
 }
 
-void Circle::render(Display* d, Vec position, float orientation, char color[3], int options) {
-	d->draw_circle(position, this->radius, orientation,color);
+void Circle::render(Display* d, Vec position, float orientation, Color& color, int options) {
+	d->fill_circle(position, this->radius, color);
 }
 
 Circle::~Circle() {

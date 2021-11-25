@@ -1,5 +1,5 @@
 CC = g++
-LIBS = -lSDL2
+LIBS = -lsfml-graphics -lsfml-window -lsfml-system
 IDIR = include
 SDIR = src
 OBJDIR = .

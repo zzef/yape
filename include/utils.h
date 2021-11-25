@@ -8,6 +8,8 @@ struct Color {
 	float b;
 };
 
+
+struct Color gen_col();
 int random(int a, int b);
 struct Color hsv_to_rgb(int h, int s, int v);
 float interpolate(float a, float b, float ratio);

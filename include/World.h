@@ -10,13 +10,12 @@
 class World {
 	
 	private:
-		std::shared_ptr<Body> Bodies[MAX_BODIES];
+		std::vector<std::shared_ptr<Body>> Bodies;
 		std::shared_ptr<Body> Bods[MAX_BODIES];
 		std::vector<Manifold> contacts;
 		std::vector<Vec> contact_points;
-		std::vector<Vec> connections;
-		std::vector<Vec> collision_normals;
-		std::vector<Edge> edges;
+		std::vector<Vec> anchor_points;
+		std::vector<Edge> dconstraints;
 		std::vector<Distance_constraint> distance_constraints;
 		int bodies = 0;
 		float gravity = 0.5;
@@ -26,8 +25,12 @@ class World {
 		bool show_coll = true;
 		bool show_conts = true;
 		bool show_conns = true;
+		Color contact_color = {GREEN};
+		Color anchor_color = {GREEN};
+		Color dconstraint_color = {GREEN};
 		bool positional_correction = true;
 		bool mouse_down;
+		Display* display;
 		void generate_pp_manifold(std::shared_ptr<Body> a, std::shared_ptr<Body> b);
 		bool is_point_inside_polygon(std::shared_ptr<Body> b, Vec point);
 		bool is_point_inside_circle(std::shared_ptr<Body> b, Vec point);
@@ -47,27 +50,28 @@ class World {
 		void integrate_forces();
 
 	public:
-		World();
-		World(float gravity);
+		World(Display* display);
+		World(float gravity, Display* display);
 		void positional_correction_(bool val);
 		void clear_bodies();
+		void clear_constraints();
 		std::shared_ptr<Body> get_body(int i);
 		int body_count();
 		void add_body(std::shared_ptr<Body> b);
 		void remove_body(int i);
 		void remove_body(Body b);
-		void render(Display* d, float ratio);
+		void render(float ratio);
 		void set_mouse_position(Vec v);
 		void set_mouse_down(bool val);
 		void set_rel_mouse_position(Vec v);
 		void set_glob_options(int options);
 		void detect_mouse_insidedness();
+		void show_poly_outlines(bool show);
 		void show_normals(bool show);
 		void show_polymids(bool show);
 		void show_collisions(bool show);
 		void show_connections(bool show);
 		void show_contacts(bool show);
-		void reset_colors();
 		void add_distance_constraint(Distance_constraint distance_constraint);
 		void simulate();
 		void clear_up();

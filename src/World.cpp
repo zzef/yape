@@ -4,16 +4,18 @@
 #include "../include/World.h"
 #include "../include/Constraints.h"
 
-World::World() {
+World::World(Display* display) {
  	this->gravity = DEF_GRAV;
+	this->display = display;
 }
 
-World::World(float gravity) {
+World::World(float gravity, Display* display) {
 	this->gravity = gravity;
+	this->display = display;
 }
 
 int World::body_count() {
-	return this->bodies;
+	return this->Bodies.size();
 }
 
 std::shared_ptr<Body> World::get_body(int i) {
@@ -21,49 +23,30 @@ std::shared_ptr<Body> World::get_body(int i) {
 }
 
 void World::add_body(std::shared_ptr<Body> b) {
-	if (this->bodies>=MAX_BODIES)
+	if (this->Bodies.size()>=MAX_BODIES)
 		return;
-	this->Bodies[this->bodies]=b;
-	this->bodies++;
+	Bodies.push_back(b);
 	std::cout << "added" << std::endl;
 }
 
-void World::render(Display* d, float ratio) {
-	for (int i = 0; i<this->bodies; i++) {
+void World::render(float ratio) {
+	for (int i = 0; i<this->Bodies.size(); i++) {
 		if(this->Bodies[i]->get_mouse_contact()) {
-			//this->Bodies[i]->set_color(RED);
 		}
-		this->Bodies[i]->render(d,this->glob_options,ratio);
+		this->Bodies[i]->render(display,this->glob_options,ratio);
 	}
-	char color[3] = {
-		(char) 255,
-		(char) 0,
-		(char) 0
-	};
-
-	char blue[3] = {
-		(char) 120,
-		(char) 140,
-		(char) 230
-	};
-
-	if (show_conns) {
-		for (int i = this->connections.size()-1; i >= 0; i--) {
-			//d->draw_circle(this->connections[i],7.5,0,blue);
-		}
-	}
-
 
 	if (show_conts) {
-		for (int i = this->contact_points.size()-1; i >= 0; i--) {
-			//d->draw_circle(this->contact_points[i],5,0,color);
-			//this->contact_points[i].print();
-		}
+		for (Vec v : contact_points)
+			display->fill_box(v,5,contact_color);
 	}
 
-	//printf("edges size ===================> %ld\n",this->edges.size());
-	for (int i = 0; i < this->edges.size(); i++) {
-		d->draw_line(edges[i].v1,edges[i].v2,color);
+	if (show_conns) {
+		for (Vec v : anchor_points)
+			display->fill_circle(v,3,anchor_color);
+
+		for (Edge e : dconstraints)	
+			display->draw_line(e.v1,e.v2,dconstraint_color,3);
 	}
 
 }
@@ -87,6 +70,10 @@ void World::show_polymids(bool show) {
 	this->glob_options = show ? this->glob_options | SHOW_POLYMIDS : this->glob_options & ~SHOW_POLYMIDS;
 }
 
+void World::show_poly_outlines(bool show) {
+	this->glob_options = show ? this->glob_options | SHOW_POLY_OUTLINES : this->glob_options & ~SHOW_POLY_OUTLINES;
+}
+
 void World::show_normals(bool show) {
 	this->glob_options = show ? this->glob_options | SHOW_NORMALS : this->glob_options & ~SHOW_NORMALS;
 }
@@ -97,12 +84,6 @@ void World::set_glob_options(int options) {
 
 void World::show_connections(bool show) {
 	this->show_conns=show;
-}
-
-void World::reset_colors() {
-	for (int i = 0; i<this->bodies; i++) {
-		this->Bodies[i]->reset_color();
-	}
 }
 
 void World::add_distance_constraint(Distance_constraint distance_constraint) {
@@ -136,7 +117,6 @@ void World::resolve_distance_constraint(std::shared_ptr<Body> a, Vec ra, std::sh
 	float bias = (1.0f/time) * offset_length * 0.25f;
 	float wa = a->get_ang_vel(); 
 	float wb = b->get_ang_vel(); 
-
 	Vec va = *(a->get_vel());
 	Vec vb = *(b->get_vel());
 	
@@ -165,11 +145,14 @@ void World::resolve_distance_constraint(std::shared_ptr<Body> a, Vec ra, std::sh
 	a->set_ang_vel(wa + ((j1 * lambda) * a->get_iI()));	
 	b->set_vel(vb + ((j2 * lambda) * b->get_im()));	
 	b->set_ang_vel(wb + ((j3 * lambda) * b->get_iI()));	
-
-	connections.push_back(pa);
-	connections.push_back(pb);
-	edges.push_back(Edge(pa,pb));	
-
+	
+	
+	if (show_conns) {
+		anchor_points.push_back(pa);
+		anchor_points.push_back(pb);
+		dconstraints.push_back(Edge(pa,pb));
+	}
+	
 }
 
 void World::resolve_constraints() {
@@ -179,7 +162,8 @@ void World::resolve_constraints() {
 		//std::cout << "yooo" << std::endl;
 		std::shared_ptr<Body> a = distance_constraints[i].a;
 		std::shared_ptr<Body> b = distance_constraints[i].b;
-		this->resolve_distance_constraint( a, distance_constraints[i].pp_a, b, distance_constraints[i].pp_b, distance_constraints[i].d );
+		if (a != NULL && b!=NULL)
+			this->resolve_distance_constraint( a, distance_constraints[i].pp_a, b, distance_constraints[i].pp_b, distance_constraints[i].d );
 
 	} 
 	
@@ -188,7 +172,7 @@ void World::resolve_constraints() {
 
 void World::integrate_forces() {
 	float time = dt / resolution_iterations;
-	for (int i = 0; i < this->bodies; i++) {
+	for (int i = 0; i < this->Bodies.size(); i++) {
 
 		std::shared_ptr<Body> b = this->Bodies[i];	
 		if (b->get_im()==0)
@@ -206,7 +190,7 @@ void World::integrate_forces() {
 
 void World::integrate_velocities() {
 	float time = dt / resolution_iterations;
-	for (int i = 0; i < this->bodies; i++) {
+	for (int i = 0; i < this->Bodies.size(); i++) {
 
 		std::shared_ptr<Body> b = this->Bodies[i];	
 		if (b->get_im()==0)
@@ -226,19 +210,16 @@ void World::integrate_velocities() {
 
 }
 void World::clear_up() {
-
 	this->contacts.clear();
 	this->contact_points.clear();
-	this->connections.clear();
-	this->edges.clear();
-	//printf("cleared!\n");
+	this->anchor_points.clear();
+	this->dconstraints.clear();
 }
 
 void World::simulate() {
 
 		
 		for (int i = 0; i < resolution_iterations; i++) {
-			this->reset_colors();
 			this->clear_up();
 			this->integrate_forces();
 			this->resolve_constraints();
@@ -295,11 +276,6 @@ void World::resolve_manifolds() {
 		std::shared_ptr<Body> A = this->contacts[i].A;	
 		std::shared_ptr<Body> B = this->contacts[i].B;
 		
-		if (this->show_coll) {
-			A->set_color(YELLOW);
-			B->set_color(YELLOW);
-		}
-
 		Vec position_a(A->get_x(),A->get_y());
 		Vec position_b(B->get_x(),B->get_y());
 			
@@ -328,8 +304,8 @@ void World::resolve_manifolds() {
 			//velocity_a.print();
 			//velocity_b.print();
 
-			if (show_conts) 
-				this->contact_points.push_back(this->contacts[i].contacts[j]);
+			if (show_conts)
+				contact_points.push_back(this->contacts[i].contacts[j]);
 
 			Vec ra = this->contacts[i].contacts[j] - position_a;	
 			Vec rb = this->contacts[i].contacts[j] - position_b;
@@ -453,8 +429,8 @@ bool World::is_joined(std::shared_ptr<Body> a, std::shared_ptr<Body> b)  {
 
 void World::generate_manifolds() {
 	
-	for(int i = 0; i<this->bodies; i++) {
-		for(int j = i + 1; j<this->bodies; j++) {
+	for(int i = 0; i<this->Bodies.size(); i++) {
+		for(int j = i + 1; j<this->Bodies.size(); j++) {
 			
 			std::shared_ptr<Body> A = this->Bodies[i];
 			std::shared_ptr<Body> B = this->Bodies[j];
@@ -510,7 +486,7 @@ bool World::is_point_inside_polygon(std::shared_ptr<Body> b, Vec point) {
 
 int World::find_support_point(std::shared_ptr<Body> body, Vec direction) {
 	
-	float best_proj = -9999999;
+	float best_proj = -MAX_INT;
 	int index = 0;
 	for (int j = 0; j < body->get_vertices()-1; j++) {
 		Vec v = body->get_vertex(j)->rotate(body->get_orientation()) + Vec(body->get_x(),body->get_y());
@@ -596,8 +572,8 @@ void World::generate_contact_points(Manifold& m)  {
 		incident = s_edge_2;
 
 		Vec vt = best_vertex1 + sep_vec;
-		if (show_conts)
-			edges.push_back(Edge(vt,best_vertex1));
+		//if (show_conts)
+		//	display->draw_line(vt,best_vertex,contact_color,1);
 	
 	}
 	else {
@@ -605,8 +581,8 @@ void World::generate_contact_points(Manifold& m)  {
 		incident = s_edge_1;
 
 		Vec vt = best_vertex - sep_vec;
-		if (show_conts)
-			edges.push_back(Edge(vt,best_vertex));
+		//if (show_conts)
+		//	display->draw_line(vt,best_vertex,contact_color,1);
 		
 	}	
 	
@@ -643,8 +619,13 @@ void World::generate_contact_points(Manifold& m)  {
 }
 
 void World::clear_bodies() {
-	this->bodies = 3;
+	this->Bodies.clear();
 }
+
+void World::clear_constraints() {
+	this->distance_constraints.clear();
+}
+
 
 void World::generate_pp_manifold(std::shared_ptr<Body> a, std::shared_ptr<Body> b) {
 
@@ -652,7 +633,7 @@ void World::generate_pp_manifold(std::shared_ptr<Body> a, std::shared_ptr<Body> 
 	Vec position_b(b->get_x(),b->get_y());
 	std::shared_ptr<Body> ref_poly = a;
 	Vec mtv_axis;
-	float mt = 999999999;
+	float mt = MAX_INT;
 
 	for (int s = 0; s < 2; s++) {	
 		
@@ -668,10 +649,10 @@ void World::generate_pp_manifold(std::shared_ptr<Body> a, std::shared_ptr<Body> 
 			Vec line = v2 - v1;	
 			Vec ortho = line.cross(1).normalize();	
 			
-			float max_a = -999999999;
-			float min_a = 999999999;
-			float max_b = -999999999;
-			float min_b = 999999999;
+			float max_a = -MAX_INT;
+			float min_a = MAX_INT;
+			float max_b = -MAX_INT;
+			float min_b = MAX_INT;
 	
 			for (int j = 0; j<a->get_vertices(); j++) {
 				Vec v = a->get_vertex(j)->rotate(a->get_orientation()) + position_a;
@@ -729,7 +710,7 @@ bool World::point_inside(std::shared_ptr<Body> b, Vec point) {
 }
 
 void World::detect_mouse_insidedness() {
-	for (int i = 0; i<this->bodies; i++) {
+	for (int i = 0; i<this->Bodies.size(); i++) {
 		if(this->point_inside(this->Bodies[i],this->mouse_position)){
 			this->Bodies[i]->mouse_contact(true);
 			this->Bodies[i]->set_x(this->Bodies[i]->get_x()+this->rel_mouse_position.get_x());

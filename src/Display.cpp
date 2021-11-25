@@ -9,24 +9,17 @@ Display::~Display() {
 }
 
 void Display::close() {
-
-	if (this->renderer) {
-		SDL_DestroyRenderer(this->renderer);
-		this->renderer=NULL;
-	}
-
-	if (this->window) {
-		SDL_DestroyWindow(this->window);
-		this->window=NULL;
-	}
-	
-	if (SDL_WasInit(SDL_INIT_VIDEO)) {
-		SDL_Quit();
-	}
-
-	std::cout<<"remove"<<std::endl;
-
+	window->close();
 }
+
+bool Display::is_open() {
+	return window->isOpen();
+}
+
+bool Display::poll_event(sf::Event& e) {
+	return window->pollEvent(e);
+}
+
 
 Display::Display(int width, int height, std::string title) {
 	this->width = width;
@@ -36,102 +29,82 @@ Display::Display(int width, int height, std::string title) {
 }
 		
 void Display::initialize() {
-	//Start SDL
-	
-	if(SDL_Init(SDL_INIT_EVERYTHING)<0) {
-		std::cout << "Failed to initialize SDL2 - " << SDL_GetError() << std::endl;
-		return;
-	}
-	
-	//We start by creating a window
-	this->window = SDL_CreateWindow(
-		this->title.c_str(),
-		SDL_WINDOWPOS_CENTERED,
-		SDL_WINDOWPOS_CENTERED,
-		this->width,
-		this->height,
-		SDL_WINDOW_OPENGL
-	);
-
-	if (this->window == NULL) {
-		std::cout << "Failed to create window - " << SDL_GetError() << std::endl;
-		return;
-	}
-
-	//We need a renderer to do our rendering
-	this->renderer = SDL_CreateRenderer(this->window,-1,SDL_RENDERER_ACCELERATED);
-
-	if (this->renderer == NULL) {
-		std::cout << "Failed to create renderer - " << SDL_GetError() << std::endl;
-		return;
-	}
-
+	sf::ContextSettings settings;
+    settings.antialiasingLevel = 8.0;
+	window = new sf::RenderWindow(
+		sf::VideoMode(this->width, this->height), 
+		this->title,
+		sf::Style::Default,
+		settings);
 }	
 
+void Display::clear() {
+	window->clear(sf::Color(DARK_GREY,255));
+}
+
 void Display::show() {
-	SDL_RenderPresent(this->renderer);	
-	SDL_SetRenderDrawColor( this->renderer, 40,40,40, 255 );
-	SDL_RenderClear( this->renderer );
+	window->display();
 }
 
-//=========================================================================
-//https://stackoverflow.com/questions/38334081/howto-draw-circles-arcs-and-vector-graphics-in-sdl
-void Display::circle(SDL_Renderer * renderer, int32_t centreX, int32_t centreY, int32_t radius)
-{
-   const int32_t diameter = (radius * 2);
 
-   int32_t x = (radius - 1);
-   int32_t y = 0;
-   int32_t tx = 1;
-   int32_t ty = 1;
-   int32_t error = (tx - diameter);
+void Display::fill_polygon(std::vector<Vec>& verts, 
+		Vec position, float orientation, 
+		Color& color, int options) {
 
-   while (x >= y)
-   {
-      //  Each of the following renders an octant of the circle
-      SDL_RenderDrawPoint(renderer, centreX + x, centreY - y);
-      SDL_RenderDrawPoint(renderer, centreX + x, centreY + y);
-      SDL_RenderDrawPoint(renderer, centreX - x, centreY - y);
-      SDL_RenderDrawPoint(renderer, centreX - x, centreY + y);
-      SDL_RenderDrawPoint(renderer, centreX + y, centreY - x);
-      SDL_RenderDrawPoint(renderer, centreX + y, centreY + x);
-      SDL_RenderDrawPoint(renderer, centreX - y, centreY - x);
-      SDL_RenderDrawPoint(renderer, centreX - y, centreY + x);
+	sf::ConvexShape poly(verts.size()-1);
+	for (int i = 0; i < verts.size()-1; i++) {
+		poly.setPoint(i,sf::Vector2f(verts[i].get_x(),verts[i].get_y()));	
+	}
+	if	(options & SHOW_POLY_OUTLINES){
+		poly.setOutlineThickness(1);
+		poly.setOutlineColor(sf::Color(0,0,0));
+	}
 
-      if (error <= 0)
-      {
-         ++y;
-         error += ty;
-         ty += 2;
-      }
-
-      if (error > 0)
-      {
-         --x;
-         tx += 2;
-         error += (tx - diameter);
-      }
-   }
-}
-//==========================================================================
-
-void Display::draw_line(Vec v1, Vec v2, char color[3]) {	
-	SDL_SetRenderDrawColor( this->renderer, color[0], color[1], color[2], 255 );
-	SDL_RenderDrawLine(
-		this->renderer, v1.get_x(), v1.get_y(), v2.get_x(), v2.get_y()
-	);	
+	poly.setFillColor(sf::Color(color.r,color.g,color.b));
+	poly.setPosition(position.get_x(),position.get_y());
+	poly.setRotation((180/M_PI)*orientation);
+	window->draw(poly);
 }
 
-void Display::draw_line(float x, float y, float x1, float y1, char color[3]) {	
-	SDL_SetRenderDrawColor( this->renderer, color[0], color[1], color[2], 255 );
-	SDL_RenderDrawLine(
-		this->renderer, x, y, x1, y1
-	);	
+void Display::draw_line(Vec v1, Vec v2, Color& color,float thickness) {
+
+	//stolen from https://github.com/SFML/SFML/wiki/Source:-Line-segment-with-thickness
+	sf::Vector2f point1(v1.get_x(),v1.get_y());
+	sf::Vector2f point2(v2.get_x(),v2.get_y());
+	sf::Vector2f direction = point2 - point1;
+    sf::Vector2f unitDirection = direction/std::sqrt(direction.x*direction.x+direction.y*direction.y);
+    sf::Vector2f unitPerpendicular(-unitDirection.y,unitDirection.x);
+
+    sf::Vector2f offset = (thickness/2.f)*unitPerpendicular;
+
+	sf::Vertex vertices[4];
+
+    vertices[0].position = point1 + offset;
+    vertices[1].position = point2 + offset;
+    vertices[2].position = point2 - offset;
+    vertices[3].position = point1 - offset;
+
+	sf::Color col(color.r,color.g,color.b); 
+    for (int i=0; i<4; ++i)
+        vertices[i].color = col;
+
+	window->draw(vertices,4,sf::Quads);
+	
 }
 
-void Display::draw_circle(Vec position, float radius, float orientation, char color[3]) {
-	SDL_SetRenderDrawColor( this->renderer, color[0], color[1], color[2], 255 );
-	this->circle(this->renderer, position.get_x(), position.get_y(), radius);
+void Display::fill_box(Vec position, float size, Color& color) {
+	float trans = size/2.0f;
+	sf::RectangleShape box(sf::Vector2f(size,size));
+	box.setFillColor(sf::Color(color.r,color.g,color.b));
+	box.setPosition(position.get_x()-trans,position.get_y()-trans);
+	window->draw(box);	
+}
+
+void Display::fill_circle(Vec position, float radius, Color& color) {
+	sf::CircleShape circle(radius,10);
+	circle.setFillColor(sf::Color(color.r,color.g,color.b));
+	circle.setPosition(position.get_x()-radius,position.get_y()-radius);
+	window->draw(circle);
 }	
 
 

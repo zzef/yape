@@ -17,11 +17,11 @@ class Polygon : public Shape {
 		Vec* get_vertex(int index);
 		Vec* prev_vertex(int index);	
 		Vec* next_vertex(int index);	
-		Vec verts[MAX_V];	
+		std::vector<Vec> verts;	
 		~Polygon();
 		void print();
 		void init();
-		void render(Display* d, Vec position, float orientation, char color[3], int option);
+		void render(Display* d, Vec position, float orientation, Color& color, int option);
 		void generate_polygon();
 
 	private:

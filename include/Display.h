@@ -1,6 +1,7 @@
 #ifndef DISPLAY_H
 #define DISPLAY_H
 
+#include "../include/utils.h"
 #include "includes.h"
 
 class Display {
@@ -10,19 +11,24 @@ class Display {
 		Display(int width, int height, std::string title);
 		void initialize();
 		void show();
-		void draw_circle(Vec position, float radius, float orientation, char color[3]);
-		void draw_line(float x, float y, float x1, float y1, char color[3]);
-		void draw_line(Vec v1, Vec v2, char color[3]);
+		void clear();
+
+
+		void fill_box(Vec position, float size, Color& color);
+		void fill_polygon(std::vector<Vec>& verts, Vec position, float orientation, Color& color, int options);
+		void fill_circle(Vec position, float radius, Color& color);
+		void draw_line(Vec v1, Vec v2, Color& color,float thickness);
+		bool is_open();
+		void close();
+		bool poll_event(sf::Event& e);
 		~Display();
 
 	private:
 		int width;	
 		int height;
 		std::string title;
-		SDL_Window* window = NULL;
-		SDL_Renderer* renderer = NULL;
-		void circle(SDL_Renderer * renderer, int32_t centreX, int32_t centreY, int32_t radius);
-		void close();
+		void initialize_shapes();
+		sf::RenderWindow* window;
 
 };
 

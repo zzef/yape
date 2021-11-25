@@ -33,7 +33,7 @@ void Polygon::clear_verts() {
 }
 
 void Polygon::add_vertex(Vec v) {
-	this->verts[this->vertices] = v;
+	this->verts.push_back(v);
 	this->vertices++;
 }
 
@@ -115,39 +115,37 @@ void Polygon::generate_polygon() {
 
 	float disp = 0;
 	Vec rad = Vec(0,1) * radius;
-	verts[0] = rad;
+	verts.push_back(rad);
 	int i = 0;
 	for (i = 0; i < differences.size() ; i++) {
 		disp+=differences[i];
 		Vec vertex = rad.rotate(disp*(M_PI/180.0f));
-		verts[i+1] = vertex;
+		verts.push_back(vertex);
 	}
-	verts[i+1]=verts[0];
+	verts.push_back(verts[0]);
 	this->edges=edges;
 	this->vertices=i+2;
 }
 
-void Polygon::render(Display* d, Vec position, float orientation, char color[3], int options) {
+void Polygon::render(Display* d, Vec position, float orientation, Color& color, int options) {
 
-	for (int i = 0; i < this->get_vertices()-1; i++) {	
-		
-		Vec v1 = this->verts[i].rotate(orientation) + position;
-		Vec v2 = this->verts[i+1].rotate(orientation) + position;
-		d->draw_line( v1, v2 , color );	
-	
-		if (options & SHOW_NORMALS) {
+	d->fill_polygon(this->verts, position, orientation, color, options);
+	if (options & SHOW_NORMALS) {
+		for (int i = 0; i < this->get_vertices()-1; i++) {	
 			
+			Vec v1 = this->verts[i].rotate(orientation) + position;
+			Vec v2 = this->verts[i+1].rotate(orientation) + position;		
 			Vec line = v2 - v1;
 			Vec ortho = line.cross(1).normalize();	
 			Vec mid = v1.mid(v2);
 			Vec to = mid + (ortho * 12);
-			d->draw_line(mid, to, color);	
-
+			d->draw_line(mid, to, color,1);	
+	
 		}
 	}
 
 	if (options & SHOW_POLYMIDS)
-		d->draw_line(position,verts[0].rotate(orientation) + position, color);
+		d->draw_line(position,verts[0].rotate(orientation) + position, color,1);
 
 }
 

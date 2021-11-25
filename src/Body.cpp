@@ -16,8 +16,8 @@ Body::Body(int type, bool is_earthed) {
 }
 
 void Body::generate_color() {
-	struct Color c = hsv_to_rgb(random(0,360),75,100);
-	this->set_orig_color((char)c.r,(char)c.g,(char)c.b);
+	//struct Color c = hsv_to_rgb(random(0,360),60,100);
+	this->color = gen_col();
 }
 
 void Body::set_pos(Vec p) {
@@ -82,8 +82,6 @@ void Body::render(Display* d, int options, float ratio) {
 	if (this->type == CIRCLE)
 		this->Circle::render(d,Vec(this->x,this->y),this->orientation,color,options);
 	
-	
-
 	if (this->type == POLYGON) {
 		
 		Vec s_p = this->prev_pos;
@@ -213,37 +211,14 @@ void Body::apply_impulse(Vec normal, Vec contact) {
 	//this->ang_vel *= 0.9999;
 }
 
-void Body::set_orig_color(char r, char g, char b) {
-	this->orig_color[0] = r;
-	this->orig_color[1] = g;
-	this->orig_color[2] = b;
-	this->reset_color();
-}
 
-void Body::set_orig_color(char color[3]) {
-	this->orig_color[0] = color[0];
-	this->orig_color[1] = color[1];
-	this->orig_color[2] = color[2];
-	this->reset_color();
+void Body::set_color(Color color) {
+	this->color = color;
 }
 
 
-void Body::set_color(char r, char g, char b) {
-	this->color[0] = r;
-	this->color[1] = g;
-	this->color[2] = b;
-}
-
-void Body::set_color(char color[3]) {
-	this->color[0] = color[0];
-	this->color[1] = color[1];
-	this->color[2] = color[2];
-}
-
-void Body::reset_color() {
-	this->color[0] = this->orig_color[0];
-	this->color[1] = this->orig_color[1];
-	this->color[2] = this->orig_color[2];
+void Body::set_color(Color& color) {
+	this->color = color;
 }
 
 void Body::identify() {

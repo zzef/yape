@@ -1,9 +1,19 @@
+#include "../include/includes.h"
 #include "../include/utils.h"
 #include "../include/Vector.h"
 #include "stdlib.h"
 #include "time.h"
 #include "iostream"
 #include <math.h>
+#include <vector>
+
+std::vector<struct Color> pallete = {
+	{RED},
+	{DARK_NAVY},
+	{ORANGE},
+	{CREAM},
+	{BLUE}
+};
 
 int random(int a, int b) {
 	if (a==b)
@@ -20,7 +30,13 @@ Vec interpolate(Vec a, Vec b, float ratio) {
 	return a + (( b - a ) * ratio);
 }
 
+struct Color gen_col() {
+	return pallete[random(0,pallete.size())];
+}
+
 struct Color hsv_to_rgb(int h, int s, int v) {
+	
+	gen_col();
 
 	// function to convert from hsv color space to rgb color space
 	// At the moment this function is just returning the same redish pinkish color.
