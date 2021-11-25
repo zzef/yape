@@ -1,6 +1,6 @@
-# zef-physics-engine
+# Yape
 
-A Rigid body impulse based physics engine written in C++. This was written to gain better understanding into rigid body physics engines. Features include:
+Yape (Yet another physics engine) is a rigid body impulse based physics engine written in C++. This was written to gain better understanding into rigid body physics engines as well as my personal enjoyment. It is riddled with tonnes of issues that I hope to fix as the time goes by. Features include:
 
 - Random polygon generation
 - Collision detection (Separated axis theorem)
@@ -27,10 +27,12 @@ A Rigid body impulse based physics engine written in C++. This was written to ga
 - https://www.gafferongames.com/post/collision_response_and_coulomb_friction/
 - https://www.gafferongames.com/post/integration_basics/
 - https://research.ncl.ac.uk/game/mastersdegree/gametechnologies/previousinformation/physics3constraints/2017%20Tutorial%203%20-%20Constraints.pdf
+- https://dyn4j.org/2010/09/distance-constraint/
 
 
 ## Todos and Further Improvements
 
+- Stable stacking
 - Fix polygons disappearing bug
 - Fix random jitter
 - Implement some broadphase
