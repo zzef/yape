@@ -1,7 +1,7 @@
 #include "../include/includes.h"
 
-#define W_WIDTH 1600/2
-#define W_HEIGHT 800
+#define W_WIDTH 1600
+#define W_HEIGHT 900
 #define WINDOW_TITLE "Yape Sandbox"
 
 
