@@ -13,6 +13,10 @@ Yape (Yet another physics engine) is a rigid body impulse based physics engine w
   <img src="https://raw.githubusercontent.com/zzef/yape/master/demos/final_demo2.gif"/>
 </p>
 
+Solarized dark             |  Solarized Ocean
+:-------------------------:|:-------------------------:
+![](https://raw.githubusercontent.com/zzef/yape/master/demos/final_demo1.gif)  |  ![](https://raw.githubusercontent.com/zzef/yape/master/demos/final_demo2.gif)
+
 ## Useful resources for this project
 
 - https://www.gafferongames.com/post/fix_your_timestep/
