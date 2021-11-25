@@ -12,6 +12,8 @@ float y = 100;
 float x = 100;
 float speed = 0;
 float grav = 60.0f;
+int ave_fps = 0;
+int fps_total = 0;
 int draws = 0;
 int updates = 0;
 double t_time;
@@ -20,6 +22,7 @@ float sf_time = 0;
 char color[3] = {(char)255,(char)0,(char)0};
 int _FPS = 0;
 int _UPDATES = 0;
+int seconds_elapsed = 0;
 
 float ori = 0;
 int mx, my;
@@ -175,12 +178,19 @@ void render(float ratio) {
 	display.clear();
 	world.render(ratio);
 	std::string fps = "FPS  " + std::to_string(_FPS);
+	std::string ave = "AVE FPS  " + std::to_string(ave_fps);
 	std::string phys = "PHYSICS UPDATES  " + std::to_string(_UPDATES);
 	std::string bodies = "BODIES  " + std::to_string(world.body_count());
 	display.draw_text(20,20,fps,13);
-	display.draw_text(90,20,phys,13);
-	display.draw_text(250,20,bodies,13);
+	display.draw_text(80,20,ave,13);
+	display.draw_text(170,20,phys,13);
+	display.draw_text(330,20,bodies,13);
 	display.show();
+}
+
+void stress_test(int num) {
+	for (int i = 0; i < num; i++)
+		add_new_polygon(Vec(random(0,W_WIDTH),random(0,W_HEIGHT)));	
 }
 
 void test() {
@@ -348,7 +358,8 @@ void stacking_test() {
 }
 
 void setup_demo() {
-	test();
+	//test();
+	stress_test(300);
 	//stacking_test();
 }
 
@@ -375,6 +386,9 @@ int main() {
 
 		if (t_time > 1){
 			_FPS = draws;
+			fps_total+=_FPS;
+			seconds_elapsed++;
+			ave_fps = (fps_total/seconds_elapsed);
 			_UPDATES = updates;
 			t_time = 0;
 			draws = 0;
