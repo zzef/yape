@@ -40,7 +40,7 @@ Yape (Yet another physics engine) is a rigid body impulse based physics engine w
 - Allow for user to exert force via click and drag.
 - Remove unneccesary recalculations during manifold generation.
 - Implement warm starting and impulse accumulation for better stability (especially at lower frames, sub 60fps).
-- Finish Circle to circle and circle to polygon collision.
+- Finish Circle to circle (left the easiest till last) and circle to polygon collision.
 
 ## Dependencies
 - libsfml
