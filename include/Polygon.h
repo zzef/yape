@@ -23,10 +23,10 @@ class Polygon : public Shape {
 		void init();
 		void render(Display* d, Vec position, float orientation, Color& color, int option);
 		void generate_polygon();
+		int vertices = 0;
+		int edges = 0;
 
 	private:
-		int edges = 0;
-		int vertices = 0;
 		float radius = 200;
 
 };

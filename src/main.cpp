@@ -359,7 +359,7 @@ void stacking_test() {
 
 void setup_demo() {
 	//test();
-	stress_test(300);
+	stress_test(30);
 	//stacking_test();
 }
 
@@ -393,6 +393,11 @@ int main() {
 			t_time = 0;
 			draws = 0;
 			updates = 0;
+		
+			if(seconds_elapsed>10) {
+				seconds_elapsed=0;
+				fps_total=0;
+			}
 		}
 
 		accumulator = std::min(0.1f,accumulator); //preventing spiral of death

@@ -55,19 +55,19 @@ class Body : public Polygon, public Circle {
 		Vec prev_pos;
 		float prev_orientation;
 		~Body();
+		float x = 0;
+		float y = 0;
+		float orientation = 0;
+		float im = (float) 1.0f/1000.0f;
+		float iI = (float) 1.0f/1000000.0f;
+		float vel_x = 0;
+		float vel_y = 0;
+		float ang_vel = 0;
 
 	private:
 		bool is_rect = false;
-		float im = (float) 1.0f/1000.0f;
-		float iI = (float) 1.0f/1000000.0f;
-		float x = 0;
-		float y = 0;
-		float ang_vel = 0;
-		float orientation = 0;
 		Color color = {DARK_GREY_2};
 		bool mouse_in = false;
-		float vel_x = 0;
-		float vel_y = 0;
 		bool is_earth = false;
 		float density = 7.2f;
 
