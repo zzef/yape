@@ -25,7 +25,7 @@
 #define SHOW_POLY_OUTLINES 1 << 2
 #define resolution_iterations 10
 #define FPS 60
-#define PPS 10
+#define PPS 60
 const float dt = (float) 1.0f/((float)PPS);
 
 #define RED			250,60,90
