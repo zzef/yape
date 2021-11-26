@@ -5,11 +5,10 @@ struct Edge;
 
 class Vec {
 	
-	private:
-		float x = 0;
-		float y = 0;
 
 	public:
+		float y = 0;
+		float x = 0;
 		Vec();
 		void print();
 		Vec(Vec& v1, Vec& v2);
@@ -25,6 +24,7 @@ class Vec {
 		Vec cross(float value);
 		float dot(Vec& v);
 		float mag();
+		float _mag();
 		Vec normalize();
 		Vec rotate(float w);
 		Vec ortho();

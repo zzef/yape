@@ -32,9 +32,22 @@ void Polygon::clear_verts() {
 	this->vertices=0;
 }
 
+float Polygon::_largest_segment() {
+	return largest_segment;
+}
+
 void Polygon::add_vertex(Vec v) {
+	printf("-----------------\n");
+	v.print();
 	this->verts.push_back(v);
 	this->vertices++;
+	float sz = v.mag();
+	if (sz>largest_segment){
+		printf("switching to ");
+		largest_segment = sz;
+		v.print();
+	}
+	printf("largest segment %f\n",largest_segment);
 }
 
 Vec* Polygon::prev_vertex(int index) {
@@ -122,7 +135,7 @@ void Polygon::generate_polygon() {
 		Vec vertex = rad.rotate(disp*(M_PI/180.0f));
 		verts.push_back(vertex);
 	}
-	verts.push_back(verts[0]);
+	add_vertex(verts[0]);
 	this->edges=edges;
 	this->vertices=i+2;
 }

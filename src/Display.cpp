@@ -122,8 +122,17 @@ void Display::fill_box(Vec position, float size, Color& color) {
 	window->draw(box);	
 }
 
+void Display::draw_circle(Vec position, float radius, float line_thickness, Color& line_color) {
+	sf::CircleShape circle(radius,15);
+	circle.setOutlineColor(sf::Color(line_color.r,line_color.g,line_color.b));
+	circle.setOutlineThickness(line_thickness);
+	circle.setFillColor(sf::Color(0,0,0,0));
+	circle.setPosition(position.get_x()-radius,position.get_y()-radius);
+	window->draw(circle);
+}
+
 void Display::fill_circle(Vec position, float radius, Color& color, float line_thickness, Color& line_color) {
-	sf::CircleShape circle(radius,10);
+	sf::CircleShape circle(radius,15);
 	circle.setOutlineColor(sf::Color(line_color.r,line_color.g,line_color.b));
 	circle.setOutlineThickness(line_thickness);
 	circle.setFillColor(sf::Color(color.r,color.g,color.b));
@@ -132,7 +141,7 @@ void Display::fill_circle(Vec position, float radius, Color& color, float line_t
 }	
 
 void Display::fill_circle(Vec position, float radius, Color& color) {
-	sf::CircleShape circle(radius,10);
+	sf::CircleShape circle(radius,15);
 	circle.setFillColor(sf::Color(color.r,color.g,color.b));
 	circle.setPosition(position.get_x()-radius,position.get_y()-radius);
 	window->draw(circle);

@@ -20,22 +20,6 @@ void Body::generate_color() {
 	this->color = gen_col();
 }
 
-void Body::set_pos(Vec p) {
-	this->x = p.get_x();
-	this->y = p.get_y();
-}
-
-void Body::set_pos(float x, float y) {
-	this->x = x;
-	this->y = y;
-}
-
-void Body::set_vel(Vec vel) {
-	this->set_vel_x(vel.get_x());
-	this->set_vel_y(vel.get_y());
-}
-
-
 void Body::rect(float height, float width) {
 	this->is_rect=true;
 	this->add_vertex(Vec(width/2,height/2));
@@ -65,7 +49,7 @@ void Body::initialize() {
 			this->iI = 1.0f/(this->Polygon::get_radius() * this->Polygon::get_radius() * m );
 		}
 	}
-	this->prev_pos = Vec(this->x,this->y);
+	this->prev_pos = position;
 	this->prev_orientation = this->orientation;
 }
 
@@ -80,12 +64,12 @@ int Body::get_type() {
 void Body::render(Display* d, int options, float ratio) {
 
 	if (this->type == CIRCLE)
-		this->Circle::render(d,Vec(this->x,this->y),this->orientation,color,options);
+		this->Circle::render(d,position,this->orientation,color,options);
 	
 	if (this->type == POLYGON) {
 		
 		Vec s_p = this->prev_pos;
-		Vec e_p(this->x,this->y);
+		Vec e_p = position;
 		float s_o = prev_orientation;
 		float e_o = this->orientation;
 		
@@ -105,61 +89,9 @@ bool Body::get_mouse_contact() {
 	return this->mouse_in;
 }
 
-void Body::set_x(float x) {
-	this->x=x;
-}
-
-void Body::set_y(float y) {
-	this->y=y;
-}
-
-float Body::get_x() {
-	return this->x;
-}
-
-float Body::get_y() {
-	return this->y;
-}
-
-float Body::get_orientation() {
-	return this->orientation;
-}
-
-void Body::set_vel_x(float val) {
-	this->vel_x=val;
-}
-
-void Body::set_vel_y(float val) {
-	this->vel_y=val;
-}
-
-float Body::get_vel_x() {
-	return this->vel_x;
-}
-
-void Body::set_ang_vel(float val) {
-	this->ang_vel=val;
-}
-
-float Body::get_ang_vel() {
-	return this->ang_vel;
-}
-
-Vec* Body::get_vel() {
-	return new Vec(this->get_vel_x(),this->get_vel_y());
-}
-
-float Body::get_vel_y() {
-	return this->vel_y;
-}
-
 void Body::generate() {
 	if (this->get_type()==POLYGON)
 		this->generate_polygon();
-}
-
-void Body::set_orientation(float angle) {
-	this->orientation = angle;
 }
 
 bool Body::is_earthed() {
@@ -171,39 +103,21 @@ void Body::set_earthed(bool val) {
 }
 
 void Body::reset() {
-	this->ang_vel = 0;
-	this->vel_x = 0;
-	this->vel_y = 0;		
-}
-
-void Body::set_im(float val) {
-	this->im = val;
-}
-
-float Body::get_im() {
-	return this->im;
-}
-
-void Body::set_iI(float val) {
-	this->iI = val;
-}
-
-float Body::get_iI() {
-	return this->iI;
+	this->w = 0;
+	velocity = Vec(0,0);	
 }
 
 void Body::apply_impulse(Vec normal, Vec contact) {
 
-	if (this->get_im()==0)
+	if (this->im==0)
 		return;
 
-    Vec velocity = normal * this->im;
+    Vec vel = normal * this->im;
     float ang_vel = contact.cross(normal) * this->iI;
 	//std::cout << "angular velocity " << ang_vel << std::endl;
 
-	this->vel_x += velocity.get_x();
-	this->vel_y += velocity.get_y();
-	this->ang_vel += ang_vel;
+	velocity = velocity + vel;
+	this->w += ang_vel;
 
 	//fake air resistance
 	//this->vel_x *= 0.9999;

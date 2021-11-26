@@ -76,6 +76,11 @@ float Vec::mag() {
 	return sqrt((this->x*this->x) + (this->y*this->y));
 }
 
+float Vec::_mag() {
+	return (this->x*this->x) + (this->y*this->y);
+}
+
+
 Vec Vec::normalize() {
 	if (this->x == 0 && this->y == 0)
 		return Vec(0,0);

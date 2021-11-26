@@ -1,9 +1,11 @@
 #ifndef INCLUDES_H
 #define INCLUDES_H
 
+#define GRAVITY_SCALE 1000
 #define MAX_V 10
 #define MIN_V 3
-#define DEF_GRAV 1500
+#define GRAVITY 1.5
+#define DEF_GRAV (GRAVITY_SCALE * GRAVITY)
 #define MAX_BODIES 1000
 #define POLYGON 0
 #define CIRCLE 1
@@ -23,7 +25,8 @@
 #define SHOW_POLY_OUTLINES 1 << 2
 #define resolution_iterations 10
 #define FPS 60
-const float dt = (float) 1.0f/((float)FPS);
+#define PPS 60
+const float dt = (float) 1.0f/((float)PPS);
 
 #define RED			250,60,90
 #define DARK_NAVY	58,68,110

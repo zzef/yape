@@ -17,6 +17,7 @@ class World {
 		std::vector<Vec> anchor_points;
 		std::vector<Edge> dconstraints;
 		std::vector<Distance_constraint> distance_constraints;
+		std::vector<std::pair<Vec,float>> circles;
 		int bodies = 0;
 		float gravity = 0.5;
 		Vec mouse_position;
@@ -25,12 +26,14 @@ class World {
 		bool show_coll = true;
 		bool show_conts = true;
 		bool show_conns = true;
+		bool show_bounds = true;
 		Color contact_color = {GREEN};
 		Color anchor_color = {GREEN};
 		Color dconstraint_color = {GREEN};
 		bool positional_correction = true;
 		bool mouse_down;
 		Display* display;
+		bool bounds_intersect(Body* A, Body* B);
 		void generate_pp_manifold(Body* a, Body* b);
 		bool is_point_inside_polygon(std::shared_ptr<Body> b, Vec point);
 		bool is_point_inside_circle(std::shared_ptr<Body> b, Vec point);
@@ -71,6 +74,7 @@ class World {
 		void show_polymids(bool show);
 		void show_collisions(bool show);
 		void show_connections(bool show);
+		void show_pbounds(bool show);
 		void show_contacts(bool show);
 		void add_distance_constraint(Distance_constraint distance_constraint);
 		void simulate();
