@@ -187,9 +187,9 @@ void render(float ratio) {
 	std::string phys = "PHYSICS UPDATES  " + std::to_string(_UPDATES);
 	std::string bodies = "BODIES  " + std::to_string(world.body_count());
 	display.draw_text(20,20,fps,13);
-	display.draw_text(80,20,ave,13);
-	display.draw_text(170,20,phys,13);
-	display.draw_text(330,20,bodies,13);
+	display.draw_text(100,20,ave,13);
+	display.draw_text(200,20,phys,13);
+	display.draw_text(360,20,bodies,13);
 	display.show();
 }
 
