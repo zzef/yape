@@ -16,7 +16,8 @@ int ave_fps = 0;
 int fps_total = 0;
 int draws = 0;
 int updates = 0;
-double t_time;
+double t_time = 0;
+double t_time2 = 0;
 float e_time = 0;
 float sf_time = 0;
 char color[3] = {(char)255,(char)0,(char)0};
@@ -333,25 +334,10 @@ int main() {
 		frame_time *= 1e-9;
 		accumulator += frame_time;
 		t_time += frame_time;
+		t_time2 += frame_time;
 		sf_time += frame_time;
 		t_prev = t_now;
-
-		if (t_time > 1){
-			_FPS = draws;
-			fps_total+=_FPS;
-			seconds_elapsed++;
-			ave_fps = (fps_total/seconds_elapsed);
-			_UPDATES = updates;
-			t_time = 0;
-			draws = 0;
-			updates = 0;
-		
-			if(seconds_elapsed>10) {
-				seconds_elapsed=0;
-				fps_total=0;
-			}
-		}
-
+	
 		accumulator = std::min(0.1f,accumulator); //preventing spiral of death
 		
         // Process events
@@ -370,7 +356,6 @@ int main() {
 		if ( accumulator >= dt) {
 			e_time = 0;
 			sf_time = frame_time;
-			draw_now=true;	
 		}
 	
 		while ( accumulator >= dt ) {
@@ -384,10 +369,29 @@ int main() {
 		float ratio = std::min(1.0f,(float) sf_time / e_time);
 		if (!physics_interpolation)
 			ratio = 1;
+	
+		if (t_time > 1){
+			_FPS = draws;
+			fps_total+=_FPS;
+			seconds_elapsed++;
+			ave_fps = (fps_total/seconds_elapsed);
+			_UPDATES = updates;
+			t_time = 0;
+			draws = 0;
+			updates = 0;
 		
-		if (cap_frames && draw_now) {
-			render(ratio);
-			draws++;
+			if(seconds_elapsed>10) {
+				seconds_elapsed=0;
+				fps_total=0;
+			}
+		}
+
+		if (t_time2>=(1.0f/FPS)) { //fps is different to rate of physics
+			if (cap_frames) {
+				render(ratio);
+				draws++;
+			}
+			t_time2=0;
 		}
 
 	}
