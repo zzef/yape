@@ -52,7 +52,7 @@ To install libsfml on linux, run the following:
 ## How to run
 You will need linux to run. Please do the following:
 
-`git clone https://github.com/zzef/zef-physics-engine.git`
+`git clone https://github.com/zzef/yape.git`
 
 `make clean`
 
