@@ -7,6 +7,10 @@ Yape (Yet another physics engine) is a rigid body impulse based physics engine w
 - Impulse based collision response
 - Frictional impulse (Coulomb friction)
 - Joints (Modelled with constraints)
+- Physics interpolation (For lower physics framerates)
+- Collisions (mid-phase and narrow phase)
+- Restitution (elastic and inelastic collisions)
+- Physical properties (mass, area, density etc.)
 
 <p align="center">
   <img src="https://raw.githubusercontent.com/zzef/yape/master/demos/final_demo1.gif" width="48%" />
