@@ -25,6 +25,7 @@ class Body : public Polygon, public Circle {
 		void mouse_contact(bool val); 
 		bool get_mouse_contact();
 		bool is_earthed();
+		bool intersects(Body* b);
 		void set_earthed(bool val);
 		void reset();
 		void apply_impulse(Vec normal,Vec contact);

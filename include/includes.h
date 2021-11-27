@@ -12,6 +12,7 @@
 #define MIN_POLY_RAD 30
 #define MAX_POLY_RAD 70
 #define MAX_INT 99999999
+#define QUAD_TREE_CAPACITY 5
 
 #define WHITE 255,255,255
 #define GREEN 249,130,39

@@ -3,26 +3,30 @@
 #include "../include/Body.h"
 #include "../include/World.h"
 #include "../include/Constraints.h"
+#include "../include/QuadTree.h"
 
 World::World(Display* display) {
  	this->gravity = DEF_GRAV;
 	this->display = display;
+	reset_quadtree();
 }
 
 World::World(float gravity, Display* display) {
 	this->gravity = gravity;
 	this->display = display;
+	reset_quadtree();
+}
+
+void World::reset_quadtree() {
+	Boundary b(0,0,display->width,display->height);
+	this->quadtree = QuadTree(b,QUAD_TREE_CAPACITY);
 }
 
 int World::body_count() {
 	return this->Bodies.size();
 }
 
-std::shared_ptr<Body> World::get_body(int i) {
-	return this->Bodies[i];
-}
-
-void World::add_body(std::shared_ptr<Body> b) {
+void World::add_body(Body* b) {
 	if (this->Bodies.size()>=MAX_BODIES)
 		return;
 	Bodies.push_back(b);
@@ -33,7 +37,7 @@ void World::render(float ratio) {
 	Color white = {WHITE};
 	for (int i = 0; i<this->Bodies.size(); i++) {
 
-		Body* b = Bodies[i].get();
+		Body* b = Bodies[i];
 		
 		if(b->get_mouse_contact()) {
 		}
@@ -46,7 +50,6 @@ void World::render(float ratio) {
 			display->fill_box(v,5,contact_color);
 	}
 
-
 	if (show_conns) {
 		for (Vec v : anchor_points) {
 			display->fill_circle(v,3,anchor_color,1.5f,white);
@@ -58,10 +61,17 @@ void World::render(float ratio) {
 
 	if (show_bounds) {
 		for (int i = 0; i<this->Bodies.size(); i++) {
-			Body* b = Bodies[i].get();
-			display->draw_circle(b->position,b->_largest_segment(),1,contact_color);
+			Body* b = Bodies[i];
+			Vec segment(b->_rad(),b->_rad());
+			Vec position = b->position - segment;
+			display->draw_box(position,segment.x*2,segment.y*2,0.75f,contact_color);
 		}
 	}
+
+	for (Boundary b : bounds) {
+		display->draw_box(Vec(b.x,b.y),b.w,b.h,0.5f,contact_color);
+	}
+
 
 }
 
@@ -108,7 +118,7 @@ void World::add_distance_constraint(Distance_constraint distance_constraint) {
 	this->distance_constraints.push_back(distance_constraint);
 }
 
-void World::resolve_distance_constraint(std::shared_ptr<Body> a, Vec ra, std::shared_ptr<Body> b, Vec rb, float l) {
+void World::resolve_distance_constraint(Body* a, Vec ra, Body* b, Vec rb, float l) {
 
 
 	float time = dt / resolution_iterations;
@@ -177,8 +187,8 @@ void World::resolve_constraints() {
 
 	for (int i = 0; i < distance_constraints.size(); i++ ) {
 		//std::cout << "yooo" << std::endl;
-		std::shared_ptr<Body> a = distance_constraints[i].a;
-		std::shared_ptr<Body> b = distance_constraints[i].b;
+		Body* a = distance_constraints[i].a;
+		Body* b = distance_constraints[i].b;
 		if (a != NULL && b!=NULL)
 			this->resolve_distance_constraint( a, distance_constraints[i].pp_a, b, distance_constraints[i].pp_b, distance_constraints[i].d );
 
@@ -191,7 +201,7 @@ void World::integrate_forces() {
 	float time = dt / resolution_iterations;
 	for (int i = 0; i < this->Bodies.size(); i++) {
 
-		std::shared_ptr<Body> b = this->Bodies[i];	
+		Body* b = this->Bodies[i];	
 		if (b->im==0)
 			continue;
 
@@ -213,7 +223,7 @@ void World::integrate_velocities() {
 	float time = dt / resolution_iterations;
 	for (int i = 0; i < this->Bodies.size(); i++) {
 
-		Body* b = this->Bodies[i].get();	
+		Body* b = this->Bodies[i];	
 		if (b->im==0)
 			continue;
 
@@ -233,12 +243,15 @@ void World::clear_up() {
 	this->anchor_points.clear();
 	this->dconstraints.clear();
 	this->circles.clear();
+	bounds.clear();
+	reset_quadtree();
+
 }
 
 void World::simulate() {
 
 		for (int i = 0; i < this->Bodies.size(); i++) {
-			Body* b = this->Bodies[i].get();	
+			Body* b = this->Bodies[i];	
 			b->prev_pos = b->position;
 			b->prev_orientation = b->orientation;
 		}
@@ -247,14 +260,12 @@ void World::simulate() {
 			this->clear_up();
 			this->integrate_forces();
 			this->resolve_constraints();
+			this->broadphase();
 			this->generate_manifolds();
 			this->resolve_manifolds();
 			this->integrate_velocities();
-			this->contacts.clear();
 		}
 
-		//this->apply_positional_correction();
-		
 }
 
 void World::set_mouse_down(bool val) {
@@ -358,51 +369,49 @@ void World::resolve_manifolds() {
 
 }
 
-bool World::is_joined(std::shared_ptr<Body> a, std::shared_ptr<Body> b)  {
-
-	for (int i = 0; i<this->distance_constraints.size(); i++) {
-		if ((distance_constraints[i].a == a && distance_constraints[i].b == b) || (distance_constraints[i].a == b && distance_constraints[i].b == a))
-			return true;
-	}
-	return false;
-}
-
 bool World::bounds_intersect(Body* A, Body* B) {
 	
-	float s1 = A->_largest_segment();
-	float s2 = B->_largest_segment();
+	float s1 = A->_rad();
+	float s2 = B->_rad();
 
 	if ((A->position - B->position)._mag() <= (s1+s2) * (s1+s2))
 		return true;
 	return false;
 }
 
+
+void World::broadphase() {
+	for (int i = 0; i<Bodies.size(); i++)
+		quadtree.insert(Bodies[i],bounds);	
+}
+
 void World::generate_manifolds() {
-	
+
+	int comparisons = 0;
 	for(int i = 0; i<this->Bodies.size(); i++) {
-		for(int j = i + 1; j<this->Bodies.size(); j++) {	
-				
-			Body* A = this->Bodies[i].get();
-			Body* B = this->Bodies[j].get();
 
-			//Broadphase 1
-			if (!bounds_intersect(A,B))
-				continue;
+		Body* A = this->Bodies[i];
+		std::vector<Body*> potentials;
+		quadtree.query(A,potentials);
 
-			if (A->get_type()==POLYGON && B->get_type()==POLYGON) {
-				this->generate_pp_manifold(A,B);
+		for ( Body* potential : potentials ) {
+			if (A->get_type()==POLYGON && potential->get_type()==POLYGON && A!=potential) {
+				this->generate_pp_manifold(A,potential);
+				comparisons++;
 			}
+		}
 
-		}	
+		printf("comparisons %d\n",comparisons);
+
 	}
 }
 
-bool World::is_point_inside_circle(std::shared_ptr<Body> b, Vec point) {
+bool World::is_point_inside_circle(Body* b, Vec point) {
 	return (point - b->position).mag() <= b->Circle::get_radius();
 }
 
 
-bool World::is_point_inside_polygon(std::shared_ptr<Body> b, Vec point) {
+bool World::is_point_inside_polygon(Body* b, Vec point) {
 
 	for (int i = 0; i < b->get_vertices()-1; i++) {	
 	
@@ -635,7 +644,7 @@ void World::generate_pp_manifold(Body* a, Body* b) {
 	
 }
 
-bool World::point_inside(std::shared_ptr<Body> b, Vec point) {
+bool World::point_inside(Body* b, Vec point) {
 	bool inside;
 	if (b->type == POLYGON) {
 		inside = this->is_point_inside_polygon(b, point);

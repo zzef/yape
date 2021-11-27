@@ -20,15 +20,16 @@ class Display {
 		void fill_circle(Vec position, float radius, Color& color, float line_thickness, Color& line_color);
 		void draw_circle(Vec position, float radius, float line_thickness, Color& line_color);
 		void draw_line(Vec v1, Vec v2, Color& color,float thickness);
+		void draw_box(Vec position, float w, float h, float line_thickness,Color& color);
 		bool is_open();
 		void close();
 		bool poll_event(sf::Event& e);
 		~Display();
+		int width;	
+		int height;
 
 	private:
 		sf::Font font;
-		int width;	
-		int height;
 		std::string title;
 		void initialize_shapes();
 		sf::RenderWindow* window;

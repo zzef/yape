@@ -6,18 +6,21 @@
 #include <memory>
 #include <vector>
 #include "Constraints.h"
+#include "QuadTree.h"
 
 class World {
 	
 	private:
-		std::vector<std::shared_ptr<Body>> Bodies;
-		std::shared_ptr<Body> Bods[MAX_BODIES];
+		std::vector<Body*> Bodies;
+		std::vector<Boundary> bounds;
+		std::unique_ptr<Body> Bods[MAX_BODIES];
 		std::vector<Manifold> contacts;
 		std::vector<Vec> contact_points;
 		std::vector<Vec> anchor_points;
 		std::vector<Edge> dconstraints;
 		std::vector<Distance_constraint> distance_constraints;
 		std::vector<std::pair<Vec,float>> circles;
+		QuadTree quadtree;
 		int bodies = 0;
 		float gravity = 0.5;
 		Vec mouse_position;
@@ -33,11 +36,12 @@ class World {
 		bool positional_correction = true;
 		bool mouse_down;
 		Display* display;
+		void reset_quadtree();
 		bool bounds_intersect(Body* A, Body* B);
 		void generate_pp_manifold(Body* a, Body* b);
-		bool is_point_inside_polygon(std::shared_ptr<Body> b, Vec point);
-		bool is_point_inside_circle(std::shared_ptr<Body> b, Vec point);
-		bool point_inside(std::shared_ptr<Body> b, Vec point);
+		bool is_point_inside_polygon(Body* b, Vec point);
+		bool is_point_inside_circle(Body* b, Vec point);
+		bool point_inside(Body*, Vec point);
 		Edge find_support_edge(Body* body, int index, Vec sep_norm);
 		int find_support_point(Body* body, Vec direction);
 		void generate_contact_points(Manifold& m);
@@ -45,12 +49,12 @@ class World {
 		void generate_manifolds();
 		void resolve_manifolds();
 		void resolve_constraints();
-		void resolve_distance_constraint(std::shared_ptr<Body> a, Vec pp_a, std::shared_ptr<Body> b, Vec pp_b, float dist_const);
+		void resolve_distance_constraint(Body* a, Vec pp_a, Body* b, Vec pp_b, float dist_const);
 		void integrate();
-		bool is_joined(std::shared_ptr<Body> a, std::shared_ptr<Body> b);
 		void apply_positional_correction();
 		void integrate_velocities();
 		void integrate_forces();
+		void broadphase();
 
 	public:
 		World(Display* display);
@@ -58,9 +62,9 @@ class World {
 		void positional_correction_(bool val);
 		void clear_bodies();
 		void clear_constraints();
-		std::shared_ptr<Body> get_body(int i);
+		std::unique_ptr<Body> get_body(int i);
 		int body_count();
-		void add_body(std::shared_ptr<Body> b);
+		void add_body(Body* b);
 		void remove_body(int i);
 		void remove_body(Body b);
 		void render(float ratio);

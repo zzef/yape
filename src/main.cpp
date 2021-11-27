@@ -42,7 +42,7 @@ void initialize();
 void setup_demo();
 
 void add_new_box(Vec position){
-	std::shared_ptr<Body> rect1 = std::make_shared<Body>(POLYGON);
+	Body* rect1 = new Body(POLYGON);
 	rect1->rect(60,60);
 	rect1->position = Vec(position);
 	rect1->orientation = 0;
@@ -53,7 +53,7 @@ void add_new_box(Vec position){
 }
 
 void add_new_polygon(Vec position) {
-	std::shared_ptr<Body> a = std::make_shared<Body>(POLYGON);
+	Body* a = new Body(POLYGON);
 	a->generate_polygon();
 	a->position = position;
 	a->orientation = random(0,360)*(M_PI/180.0f);
@@ -200,56 +200,56 @@ void stress_test(int num) {
 
 void joints_test() {
 
-	std::shared_ptr<Body> rect1 = std::make_shared<Body>(POLYGON);
+	std::unique_ptr<Body> rect1 = std::make_unique<Body>(POLYGON);
 	rect1->rect(60,60);
 	rect1->position = Vec(W_WIDTH/2-200,200);
 	rect1->initialize();
 	rect1->generate_color();
 	rect1->orientation = (random(0,360)*(M_PI/180.0f));
 
-	std::shared_ptr<Body> rect2 = std::make_shared<Body>(POLYGON);
+	std::unique_ptr<Body> rect2 = std::make_unique<Body>(POLYGON);
 	rect2->rect(60,60);
 	rect2->position = Vec(W_WIDTH/2-100,200);
 	rect2->initialize();
 	rect2->generate_color();
 	rect2->orientation = (random(0,360)*(M_PI/180.0f));
 
-	std::shared_ptr<Body> rect3 = std::make_shared<Body>(POLYGON);
+	std::unique_ptr<Body> rect3 = std::make_unique<Body>(POLYGON);
 	rect3->rect(60,60);
 	rect3->position = Vec(W_WIDTH/2,100);
 	rect3->initialize();
 	rect3->generate_color();
 	rect3->orientation = (random(0,360)*(M_PI/180.0f));
 	
-	std::shared_ptr<Body> rect4 = std::make_shared<Body>(POLYGON);
+	std::unique_ptr<Body> rect4 = std::make_unique<Body>(POLYGON);
 	rect4->rect(60,60);
 	rect4->position = Vec(W_WIDTH/2+100,200);
 	rect4->initialize();
 	rect4->generate_color();
 	rect4->orientation = (random(0,360)*(M_PI/180.0f));
 
-	std::shared_ptr<Body> rect5 = std::make_shared<Body>(POLYGON);
+	std::unique_ptr<Body> rect5 = std::make_unique<Body>(POLYGON);
 	rect5->rect(60,60);
 	rect5->position = Vec(W_WIDTH/2+200,150);
 	rect5->initialize();
 	rect5->generate_color();
 	rect5->orientation = (random(0,360)*(M_PI/180.0f));
 
-	Distance_constraint distance_constraint(rect1,Vec(0,0),rect2,Vec(0,0),100);	
-	Distance_constraint distance_constraint2(rect2,Vec(0,0),rect3,Vec(0,0),100);	
-	Distance_constraint distance_constraint3(rect3,Vec(0,0),rect4,Vec(0,0),100);	
-	Distance_constraint distance_constraint4(rect4,Vec(30,0),rect5,Vec(0,0),100);	
+	Distance_constraint distance_constraint(rect1.get(),Vec(0,0),rect2.get(),Vec(0,0),100);	
+	Distance_constraint distance_constraint2(rect2.get(),Vec(0,0),rect3.get(),Vec(0,0),100);	
+	Distance_constraint distance_constraint3(rect3.get(),Vec(0,0),rect4.get(),Vec(0,0),100);	
+	Distance_constraint distance_constraint4(rect4.get(),Vec(30,0),rect5.get(),Vec(0,0),100);	
 
 	world.add_distance_constraint(distance_constraint);
 	world.add_distance_constraint(distance_constraint2);
 	world.add_distance_constraint(distance_constraint3);
 	world.add_distance_constraint(distance_constraint4);
 	
-	world.add_body(rect1);
-	world.add_body(rect2);
-	world.add_body(rect3);
-	world.add_body(rect4);
-	world.add_body(rect5);
+	world.add_body(rect1.get());
+	world.add_body(rect2.get());
+	world.add_body(rect3.get());
+	world.add_body(rect4.get());
+	world.add_body(rect5.get());
 
 }
 
@@ -267,7 +267,7 @@ void add_world_surfaces() {
 	int height = thickness;
 	int margin = 60;
 	int width = W_WIDTH-(margin*2)+overlap;
-	std::shared_ptr<Body> floor = std::make_shared<Body>(POLYGON);
+	Body* floor = new Body(POLYGON);
 	floor->rect(thickness,W_WIDTH-(margin*2)+(overlap*2));
 	floor->position = Vec(W_WIDTH/2,W_HEIGHT-((height/2)+margin));
 	floor->initialize();
@@ -276,14 +276,14 @@ void add_world_surfaces() {
 
 	float wh = W_HEIGHT-(margin*2)+(overlap);
 
-	std::shared_ptr<Body> wall1 = std::make_shared<Body>(POLYGON);
+	Body* wall1 = new Body(POLYGON);
 	wall1->rect(wh,thickness);
 	wall1->position = Vec((thickness/2.0f) + W_WIDTH - margin - thickness, margin + (thickness/2.0f)  + (wh/2));
 	wall1->initialize();	
 	wall1->iI = 0;
 	wall1->im = 0;
 
-	std::shared_ptr<Body> wall2 = std::make_shared<Body>(POLYGON);
+	Body* wall2 = new Body(POLYGON);
 	wall2->rect(wh,thickness);
 	wall2->position = Vec((thickness/2.0f) + margin, margin + (thickness/2.0f) + (wh/2));
 	wall2->initialize();	
@@ -311,8 +311,8 @@ void stacking_test() {
 }
 
 void setup_demo() {
-	joints_test();
-	stress_test(30);
+	//joints_test();
+	//stress_test(50);
 	//stacking_test();
 }
 

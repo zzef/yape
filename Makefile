@@ -5,7 +5,7 @@ SDIR = src
 OBJDIR = .
 BDIR = .
 
-DEPS = $(OBJDIR)/Circle.o $(OBJDIR)/utils.o $(OBJDIR)/Vector.o $(OBJDIR)/Polygon.o $(OBJDIR)/Body.o $(OBJDIR)/World.o $(OBJDIR)/Shape.o $(OBJDIR)/Display.o 
+DEPS = $(OBJDIR)/Circle.o $(OBJDIR)/utils.o $(OBJDIR)/Vector.o $(OBJDIR)/Polygon.o $(OBJDIR)/Body.o $(OBJDIR)/World.o $(OBJDIR)/Shape.o $(OBJDIR)/Display.o $(OBJDIR)/QuadTree.o 
 
 $(BDIR)/yape: $(DEPS) $(OBJDIR)/main.o
 	$(CC) -o $@ $^ $(LIBS)
@@ -29,6 +29,9 @@ $(OBJDIR)/Circle.o: $(SDIR)/Circle.cpp $(IDIR)/Circle.h $(OBJDIR)/Shape.o $(OBJD
 	$(CC) -c -o $@ $<
 
 $(OBJDIR)/Vector.o: $(SDIR)/Vector.cpp $(IDIR)/Vector.h $(OBJDIR)/utils.o $(IDIR)/includes.h 
+	$(CC) -c -o $@ $<
+
+$(OBJDIR)/QuadTree.o: $(SDIR)/QuadTree.cpp $(IDIR)/QuadTree.h $(IDIR)/includes.h 
 	$(CC) -c -o $@ $<
 
 $(OBJDIR)/Shape.o: $(SDIR)/Shape.cpp $(IDIR)/Shape.h $(IDIR)/includes.h 

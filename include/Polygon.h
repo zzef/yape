@@ -25,11 +25,11 @@ class Polygon : public Shape {
 		void generate_polygon();
 		int vertices = 0;
 		int edges = 0;
-		float _largest_segment();
+		float _rad();
 
 	private:
 		float radius = 200;
-		float largest_segment = 0.0f;
+		float rad = 0.0f;
 
 };
 

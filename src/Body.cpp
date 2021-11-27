@@ -61,6 +61,13 @@ int Body::get_type() {
 	return this->type;
 }
 
+bool Body::intersects(Body* b) {
+	return !( ( b->position.x - b->_rad() >= position.x + _rad() ) ||
+			  ( b->position.x + b->_rad() <= position.x - _rad() ) ||
+			  ( b->position.y - b->_rad() >= position.y + _rad() ) ||
+			  ( b->position.y + b->_rad() <= position.y - _rad() ) );
+}
+
 void Body::render(Display* d, int options, float ratio) {
 
 	if (this->type == CIRCLE)

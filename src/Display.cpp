@@ -114,6 +114,15 @@ void Display::draw_text(float x, float y, std::string& txt, float size) {
 
 } 
 
+void Display::draw_box(Vec position, float w, float h, float line_thickness,Color& color) {
+	sf::RectangleShape box(sf::Vector2f(w,h));
+	box.setOutlineThickness(line_thickness);
+	box.setOutlineColor(sf::Color(color.r,color.g,color.b));
+	box.setFillColor(sf::Color(0,0,0,0));
+	box.setPosition(position.x,position.y);
+	window->draw(box);	
+}
+
 void Display::fill_box(Vec position, float size, Color& color) {
 	float trans = size/2.0f;
 	sf::RectangleShape box(sf::Vector2f(size,size));
