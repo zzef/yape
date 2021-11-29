@@ -1,5 +1,4 @@
 *.o
 project
 yape
-*.swo
-*.swp
+*.sw*
