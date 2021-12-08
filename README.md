@@ -5,6 +5,7 @@ Yape (Yet another physics engine) is a rigid body impulse based physics engine w
 - Random polygon generation
 - Collision detection (Separated axis theorem)
 - Impulse based collision response
+- Broadphase
 - Frictional impulse (Coulomb friction)
 - Joints (Modelled with constraints)
 - Physics interpolation (For lower physics framerates)
@@ -36,7 +37,7 @@ Here are some of the resources I used for this project. I know everyone loves Er
 
 ## Todos and Further Improvements
 
-- Broadphase step
+- Spacial Hashing
 - Implement warm starting (contact coherence) and impulse accumulation for better stability (especially at lower frames, sub 60fps).
 - Fix polygons disappearing bug.
 - Fix random jitter.
