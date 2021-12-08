@@ -37,17 +37,12 @@ float Polygon::_rad() {
 }
 
 void Polygon::add_vertex(Vec v) {
-	printf("-----------------\n");
-	v.print();
 	this->verts.push_back(v);
 	this->vertices++;
 	float sz = v.mag();
 	if (sz>rad){
-		printf("switching to ");
 		rad = sz;
-		v.print();
 	}
-	printf("largest segment %f\n",rad);
 }
 
 Vec* Polygon::prev_vertex(int index) {
@@ -74,11 +69,15 @@ Vec* Polygon::next_vertex(int index) {
 
 }
 
-Vec* Polygon::get_vertex(int index) {
+inline Vec* Polygon::get_vertex(int index) {
 	if (index<0 || index>this->vertices-1)
 		return NULL;
 
 	return &verts[index];
+}
+
+void Polygon::set_vertex(int index, Vec v) {
+	verts[index] = v;
 }
 
 void Polygon::generate_polygon() {
@@ -86,7 +85,6 @@ void Polygon::generate_polygon() {
 	clear_verts();
 	
 	float edges = random(MIN_V,MAX_V);
-	std::cout << "verts " << edges << std::endl;
 	int min = 10;
 	int max = 180;
 	int radius = random(MIN_POLY_RAD,MAX_POLY_RAD);
@@ -100,31 +98,24 @@ void Polygon::generate_polygon() {
 		if (i==no_differences-1){
 			if (sum_of_differences<180){
 				min = 180-sum_of_differences;
-				std::cout << "here min " << min << std::endl;
 			}
 		}
 		int diff = random(min,max);
-		std::cout << "diff " << diff << std::endl; 
 		differences.push_back(diff);
 		sum_of_differences += diff;
 	}
 	
 	int last_seg = random(10,120);
 	if (sum_of_differences > 360 - last_seg) {
-		std::cout << "herer";
 		for (int i = 0; i<differences.size(); i++) {
 			differences[i]*=((float)(360-last_seg)/sum_of_differences);
 		}
 	}
 
 	float sum = 0;
-	std::cout << "new polygon" << std::endl;
 	for (int i = 0; i<differences.size(); i++) {
-		std::cout << differences[i] << std::endl;
 		sum+=differences[i];
 	}	
-	std::cout << "final sum " << sum << std::endl;
-	std::cout << "\n";
 
 	float disp = 0;
 	Vec rad = Vec(0,1) * radius;

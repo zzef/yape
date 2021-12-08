@@ -67,12 +67,15 @@ void Display::fill_polygon(std::vector<Vec>& verts,
 	for (int i = 0; i < verts.size()-1; i++) {
 		poly.setPoint(i,sf::Vector2f(verts[i].get_x(),verts[i].get_y()));	
 	}
-	if	(options & SHOW_POLY_OUTLINES){
+	if	(options & SHOW_WIREFRAME){
 		poly.setOutlineThickness(1);
-		poly.setOutlineColor(sf::Color(0,0,0));
+		poly.setOutlineColor(sf::Color(150,150,150));
+		poly.setFillColor(sf::Color(0,0,0,0));
+	}
+	else {
+		poly.setFillColor(sf::Color(color.r,color.g,color.b));
 	}
 
-	poly.setFillColor(sf::Color(color.r,color.g,color.b));
 	poly.setPosition(position.get_x(),position.get_y());
 	poly.setRotation((180/M_PI)*orientation);
 	window->draw(poly);

@@ -26,11 +26,10 @@ int World::body_count() {
 	return this->Bodies.size();
 }
 
-void World::add_body(std::unique_ptr<Body> b) {
+void World::add_body(Body* b) {
 	if (this->Bodies.size()>=MAX_BODIES)
 		return;
-	Bodies.push_back(std::move(b));
-	std::cout << "added" << std::endl;
+	Bodies.push_back(b);
 }
 
 size_t World::get_comparisons() {
@@ -41,7 +40,7 @@ void World::render(float ratio) {
 	Color white = {WHITE};
 	for (int i = 0; i<this->Bodies.size(); i++) {
 
-		Body* b = Bodies[i].get();
+		Body* b = Bodies[i];
 		if(b->get_mouse_contact()) {
 		}
 		//printf("ratio %f\n",ratio);
@@ -55,16 +54,16 @@ void World::render(float ratio) {
 
 	if (show_conns) {
 		for (Vec v : anchor_points) {
-			display->fill_circle(v,3,anchor_color,1.5f,white);
+			display->fill_circle(v,2,anchor_color,1.0f,white);
 		}
 
 		for (Edge e : dconstraints)	
-			display->draw_line(e.v1,e.v2,dconstraint_color,3);
+			display->draw_line(e.v1,e.v2,dconstraint_color,2);
 	}
 
 	if (show_bounds) {
 		for (int i = 0; i<this->Bodies.size(); i++) {
-			Body* b = Bodies[i].get();
+			Body* b = Bodies[i];
 			Vec segment(b->_rad(),b->_rad());
 			Vec position = b->position - segment;
 			display->draw_box(position,segment.x*2,segment.y*2,0.5f,contact_color);
@@ -80,12 +79,6 @@ void World::render(float ratio) {
 
 }
 
-void World::remove_body(Body b) {
-}
-
-void World::remove_body(int i) {
-
-}
 
 void World::set_mouse_position(Vec v) {
 	this->mouse_position = v;
@@ -100,7 +93,11 @@ void World::show_polymids(bool show) {
 }
 
 void World::show_poly_outlines(bool show) {
-	this->glob_options = show ? this->glob_options | SHOW_POLY_OUTLINES : this->glob_options & ~SHOW_POLY_OUTLINES;
+}
+
+void World::show_wireframe(bool show) {
+	this->show_wireframes=show;
+	this->glob_options = show ? this->glob_options | SHOW_WIREFRAME : this->glob_options & ~SHOW_WIREFRAME;
 }
 
 void World::show_pbounds(bool show) {
@@ -191,7 +188,6 @@ void World::resolve_constraints() {
 
 
 	for (int i = 0; i < distance_constraints.size(); i++ ) {
-		//std::cout << "yooo" << std::endl;
 		Body* a = distance_constraints[i].a;
 		Body* b = distance_constraints[i].b;
 		if (a != NULL && b!=NULL)
@@ -206,7 +202,7 @@ void World::integrate_forces() {
 	float time = dt / resolution_iterations;
 	for (int i = 0; i < this->Bodies.size(); i++) {
 
-		Body* b = this->Bodies[i].get();	
+		Body* b = this->Bodies[i];	
 		if (b->im==0)
 			continue;
 
@@ -216,10 +212,6 @@ void World::integrate_forces() {
 		}
 			
 		b->velocity.y += this->gravity * time;
-		
-		//global damping
-		//b->set_ang_vel(b->get_ang_vel() * 0.99905f);
-		//b->set_vel(*b->get_vel() * 0.99905f);
 	}
 
 }
@@ -228,7 +220,7 @@ void World::integrate_velocities() {
 	float time = dt / resolution_iterations;
 	for (int i = 0; i < this->Bodies.size(); i++) {
 
-		Body* b = this->Bodies[i].get();	
+		Body* b = this->Bodies[i];	
 		if (b->im==0)
 			continue;
 
@@ -256,7 +248,7 @@ void World::clear_up() {
 void World::simulate() {
 
 		for (int i = 0; i < this->Bodies.size(); i++) {
-			Body* b = this->Bodies[i].get();	
+			Body* b = this->Bodies[i];	
 			b->prev_pos = b->position;
 			b->prev_orientation = b->orientation;
 		}
@@ -424,7 +416,7 @@ void World::do_broadphase(QuadTree* qt) {
 void World::broadphase() {
 
 	for (int i = 0; i<Bodies.size(); i++) {
-		quadtree.insert(Bodies[i].get());
+		quadtree.insert(Bodies[i]);
 	}
 	quadtree.get_bounds(bounds);	
 	do_broadphase(&quadtree);
@@ -679,7 +671,7 @@ bool World::point_inside(Body* b, Vec point) {
 
 void World::detect_mouse_insidedness() {
 	for (int i = 0; i<this->Bodies.size(); i++) {
-		if(this->point_inside(this->Bodies[i].get(),this->mouse_position)){
+		if(this->point_inside(this->Bodies[i],this->mouse_position)){
 			this->Bodies[i]->mouse_contact(true);
 			this->Bodies[i]->prev_pos = Bodies[i]->position;
 			this->Bodies[i]->position = this->Bodies[i]->position + rel_mouse_position;

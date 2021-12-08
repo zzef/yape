@@ -9,8 +9,8 @@
 #define MAX_BODIES 2000
 #define POLYGON 0
 #define CIRCLE 1
-#define MIN_POLY_RAD 30
-#define MAX_POLY_RAD 70
+#define MIN_POLY_RAD 40
+#define MAX_POLY_RAD 80
 #define MAX_INT 99999999
 #define QUAD_TREE_CAPACITY 4
 
@@ -23,7 +23,7 @@
 #define LIGHT_GREY 210,210,210
 #define SHOW_NORMALS 1 << 0
 #define SHOW_POLYMIDS 1 << 1
-#define SHOW_POLY_OUTLINES 1 << 2
+#define SHOW_WIREFRAME 1 << 2
 #define resolution_iterations 10
 #define FPS 2000
 #define PPS 60

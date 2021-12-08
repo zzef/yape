@@ -11,7 +11,8 @@
 class World {
 	
 	private:
-		std::vector<std::unique_ptr<Body>> Bodies;
+		std::vector<Body*> Bodies;
+		std::vector<Body> Bodies_Model;
 		std::vector<Boundary> bounds;
 		std::unique_ptr<Body> Bods[MAX_BODIES];
 		std::vector<Manifold> contacts;
@@ -31,6 +32,7 @@ class World {
 		Vec rel_mouse_position;
 		bool show_coll = true;
 		bool show_conts = true;
+		bool show_wireframes = true;
 		bool show_conns = true;
 		bool show_bounds = true;
 		bool show_bphase = false;
@@ -60,6 +62,7 @@ class World {
 		void integrate_velocities();
 		void integrate_forces();
 		void broadphase();
+		void update_bodies();
 
 	public:
 		World(Display* display);
@@ -70,7 +73,7 @@ class World {
 		void clear_constraints();
 		std::unique_ptr<Body> get_body(int i);
 		int body_count();
-		void add_body(std::unique_ptr<Body> b);
+		void add_body(Body* b);
 		void remove_body(int i);
 		void remove_body(Body b);
 		void render(float ratio);
@@ -83,6 +86,7 @@ class World {
 		void show_normals(bool show);
 		void show_polymids(bool show);
 		void show_collisions(bool show);
+		void show_wireframe(bool show);
 		void show_connections(bool show);
 		void show_pbounds(bool show);
 		void show_contacts(bool show);

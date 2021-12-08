@@ -36,8 +36,11 @@ bool show_connections = true;
 bool show_broadphase = false;
 bool show_contacts = false;
 bool show_bounds = false;
+bool show_wireframes = false;
 Display display(W_WIDTH,W_HEIGHT,WINDOW_TITLE);
 World world(&display);
+
+std::vector<std::unique_ptr<Body>> Bodies;
 
 void initialize();
 void setup_demo();
@@ -50,7 +53,8 @@ void add_new_box(Vec position){
 	rect1->generate_color();
 	rect1->initialize();
 	rect1->generate_color();
-	world.add_body(std::move(rect1));
+	world.add_body(rect1.get());
+	Bodies.push_back(std::move(rect1));
 }
 
 void add_new_polygon(Vec position) {
@@ -60,7 +64,8 @@ void add_new_polygon(Vec position) {
 	a->orientation = random(0,360)*(M_PI/180.0f);
 	a->generate_color();
 	a->initialize();
-	world.add_body(std::move(a));
+	world.add_body(a.get());
+	Bodies.push_back(std::move(a));
 }
 /*
 void handle_mouse_motion(SDL_MouseMotionEvent e) {
@@ -135,10 +140,16 @@ void handle_keydown(sf::Keyboard::Key key) {
 			world.show_broadphase(show_broadphase);
 			break;
 		}
+		case sf::Keyboard::W : {
+			show_wireframes = !show_wireframes;
+			world.show_wireframe(show_wireframes);
+			break;
+		}
 		case sf::Keyboard::X : {
 			world.clear_up();
 			world.clear_bodies();
 			world.clear_constraints();
+			Bodies.clear();
 			initialize();
 			break;
 		}
@@ -146,6 +157,7 @@ void handle_keydown(sf::Keyboard::Key key) {
 			world.clear_up();
 			world.clear_bodies();
 			world.clear_constraints();
+			Bodies.clear();
 			initialize();
 			setup_demo();
 			break;
@@ -208,68 +220,72 @@ void stress_test(int num) {
 
 void joints_test() {
 
+	float size = 80;
+	float dist = 150;
+
 	std::unique_ptr<Body> rect1 = std::make_unique<Body>(POLYGON);
-	rect1->rect(60,60);
+	rect1->rect(size,size);
 	rect1->position = Vec(W_WIDTH/2-200,200);
 	rect1->initialize();
 	rect1->generate_color();
 	rect1->orientation = (random(0,360)*(M_PI/180.0f));
 
 	std::unique_ptr<Body> rect2 = std::make_unique<Body>(POLYGON);
-	rect2->rect(60,60);
+	rect2->rect(size,size);
 	rect2->position = Vec(W_WIDTH/2-100,200);
 	rect2->initialize();
 	rect2->generate_color();
 	rect2->orientation = (random(0,360)*(M_PI/180.0f));
 
 	std::unique_ptr<Body> rect3 = std::make_unique<Body>(POLYGON);
-	rect3->rect(60,60);
+	rect3->rect(size,size);
 	rect3->position = Vec(W_WIDTH/2,100);
 	rect3->initialize();
 	rect3->generate_color();
 	rect3->orientation = (random(0,360)*(M_PI/180.0f));
 	
 	std::unique_ptr<Body> rect4 = std::make_unique<Body>(POLYGON);
-	rect4->rect(60,60);
+	rect4->rect(size,size);
 	rect4->position = Vec(W_WIDTH/2+100,200);
 	rect4->initialize();
 	rect4->generate_color();
 	rect4->orientation = (random(0,360)*(M_PI/180.0f));
 
 	std::unique_ptr<Body> rect5 = std::make_unique<Body>(POLYGON);
-	rect5->rect(60,60);
+	rect5->rect(size,size);
 	rect5->position = Vec(W_WIDTH/2+200,150);
 	rect5->initialize();
 	rect5->generate_color();
 	rect5->orientation = (random(0,360)*(M_PI/180.0f));
 
-	Distance_constraint distance_constraint(rect1.get(),Vec(0,0),rect2.get(),Vec(0,0),100);	
-	Distance_constraint distance_constraint2(rect2.get(),Vec(0,0),rect3.get(),Vec(0,0),100);	
-	Distance_constraint distance_constraint3(rect3.get(),Vec(0,0),rect4.get(),Vec(0,0),100);	
-	Distance_constraint distance_constraint4(rect4.get(),Vec(30,0),rect5.get(),Vec(0,0),100);	
+	Distance_constraint distance_constraint(rect1.get(),Vec(0,0),rect2.get(),Vec(0,0),dist);	
+	Distance_constraint distance_constraint2(rect2.get(),Vec(0,0),rect3.get(),Vec(0,0),dist);	
+	Distance_constraint distance_constraint3(rect3.get(),Vec(0,0),rect4.get(),Vec(-size/2.0f,0),dist);	
+	Distance_constraint distance_constraint4(rect4.get(),Vec(size/2.0f,0),rect5.get(),Vec(0,0),dist);	
 
 	world.add_distance_constraint(distance_constraint);
 	world.add_distance_constraint(distance_constraint2);
 	world.add_distance_constraint(distance_constraint3);
 	world.add_distance_constraint(distance_constraint4);
 	
-	world.add_body(std::move(rect1));
-	world.add_body(std::move(rect2));
-	world.add_body(std::move(rect3));
-	world.add_body(std::move(rect4));
-	world.add_body(std::move(rect5));
+	world.add_body(rect1.get());
+	Bodies.push_back(std::move(rect1));
+
+	world.add_body(rect2.get());
+	Bodies.push_back(std::move(rect2));
+
+	world.add_body(rect3.get());
+	Bodies.push_back(std::move(rect3));
+
+	world.add_body(rect4.get());
+	Bodies.push_back(std::move(rect4));
+
+	world.add_body(rect5.get());
+	Bodies.push_back(std::move(rect5));
+
 }
 
 void add_world_surfaces() {
-	world.show_polymids(false);
-	world.show_broadphase(false);
-	world.show_collisions(false);
-	world.show_contacts(show_contacts);
-	world.show_connections(show_connections);
-	world.show_pbounds(false);
-	world.show_normals(false);
-	world.show_poly_outlines(false);
-	world.positional_correction_(positional_correction);
 	int overlap = 10;
 	float thickness = 1.5f;	
 	int height = thickness;
@@ -298,9 +314,12 @@ void add_world_surfaces() {
 	wall2->iI = 0;
 	wall2->im = 0;
 
-	world.add_body(std::move(wall1));	
-	world.add_body(std::move(wall2));
-	world.add_body(std::move(floor));
+	world.add_body(wall1.get());	
+	Bodies.push_back(std::move(wall1));	
+	world.add_body(wall2.get());
+	Bodies.push_back(std::move(wall2));
+	world.add_body(floor.get());
+	Bodies.push_back(std::move(floor));
 }
 
 
@@ -320,7 +339,7 @@ void stacking_test() {
 
 void setup_demo() {
 	joints_test();
-	//stress_test(100);
+	//stress_test(200);
 	//stacking_test();
 }
 
@@ -329,6 +348,18 @@ void initialize() {
 }
 
 int main() {
+
+	world.show_polymids(false);
+	world.show_broadphase(false);
+	world.show_collisions(false);
+	world.show_contacts(show_contacts);
+	world.show_connections(show_connections);
+	world.show_pbounds(false);
+	world.show_normals(false);
+	world.show_poly_outlines(false);
+	world.show_wireframe(show_wireframes);
+	world.positional_correction_(positional_correction);
+
 
 	srand (time(NULL));	
 	bool quit = false;

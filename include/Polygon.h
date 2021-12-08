@@ -14,7 +14,8 @@ class Polygon : public Shape {
 		int get_edges();
 		void clear_verts();
 		void add_vertex(Vec v);
-		Vec* get_vertex(int index);
+		inline Vec* get_vertex(int index);
+		void set_vertex(int index, Vec v);
 		Vec* prev_vertex(int index);	
 		Vec* next_vertex(int index);	
 		std::vector<Vec> verts;	
