@@ -38,6 +38,7 @@ class Body : public Polygon, public Circle {
 		~Body();
 		Vec position;
 		float w = 0;
+		bool visited = false;
 		Vec velocity;
 		float orientation = 0;
 		float im = (float) 1.0f/1000.0f;

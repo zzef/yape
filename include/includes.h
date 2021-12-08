@@ -2,30 +2,30 @@
 #define INCLUDES_H
 
 #define GRAVITY_SCALE 1000
-#define MAX_V 10
+#define MAX_V 8
 #define MIN_V 3
-#define GRAVITY 1.5
+#define GRAVITY 1.5f
 #define DEF_GRAV (GRAVITY_SCALE * GRAVITY)
-#define MAX_BODIES 1000
+#define MAX_BODIES 2000
 #define POLYGON 0
 #define CIRCLE 1
 #define MIN_POLY_RAD 30
 #define MAX_POLY_RAD 70
 #define MAX_INT 99999999
-#define QUAD_TREE_CAPACITY 5
+#define QUAD_TREE_CAPACITY 4
 
 #define WHITE 255,255,255
 #define GREEN 249,130,39
-#define DARK_GREY 30,30,30
-#define DARK_GREY_2 60,60,60
-#define DARK_GREY_3 100,100,100
+#define DARK_GREY 15,15,15
+#define DARK_GREY_2 40,40,40
+#define DARK_GREY_3 65,65,65
 #define YELLOW 222, 237, 11
 #define LIGHT_GREY 210,210,210
 #define SHOW_NORMALS 1 << 0
 #define SHOW_POLYMIDS 1 << 1
 #define SHOW_POLY_OUTLINES 1 << 2
 #define resolution_iterations 10
-#define FPS 60
+#define FPS 2000
 #define PPS 60
 const float dt = (float) 1.0f/((float)PPS);
 

@@ -24,24 +24,28 @@ struct Boundary {
 class QuadTree {
 	
 	private:
-		std::vector<Body*> bodies;
 		Boundary b;
-		bool subdivided=false;
 		int capacity=3;
-		
+		bool contains(float x, float y, float size);
+		bool intersect_sqr(float x, float y, float size);
+		bool intersect_boundary(Boundary b);
+		bool do_insert(Body* body);
+
+	public:
 		std::unique_ptr<QuadTree> TL;
 		std::unique_ptr<QuadTree> TR;
 		std::unique_ptr<QuadTree> BL;
 		std::unique_ptr<QuadTree> BR;
 
-		bool intersect_sqr(float x, float y, float size);
-
-	public:
+		std::vector<Body*> bodies;
+		bool subdivided=false;
 		QuadTree(Boundary b, int capacity);
 		QuadTree();
-		void subdivide(Boundary b, std::vector<Boundary>& boundaries);
-		void insert(Body* body, std::vector<Boundary>& boundaries);
-		void query(Body* b1, std::vector<Body*>& bods);
+		void subdivide(Boundary b);
+		void insert(Body* body);
+		void get_bounds(std::vector<Boundary>& boundaries);
+		void query(Body* b1, Body** bods, size_t& size);
+		void query(Boundary b, Body** bods, size_t& size);
 		
 
 	

@@ -33,6 +33,7 @@ bool physics_interpolation = true;
 bool box_mode = false;
 bool positional_correction = true;
 bool show_connections = true;
+bool show_broadphase = false;
 bool show_contacts = false;
 bool show_bounds = false;
 Display display(W_WIDTH,W_HEIGHT,WINDOW_TITLE);
@@ -42,24 +43,24 @@ void initialize();
 void setup_demo();
 
 void add_new_box(Vec position){
-	Body* rect1 = new Body(POLYGON);
+	std::unique_ptr<Body> rect1 = std::make_unique<Body>(POLYGON);
 	rect1->rect(60,60);
 	rect1->position = Vec(position);
 	rect1->orientation = 0;
 	rect1->generate_color();
 	rect1->initialize();
 	rect1->generate_color();
-	world.add_body(rect1);
+	world.add_body(std::move(rect1));
 }
 
 void add_new_polygon(Vec position) {
-	Body* a = new Body(POLYGON);
+	std::unique_ptr<Body> a = std::make_unique<Body>(POLYGON);
 	a->generate_polygon();
 	a->position = position;
 	a->orientation = random(0,360)*(M_PI/180.0f);
 	a->generate_color();
 	a->initialize();
-	world.add_body(a);
+	world.add_body(std::move(a));
 }
 /*
 void handle_mouse_motion(SDL_MouseMotionEvent e) {
@@ -129,6 +130,11 @@ void handle_keydown(sf::Keyboard::Key key) {
 			box_mode = !box_mode;
 			break;
 		}
+		case sf::Keyboard::M : {
+			show_broadphase = !show_broadphase;
+			world.show_broadphase(show_broadphase);
+			break;
+		}
 		case sf::Keyboard::X : {
 			world.clear_up();
 			world.clear_bodies();
@@ -186,16 +192,18 @@ void render(float ratio) {
 	std::string ave = "AVE FPS  " + std::to_string(ave_fps);
 	std::string phys = "PHYSICS UPDATES  " + std::to_string(_UPDATES);
 	std::string bodies = "BODIES  " + std::to_string(world.body_count());
+	std::string tests = "COLLISION TESTS  " + std::to_string(world.get_comparisons());
 	display.draw_text(20,20,fps,13);
 	display.draw_text(95,20,ave,13);
 	display.draw_text(195,20,phys,13);
 	display.draw_text(365,20,bodies,13);
+	display.draw_text(465,20,tests,13);
 	display.show();
 }
 
 void stress_test(int num) {
 	for (int i = 0; i < num; i++)
-		add_new_polygon(Vec(random(0,W_WIDTH),random(0,W_HEIGHT)));	
+		add_new_polygon(Vec(random(50,W_WIDTH-50),random(50,W_HEIGHT-50)));	
 }
 
 void joints_test() {
@@ -245,16 +253,16 @@ void joints_test() {
 	world.add_distance_constraint(distance_constraint3);
 	world.add_distance_constraint(distance_constraint4);
 	
-	world.add_body(rect1.get());
-	world.add_body(rect2.get());
-	world.add_body(rect3.get());
-	world.add_body(rect4.get());
-	world.add_body(rect5.get());
-
+	world.add_body(std::move(rect1));
+	world.add_body(std::move(rect2));
+	world.add_body(std::move(rect3));
+	world.add_body(std::move(rect4));
+	world.add_body(std::move(rect5));
 }
 
 void add_world_surfaces() {
 	world.show_polymids(false);
+	world.show_broadphase(false);
 	world.show_collisions(false);
 	world.show_contacts(show_contacts);
 	world.show_connections(show_connections);
@@ -267,7 +275,7 @@ void add_world_surfaces() {
 	int height = thickness;
 	int margin = 60;
 	int width = W_WIDTH-(margin*2)+overlap;
-	Body* floor = new Body(POLYGON);
+	std::unique_ptr<Body> floor = std::make_unique<Body>(POLYGON);
 	floor->rect(thickness,W_WIDTH-(margin*2)+(overlap*2));
 	floor->position = Vec(W_WIDTH/2,W_HEIGHT-((height/2)+margin));
 	floor->initialize();
@@ -276,23 +284,23 @@ void add_world_surfaces() {
 
 	float wh = W_HEIGHT-(margin*2)+(overlap);
 
-	Body* wall1 = new Body(POLYGON);
+	std::unique_ptr<Body> wall1 = std::make_unique<Body>(POLYGON);
 	wall1->rect(wh,thickness);
 	wall1->position = Vec((thickness/2.0f) + W_WIDTH - margin - thickness, margin + (thickness/2.0f)  + (wh/2));
 	wall1->initialize();	
 	wall1->iI = 0;
 	wall1->im = 0;
 
-	Body* wall2 = new Body(POLYGON);
+	std::unique_ptr<Body> wall2 = std::make_unique<Body>(POLYGON);
 	wall2->rect(wh,thickness);
 	wall2->position = Vec((thickness/2.0f) + margin, margin + (thickness/2.0f) + (wh/2));
 	wall2->initialize();	
 	wall2->iI = 0;
 	wall2->im = 0;
 
-	world.add_body(wall1);	
-	world.add_body(wall2);
-	world.add_body(floor);
+	world.add_body(std::move(wall1));	
+	world.add_body(std::move(wall2));
+	world.add_body(std::move(floor));
 }
 
 
@@ -311,8 +319,8 @@ void stacking_test() {
 }
 
 void setup_demo() {
-	//joints_test();
-	//stress_test(50);
+	joints_test();
+	//stress_test(100);
 	//stacking_test();
 }
 

@@ -11,7 +11,7 @@
 class World {
 	
 	private:
-		std::vector<Body*> Bodies;
+		std::vector<std::unique_ptr<Body>> Bodies;
 		std::vector<Boundary> bounds;
 		std::unique_ptr<Body> Bods[MAX_BODIES];
 		std::vector<Manifold> contacts;
@@ -21,7 +21,10 @@ class World {
 		std::vector<Distance_constraint> distance_constraints;
 		std::vector<std::pair<Vec,float>> circles;
 		QuadTree quadtree;
+		Body* potentials[2000];
 		int bodies = 0;
+		int p_size = 0;
+		size_t comparisons = 0;
 		float gravity = 0.5;
 		Vec mouse_position;
 		int glob_options = 0;
@@ -30,12 +33,14 @@ class World {
 		bool show_conts = true;
 		bool show_conns = true;
 		bool show_bounds = true;
+		bool show_bphase = false;
 		Color contact_color = {GREEN};
 		Color anchor_color = {GREEN};
 		Color dconstraint_color = {GREEN};
 		bool positional_correction = true;
 		bool mouse_down;
 		Display* display;
+		void do_broadphase(QuadTree* qt);
 		void reset_quadtree();
 		bool bounds_intersect(Body* A, Body* B);
 		void generate_pp_manifold(Body* a, Body* b);
@@ -59,12 +64,13 @@ class World {
 	public:
 		World(Display* display);
 		World(float gravity, Display* display);
+		void show_broadphase(bool show);
 		void positional_correction_(bool val);
 		void clear_bodies();
 		void clear_constraints();
 		std::unique_ptr<Body> get_body(int i);
 		int body_count();
-		void add_body(Body* b);
+		void add_body(std::unique_ptr<Body> b);
 		void remove_body(int i);
 		void remove_body(Body b);
 		void render(float ratio);
@@ -81,6 +87,7 @@ class World {
 		void show_pbounds(bool show);
 		void show_contacts(bool show);
 		void add_distance_constraint(Distance_constraint distance_constraint);
+		size_t get_comparisons();
 		void simulate();
 		void clear_up();
 

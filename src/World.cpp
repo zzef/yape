@@ -26,19 +26,22 @@ int World::body_count() {
 	return this->Bodies.size();
 }
 
-void World::add_body(Body* b) {
+void World::add_body(std::unique_ptr<Body> b) {
 	if (this->Bodies.size()>=MAX_BODIES)
 		return;
-	Bodies.push_back(b);
+	Bodies.push_back(std::move(b));
 	std::cout << "added" << std::endl;
+}
+
+size_t World::get_comparisons() {
+	return comparisons;
 }
 
 void World::render(float ratio) {
 	Color white = {WHITE};
 	for (int i = 0; i<this->Bodies.size(); i++) {
 
-		Body* b = Bodies[i];
-		
+		Body* b = Bodies[i].get();
 		if(b->get_mouse_contact()) {
 		}
 		//printf("ratio %f\n",ratio);
@@ -61,15 +64,17 @@ void World::render(float ratio) {
 
 	if (show_bounds) {
 		for (int i = 0; i<this->Bodies.size(); i++) {
-			Body* b = Bodies[i];
+			Body* b = Bodies[i].get();
 			Vec segment(b->_rad(),b->_rad());
 			Vec position = b->position - segment;
-			display->draw_box(position,segment.x*2,segment.y*2,0.75f,contact_color);
+			display->draw_box(position,segment.x*2,segment.y*2,0.5f,contact_color);
 		}
 	}
 
-	for (Boundary b : bounds) {
-		display->draw_box(Vec(b.x,b.y),b.w,b.h,0.5f,contact_color);
+	if (show_bphase) {
+		for (Boundary b : bounds) {
+			display->draw_box(Vec(b.x,b.y),b.w,b.h,0.25f,contact_color);
+		}
 	}
 
 
@@ -201,7 +206,7 @@ void World::integrate_forces() {
 	float time = dt / resolution_iterations;
 	for (int i = 0; i < this->Bodies.size(); i++) {
 
-		Body* b = this->Bodies[i];	
+		Body* b = this->Bodies[i].get();	
 		if (b->im==0)
 			continue;
 
@@ -223,7 +228,7 @@ void World::integrate_velocities() {
 	float time = dt / resolution_iterations;
 	for (int i = 0; i < this->Bodies.size(); i++) {
 
-		Body* b = this->Bodies[i];	
+		Body* b = this->Bodies[i].get();	
 		if (b->im==0)
 			continue;
 
@@ -245,13 +250,13 @@ void World::clear_up() {
 	this->circles.clear();
 	bounds.clear();
 	reset_quadtree();
-
+	comparisons = 0;
 }
 
 void World::simulate() {
 
 		for (int i = 0; i < this->Bodies.size(); i++) {
-			Body* b = this->Bodies[i];	
+			Body* b = this->Bodies[i].get();	
 			b->prev_pos = b->position;
 			b->prev_orientation = b->orientation;
 		}
@@ -261,7 +266,6 @@ void World::simulate() {
 			this->integrate_forces();
 			this->resolve_constraints();
 			this->broadphase();
-			this->generate_manifolds();
 			this->resolve_manifolds();
 			this->integrate_velocities();
 		}
@@ -273,7 +277,11 @@ void World::set_mouse_down(bool val) {
 }
 
 void World::show_collisions(bool show) {
-	this->show_coll = show;
+	//this->show_coll = show;
+}
+
+void World::show_broadphase(bool show) {
+	show_bphase = show;
 }
 
 void World::show_contacts(bool show) {
@@ -296,22 +304,27 @@ void World::resolve_manifolds() {
 		float mtvm = this->contacts[i].mtvm;
 		Vec mv = this->contacts[i].mtv * mtvm;
 		Vec mtv = this->contacts[i].mtv;
-		float contacts_ = this->contacts[i].no_contacts;	
+		int contacts_ = this->contacts[i].no_contacts;	
 		Vec sep_norm = mtv;
 			
 		float bias = this->positional_correction ? 0.5f : 0.0f;
 		float penetration_allowance = 0.05f;
 		float totji = 0.0f;
 
-		for (int j = 0; j<contacts_; j++) {
+		float wa = A->w;
+		float wb = B->w;
+		Vec velocity_a = A->velocity;
+		Vec velocity_b = B->velocity;
 
+		for (int j = 0; j<contacts_; j++) {
 			if (show_conts)
 				contact_points.push_back(this->contacts[i].contacts[j]);
 
 			Vec ra = this->contacts[i].contacts[j] - A->position;	
 			Vec rb = this->contacts[i].contacts[j] - B->position;
+			
 				
-			Vec rv = A->velocity + ra.cross(A->w) - (B->velocity + rb.cross(B->w)); 
+			Vec rv = velocity_a + ra.cross(wa) - (velocity_b + rb.cross(wb)); 
 	
 			if (rv.mag() < this->gravity * time ) // if collision is weaker than gravity then cause bodies to lose energy fast and come to rest 
 				e = 0.0f;
@@ -379,37 +392,47 @@ bool World::bounds_intersect(Body* A, Body* B) {
 	return false;
 }
 
+void World::do_broadphase(QuadTree* qt) {
 
-void World::broadphase() {
-	for (int i = 0; i<Bodies.size(); i++)
-		quadtree.insert(Bodies[i],bounds);	
-}
-
-void World::generate_manifolds() {
-
-	int comparisons = 0;
-	for(int i = 0; i<this->Bodies.size(); i++) {
-
-		Body* A = this->Bodies[i];
-		std::vector<Body*> potentials;
-		quadtree.query(A,potentials);
-
-		for ( Body* potential : potentials ) {
-			if (A->get_type()==POLYGON && potential->get_type()==POLYGON && A!=potential) {
-				this->generate_pp_manifold(A,potential);
-				comparisons++;
+	int l_size = 0;
+	for (Body* A : qt->bodies) {
+		for (int i = 0; i<p_size; i++) {
+			Body* B = potentials[i];
+			if (A->get_type()==POLYGON && B->get_type()==POLYGON && A!=B ) {
+				if (A->intersects(B)) {
+					comparisons++;
+					this->generate_pp_manifold(A,B);
+				}
 			}
 		}
-
-		printf("comparisons %d\n",comparisons);
-
+		potentials[p_size] = A;
+		p_size++;
+		l_size++;
 	}
+
+	if (qt->subdivided) {
+		do_broadphase(qt->TL.get());
+		do_broadphase(qt->TR.get());
+		do_broadphase(qt->BL.get());
+		do_broadphase(qt->BR.get());
+	}
+
+	p_size -= l_size;
+	
+
+}
+void World::broadphase() {
+
+	for (int i = 0; i<Bodies.size(); i++) {
+		quadtree.insert(Bodies[i].get());
+	}
+	quadtree.get_bounds(bounds);	
+	do_broadphase(&quadtree);
 }
 
 bool World::is_point_inside_circle(Body* b, Vec point) {
 	return (point - b->position).mag() <= b->Circle::get_radius();
 }
-
 
 bool World::is_point_inside_polygon(Body* b, Vec point) {
 
@@ -514,7 +537,7 @@ void World::generate_contact_points(Manifold& m)  {
 			
 	sep_norm = sep_norm * -1;
 	index = this->find_support_point(m.A,sep_norm);
-	Vec best_vertex1 = m.A->get_vertex(index)->rotate(m.A->orientation) + m.B->position;
+	Vec best_vertex1 = m.A->get_vertex(index)->rotate(m.A->orientation) + m.A->position;
 	//contact_points.push_back(best_vertex1);
 	Edge s_edge_2 = this->find_support_edge(m.A,index,sep_norm);
 	Vec e2(s_edge_2);
@@ -586,7 +609,6 @@ void World::generate_pp_manifold(Body* a, Body* b) {
 	Body* ref_poly = a;
 	Vec mtv_axis;
 	float mt = MAX_INT;
-
 	for (int s = 0; s < 2; s++) {	
 		
 		for (int i = 0; i < ref_poly->vertices-1; i++) {	
@@ -657,7 +679,7 @@ bool World::point_inside(Body* b, Vec point) {
 
 void World::detect_mouse_insidedness() {
 	for (int i = 0; i<this->Bodies.size(); i++) {
-		if(this->point_inside(this->Bodies[i],this->mouse_position)){
+		if(this->point_inside(this->Bodies[i].get(),this->mouse_position)){
 			this->Bodies[i]->mouse_contact(true);
 			this->Bodies[i]->prev_pos = Bodies[i]->position;
 			this->Bodies[i]->position = this->Bodies[i]->position + rel_mouse_position;

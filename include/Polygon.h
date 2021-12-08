@@ -26,10 +26,10 @@ class Polygon : public Shape {
 		int vertices = 0;
 		int edges = 0;
 		float _rad();
+		float rad = 0.0f;
 
 	private:
 		float radius = 200;
-		float rad = 0.0f;
 
 };
 
