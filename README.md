@@ -47,12 +47,7 @@ Here are some of the resources I used for this project. I know everyone loves Er
 - Lots and lots of code refactoring.
 
 ## Dependencies
-- libsfml
 - gcc
-
-To install libsfml on linux, run the following:
-
-`sudo apt-get install libsfml-dev`
 
 ## How to run
 You will need linux to run. Please do the following:
