@@ -63,6 +63,8 @@ You will need linux to run. Please do the following:
 
 `make`
 
+`make install`
+
 `./yape`
 
 ## How to use
